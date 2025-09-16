@@ -63,6 +63,8 @@ npm run dev
 http://localhost:3000
 ```
 
+---
+
 ## 📌 Roadmap
 
 - Criar página de dashboard com integração real ao Spotify API
