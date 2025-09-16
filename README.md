@@ -1,6 +1,7 @@
 # 🎧 [Beatplay](https://beat-play-two.vercel.app/)
 
 > Descubra músicas de um jeito novo conectando sua conta Spotify.
+
 > ⚠️ Projeto em **início de desenvolvimento** - funcionalidades ainda estão sendo implementadas.
 
 [![Deploy Vercel](https://img.shields.io/badge/deploy-Vercel-black?logo=vercel)](https://beat-play-two.vercel.app/)
