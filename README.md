@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎧 [Beatplay](https://beat-play-two.vercel.app/)
 
-## Getting Started
+> Descubra músicas de um jeito novo conectando sua conta Spotify.
+> ⚠️ Projeto em **início de desenvolvimento** - funcionalidades ainda estão sendo implementadas.
 
-First, run the development server:
+[![Deploy Vercel](https://img.shields.io/badge/deploy-Vercel-black?logo=vercel)](https://beat-play-two.vercel.app/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38B2AC?logo=tailwindcss)](https://tailwindcss.com/)
+[![NextAuth](https://img.shields.io/badge/Auth-NextAuth.js-2596be?logo=auth0)](https://next-auth.js.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript)](https://www.typescriptlang.org/)
 
-```bash
+---
+
+## 🚀 Visão Geral
+
+O **Beatplay** é uma aplicação web construída com **Next.js 15, TailwindCSS e NextAuth**, que permite ao usuário autenticar-se com sua conta do Spotify e começar a explorar músicas de forma diferente.
+
+Atualmente, o projeto conta com:
+
+- 🎨 Interface moderna com **TailwindCSS**
+- 🔑 Login via **Spotify OAuth** (NextAuth)
+- 🌐 Deploy automático na **Vercel**
+- 📱 Layout responsivo
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+- [Next.js 15](https://nextjs.org/)
+- [React 19](https://react.dev/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [NextAuth.js](https://next-auth.js.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+
+---
+
+## ⚙️ Como Rodar Localmente
+
+1. **Clonar o repositório**
+```
+git clone https://github.com/UelintonHJ/beat-play
+cd beatplay
+```
+2. Instalar dependências
+```
+npm install
+```
+3. Configurar variáveis de ambiente
+Crie um arquivo **.env.local** na raiz do projeto:
+```
+SPOTIFY_CLIENT_ID=seu_client_id
+SPOTIFY_CLIENT_SECRET=seu_client_secret
+NEXTAUTH_SECRET=uma_chave_aleatoria
+NEXTAUTH_URL=http://localhost:3000
+```
+4. Rodar em ambiente de desenvolvimento
+```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+5. Abrir no navegador
+```
+http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📌 Roadmap
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Criar página de dashboard com integração real ao Spotify API
+- Implementar recomendações musicais personalizadas
+- Melhorar experiência mobile
+- Adicionar testes automatizados
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📜 Licença
 
-To learn more about Next.js, take a look at the following resources:
+Este projeto é de uso pessoal/educacional.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
