@@ -1,7 +1,7 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import SpotifyProvider from "next-auth/providers/spotify";
 
-export const GET = NextAuth({
+export const authOptions: NextAuthOptions = {
     providers: [
         SpotifyProvider({
             clientId: process.env.SPOTIFY_CLIENT_ID!,
@@ -10,5 +10,8 @@ export const GET = NextAuth({
         }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
-});
-export const POST = GET;
+};
+
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
