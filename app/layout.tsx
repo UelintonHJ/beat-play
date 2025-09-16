@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Beatplay",
   description: "Descubra músicas de um jeito novo",
   icons: {
-    icon: "/logo-icon.png",
+    icon: "/logo-favicon.png",
   },
 };
 
