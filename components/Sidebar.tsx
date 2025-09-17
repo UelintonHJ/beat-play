@@ -1,0 +1,70 @@
+"use client";
+
+import Image from "next/image";
+import { signOut } from "next-auth/react";
+import { Home, Music, User, Settings } from "lucide-react";
+
+interface SidebarProps {
+    user?: {
+        name?: string | null;
+        image?: string | null;
+    };
+}
+
+export default function Sidebar({ user }: SidebarProps) {
+    return (
+        <aside className="h-screen w-64 bg-black/80 text-gray-200 flex flex-col justify-between p-6">
+            {/* Topo: Logo + Navegação */}
+            <div>
+                {/* Logo */}
+                <div className="flex items-center gap-2 mb-10">
+                    <Image
+                        src="/logotipo.png"
+                        alt="Beatplay logo"
+                        width={40}
+                        height={40}
+                    />
+                    <span className="font-bold text-lg">Beatplay</span>
+                </div>
+
+                {/* Links de navegação */}
+                <nav className="flex flex-col gap-4">
+                    <a href="/dashboard" className="flex items-center gap-3 hover:text-white transition">
+                        <Home size={20} /> Home
+                    </a>
+                    <a href="/dashboard/playlists" className="flex items-center gap-3 hover:text-white transition">
+                        <Home size={20} /> Playlists
+                    </a>
+                    <a href="/dashboard/artistas" className="flex items-center gap-3 hover:text-white transition">
+                        <Home size={20} /> Artistas
+                    </a>
+                    <a href="/dashboard/configuracoes" className="flex items-center gap-3 hover:text-white transition">
+                        <Home size={20} /> Configurações
+                    </a>
+                </nav>
+            </div>
+
+            {/* Rodapé: Avatar + Logout */}
+            <div className="flex items-center gap-3">
+                {user?.image && (
+                    <Image 
+                        src={user.image}
+                        alt={user.name || "Avatar"}
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                    />
+                )}
+                <div className="flex flex-col">
+                    <span className="text-sm font-semibold">{user?.name}</span>
+                    <button
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                        className="text-xs text-red-400 hover:text-red-500 transition"
+                    >
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </aside>
+    );
+}
