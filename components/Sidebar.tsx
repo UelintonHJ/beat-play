@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Home, Music, User, Settings } from "lucide-react";
 
@@ -29,18 +30,18 @@ export default function Sidebar({ user }: SidebarProps) {
 
                 {/* Links de navegação */}
                 <nav className="flex flex-col gap-4">
-                    <a href="/dashboard" className="flex items-center gap-3 hover:text-white transition">
+                    <Link href="/dashboard" className="flex items-center gap-3 hover:text-white transition">
                         <Home size={20} /> Home
-                    </a>
-                    <a href="/dashboard/playlists" className="flex items-center gap-3 hover:text-white transition">
-                        <Home size={20} /> Playlists
-                    </a>
-                    <a href="/dashboard/artistas" className="flex items-center gap-3 hover:text-white transition">
-                        <Home size={20} /> Artistas
-                    </a>
-                    <a href="/dashboard/configuracoes" className="flex items-center gap-3 hover:text-white transition">
-                        <Home size={20} /> Configurações
-                    </a>
+                    </Link>
+                    <Link href="/dashboard/playlists" className="flex items-center gap-3 hover:text-white transition">
+                        <Music size={20} /> Playlists
+                    </Link>
+                    <Link href="/dashboard/artistas" className="flex items-center gap-3 hover:text-white transition">
+                        <User size={20} /> Artistas
+                    </Link>
+                    <Link href="/dashboard/configuracoes" className="flex items-center gap-3 hover:text-white transition">
+                        <Settings size={20} /> Configurações
+                    </Link>
                 </nav>
             </div>
 
