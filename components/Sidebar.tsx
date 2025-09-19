@@ -18,14 +18,14 @@ export default function Sidebar({ user }: SidebarProps) {
             {/* Topo: Logo + Navegação */}
             <div>
                 {/* Logo */}
-                <div className="flex items-center gap-2 mb-10">
+                <div className="flex items-center justify-center mb-10">
                     <Image
                         src="/logotipo.png"
                         alt="Beatplay logo"
-                        width={40}
+                        width={140}
                         height={40}
+                        priority
                     />
-                    <span className="font-bold text-lg">Beatplay</span>
                 </div>
 
                 {/* Links de navegação */}
