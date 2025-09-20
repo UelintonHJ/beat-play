@@ -46,7 +46,7 @@ export default function Sidebar({ user }: SidebarProps) {
             </div>
 
             {/* Rodapé: Avatar + Logout */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col justify-center items-center gap-3">
                 {user?.image && (
                     <Image 
                         src={user.image}

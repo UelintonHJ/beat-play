@@ -34,7 +34,6 @@ export default function Home() {
         </p>
 
         {/* Botão de login */}
-        <div className="flex justify-center w-full">
           <button
             onClick={() => signIn("spotify", { callbackUrl: "/dashboard" })}
             className="mt-6 flex items-center gap-3 bg-green-500 hover:bg-green-600 text-black font-semibold px-6 py-3 rounded-full shadow-lg transition"
@@ -47,7 +46,6 @@ export default function Home() {
             />
             Entrar com Spotify
           </button>
-        </div>
       </div>
     </main>
   );
