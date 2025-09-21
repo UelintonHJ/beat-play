@@ -80,7 +80,7 @@ export default async function DashboardPage() {
                             />
                         ))
                     ) : (
-                        <p className="text-gray-400">Nenhuma playlist encontrada no Spotify.</p>
+                        <p className="text-gray-400 whitespace-nowrap">Nenhuma playlist encontrada no Spotify.</p>
                     )}
                 </div>
             </section>
