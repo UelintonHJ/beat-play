@@ -3,6 +3,14 @@ import { Session } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import PlaylistCard from "@/components/PlaylistCard";
 
+type Playlist = {
+    id: string,
+    name: string,
+    owner: string,
+    image: string,
+    spotifyUrl: string,
+};
+
 export default async function DashboardPage() {
     interface CustomSessions extends Session {
         accessToken?: string;
@@ -17,7 +25,7 @@ export default async function DashboardPage() {
                 Authorization: `Bearer ${token}`,
             },
         });
-        
+
         if (!res.ok) {
             throw new Error("Não foi possível buscar as playlists do Spotify");
         }
@@ -32,32 +40,25 @@ export default async function DashboardPage() {
         }));
     }
 
-    const playlists = [
-        {
-            id: "1",
-            name: "Psytrance Vibes",
-            owner: "Uelinton",
-            image: "/playlist-mock.jpg",
-            spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DX4dyzvuaRJ0n"
-        },
-        {
-            id: "2",
-            name: "Rock de Boteco",
-            owner: "Uelinton",
-            image: "/playlist-mock.jpg",
-            spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DWXRqgorJj26U"
-        },
-    ];
+    let playlists: Playlist[] = [];
+
+    if (accessToken) {
+        try {
+            playlists = await fetchSpotifyPlaylists(accessToken);
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <div className="text-white p-8">
             <h1 className="text-2x1 font-bold mb-4">Bem-vindo ao Beatplay</h1>
 
-            {session && (
-                <section>
-                    <h2 className="text-xl font-semibold mb-4">Minhas Plylists</h2>
-                    <div className="grid grid-cols-2 mb:grid-cols-3 lg:grid-cols-4 gap-6 px-2 md:px-4">
-                        {playlists.map((playlist) => (
+            <section>
+                <h2 className="text-xl font-semibold mb-4">Minhas Plylists</h2>
+                <div className="grid grid-cols-2 mb:grid-cols-3 lg:grid-cols-4 gap-6 px-2 md:px-4">
+                    {playlists.length > 0 ? (
+                        playlists.map((playlist) => (
                             <PlaylistCard
                                 key={playlist.id}
                                 name={playlist.name}
@@ -65,10 +66,12 @@ export default async function DashboardPage() {
                                 image={playlist.image}
                                 spotifyUrl={playlist.spotifyUrl}
                             />
-                        ))}
-                    </div>
-                </section>
-            )}
+                        ))
+                    ) : (
+                        <p className="text-gray-400">Nenhuma playlist encontrada no Spotify.</p>
+                    )}
+                </div>
+            </section>
         </div>
     );
 }
