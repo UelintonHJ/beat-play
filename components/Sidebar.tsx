@@ -60,7 +60,7 @@ export default function Sidebar({ user }: SidebarProps) {
                     <span className="text-sm font-semibold">{user?.name}</span>
                     <button
                         onClick={() => signOut({ callbackUrl: "/" })}
-                        className="text-xs text-red-400 hover:text-red-500 transition"
+                        className="text-xs text-red-400 hover:text-red-500 hover:text-white px2 py1 rounded transition"
                     >
                         Sair
                     </button>
