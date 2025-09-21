@@ -25,9 +25,7 @@ export default async function DashboardPage() {
     return (
         <div className="text-white p-8">
             <h1 className="text-2x1 font-bold mb-4">Bem-vindo ao Beatplay</h1>
-            <div>
-                <p className="text-gray-300">Logado como <span className="font-semibold">{session.user?.name}</span></p>
-            </div>
+            
             {session && (
                 <section>
                     <h2 className="text-xl font-semibold mb-4">Minhas Plylists</h2>
