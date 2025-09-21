@@ -10,7 +10,6 @@ export default async function DashboardPage() {
             {session && (
                 <div>
                     <p className="text-gray-300">Logado como <span className="font-semibold">{session.user?.name}</span> {session.user?.name}</p>
-                    <img src={session.user?.image || ""} alt="Avatar" className="w-16 h-16"/>
                 </div>
             )}
         </div>
