@@ -10,6 +10,20 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    callbacks: {
+        async jwt({ token, account }) {
+            if (account?.access_token) {
+                token.accessToken = account.access_token;
+            }
+            return token;
+        },
+        async session ({ session, token }) {
+            return {
+                ...session,
+                accessToken: token.accessToken,
+            };
+        },
+    },
 };
 
 const handler = NextAuth(authOptions);
