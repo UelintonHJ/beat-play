@@ -1,9 +1,15 @@
 import { getServerSession } from "next-auth";
+import { Session } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import PlaylistCard from "@/components/PlaylistCard";
 
 export default async function DashboardPage() {
-    const session = await getServerSession(authOptions);
+    interface CustomSessions extends Session {
+        accessToken?: string;
+    }
+
+    const session = await getServerSession(authOptions) as CustomSessions;
+    const accessToken = session.accessToken;
 
     const playlists = [
         {
