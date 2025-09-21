@@ -29,7 +29,7 @@ export default async function DashboardPage() {
             {session && (
                 <section>
                     <h2 className="text-xl font-semibold mb-4">Minhas Plylists</h2>
-                    <div className="grid grid-cols-2 mb:grid-cols-3 lg:grid-cols-4 gp-6 px-2 md:px-4">
+                    <div className="grid grid-cols-2 mb:grid-cols-3 lg:grid-cols-4 gap-6 px-2 md:px-4">
                         {playlists.map((playlist) => (
                             <PlaylistCard
                                 key={playlist.id}
