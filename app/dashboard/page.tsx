@@ -25,11 +25,11 @@ export default async function DashboardPage() {
     return (
         <div className="text-white p-8">
             <h1 className="text-2x1 font-bold mb-4">Bem-vindo ao Beatplay</h1>
-            
+
             {session && (
                 <section>
                     <h2 className="text-xl font-semibold mb-4">Minhas Plylists</h2>
-                    <div className="grid grid-cols-2 mb:grid-cols-3 lg:grid-cols-4 gp-6">
+                    <div className="grid grid-cols-2 mb:grid-cols-3 lg:grid-cols-4 gp-6 px-2 md:px-4">
                         {playlists.map((playlist) => (
                             <PlaylistCard
                                 key={playlist.id}
