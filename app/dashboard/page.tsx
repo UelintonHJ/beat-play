@@ -11,6 +11,27 @@ export default async function DashboardPage() {
     const session = await getServerSession(authOptions) as CustomSessions;
     const accessToken = session.accessToken;
 
+    async function fetchSpotifyPlaylists(token: string) {
+        const res = await fetch("https://api.spotify.com/v1/me/playlists?limit=20", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        
+        if (!res.ok) {
+            throw new Error("Não foi possível buscar as playlists do Spotify");
+        }
+
+        const data = await res.json();
+        return data.items.map((playlist: any) => ({
+            id: playlist.id,
+            name: playlist.name,
+            owner: playlist.owner.display_name,
+            image: playlist.images[0]?.url || "/playlist-mock.jpg",
+            spotifyUrl: playlist.external_urls.spotify,
+        }));
+    }
+
     const playlists = [
         {
             id: "1",
