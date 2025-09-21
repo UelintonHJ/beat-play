@@ -9,7 +9,7 @@ export default async function DashboardPage() {
             <h1 className="text-2x1 font-bold mb-4">Bem-vindo ao Beatplay</h1>
             {session && (
                 <div>
-                    <p className="text-gray-300">Logado como <span className="font-semibold">{session.user?.name}</span> {session.user?.name}</p>
+                    <p className="text-gray-300">Logado como <span className="font-semibold">{session.user?.name}</span></p>
                 </div>
             )}
         </div>
