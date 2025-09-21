@@ -11,6 +11,18 @@ type Playlist = {
     spotifyUrl: string,
 };
 
+interface SpotifyPlaylist {
+    id: string,
+    name: string,
+    owner: {
+        display_name: string,
+    };
+    images: { url: string }[];
+    external_urls: {
+        spotify: string;
+    };
+}
+
 export default async function DashboardPage() {
     interface CustomSessions extends Session {
         accessToken?: string;
@@ -19,7 +31,7 @@ export default async function DashboardPage() {
     const session = await getServerSession(authOptions) as CustomSessions;
     const accessToken = session.accessToken;
 
-    async function fetchSpotifyPlaylists(token: string) {
+    async function fetchSpotifyPlaylists(token: string): Promise<Playlist[]> {
         const res = await fetch("https://api.spotify.com/v1/me/playlists?limit=20", {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -31,7 +43,7 @@ export default async function DashboardPage() {
         }
 
         const data = await res.json();
-        return data.items.map((playlist: any) => ({
+        return (data.items as SpotifyPlaylist[]) .map((playlist) => ({
             id: playlist.id,
             name: playlist.name,
             owner: playlist.owner.display_name,
