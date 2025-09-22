@@ -44,13 +44,18 @@ export default async function DashboardPage() {
 
         const data = await res.json() as { items: SpotifyPlaylist[] };
 
-        return data.items.map((playlist) => ({
-            id: playlist.id,
-            name: playlist.name,
-            owner: playlist.owner?.display_name || "Desconhecido",
-            image: playlist.images?.length > 0 ? playlist.images[0].url : "/playlist-mock.jpg",
-            spotifyUrl: playlist.external_urls.spotify,
-        }));
+        return data.items.map((playlist) => {
+            console.log("Playlist:", playlist.name, playlist.images);
+
+            return {
+                id: playlist.id,
+                name: playlist.name,
+                owner: playlist.owner?.display_name || "Desconhecido",
+                image: playlist.images?.length > 0 ? playlist.images[0].url : "/playlist-mock.jpg",
+                spotifyUrl: playlist.external_urls.spotify,
+            };
+
+        });
     }
 
     let playlists: Playlist[] = [];
