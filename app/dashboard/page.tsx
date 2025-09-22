@@ -55,6 +55,8 @@ export default async function DashboardPage() {
 
     let playlists: Playlist[] = [];
 
+    console.log("Session data:", session);
+
     if (accessToken) {
         try {
             playlists = await fetchSpotifyPlaylists(accessToken);
