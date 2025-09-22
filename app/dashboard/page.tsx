@@ -63,6 +63,8 @@ export default async function DashboardPage() {
         }
     }
 
+    console.log("Playlists recebidas do Spotify:", playlists);
+
     return (
         <div className="text-white p-8">
             <h1 className="text-2x1 font-bold mb-4">Bem-vindo ao Beatplay</h1>
