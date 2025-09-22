@@ -51,7 +51,7 @@ export default async function DashboardPage() {
                 id: playlist.id,
                 name: playlist.name,
                 owner: playlist.owner?.display_name || "Desconhecido",
-                image: playlist.images?.length > 0 ? playlist.images[0].url : "/playlist-mock.jpg",
+                image: playlist.images && playlist.images.length > 0 ? playlist.images[0].url : "/playlist-mock.jpg",
                 spotifyUrl: playlist.external_urls.spotify,
             };
 
