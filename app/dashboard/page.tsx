@@ -1,27 +1,15 @@
 import { getServerSession } from "next-auth";
 import { Session } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
-import PlaylistCard from "@/components/PlaylistCard";
+import PlaylistsSection from "@/components/PlaylistsSection";
 
 type Playlist = {
-    id: string,
-    name: string,
-    owner: string,
-    image: string,
-    spotifyUrl: string,
+    id: string;
+    name: string;
+    owner: string;
+    image: string;
+    spotifyUrl: string;
 };
-
-interface SpotifyPlaylist {
-    id: string,
-    name: string,
-    owner: {
-        display_name: string,
-    };
-    images: { url: string }[];
-    external_urls: {
-        spotify: string;
-    };
-}
 
 export default async function DashboardPage() {
     interface CustomSessions extends Session {
@@ -43,7 +31,8 @@ export default async function DashboardPage() {
         }
 
         const data = await res.json();
-        return (data.items as SpotifyPlaylist[]) .map((playlist) => ({
+
+        return data.items.map((playlist: any) => ({
             id: playlist.id,
             name: playlist.name,
             owner: playlist.owner.display_name,
@@ -65,25 +54,7 @@ export default async function DashboardPage() {
     return (
         <div className="text-white p-8">
             <h1 className="text-2x1 font-bold mb-4">Bem-vindo ao Beatplay</h1>
-
-            <section>
-                <h2 className="text-xl font-semibold mb-4">Minhas Plylists</h2>
-                <div className="grid grid-cols-2 mb:grid-cols-3 lg:grid-cols-4 gap-6 px-2 md:px-4">
-                    {playlists.length > 0 ? (
-                        playlists.map((playlist) => (
-                            <PlaylistCard
-                                key={playlist.id}
-                                name={playlist.name}
-                                owner={playlist.owner}
-                                image={playlist.image}
-                                spotifyUrl={playlist.spotifyUrl}
-                            />
-                        ))
-                    ) : (
-                        <p className="text-gray-400 whitespace-nowrap">Nenhuma playlist encontrada no Spotify.</p>
-                    )}
-                </div>
-            </section>
+            <PlaylistsSection playlists={playlists} />
         </div>
     );
 }
