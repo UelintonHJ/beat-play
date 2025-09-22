@@ -43,7 +43,6 @@ export default async function DashboardPage() {
         }
 
         const data = await res.json();
-        console.log("Spotify playlists response:", JSON.stringify(data, null, 1));
         return (data.items as SpotifyPlaylist[]) .map((playlist) => ({
             id: playlist.id,
             name: playlist.name,
@@ -54,8 +53,6 @@ export default async function DashboardPage() {
     }
 
     let playlists: Playlist[] = [];
-
-    console.log("Session data:", session);
 
     if (accessToken) {
         try {
