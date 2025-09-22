@@ -45,7 +45,6 @@ export default async function DashboardPage() {
         const data = await res.json() as { items: SpotifyPlaylist[] };
 
         return data.items.map((playlist) => {
-            console.log("Playlist:", playlist.name, playlist.images);
 
             return {
                 id: playlist.id,
