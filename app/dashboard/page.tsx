@@ -3,6 +3,18 @@ import { Session } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
 import PlaylistsSection from "@/components/PlaylistsSection";
 
+interface SpotifyPlaylist {
+    id: string;
+    name: string;
+    owner: {
+        display_name: string;
+    };
+    images: { url: string }[];
+    external_urls: {
+        spotify: string;
+    };
+}
+
 type Playlist = {
     id: string;
     name: string;
@@ -30,9 +42,9 @@ export default async function DashboardPage() {
             throw new Error("Não foi possível buscar as playlists do Spotify");
         }
 
-        const data = await res.json();
+        const data = await res.json() as { items: SpotifyPlaylist[] };
 
-        return data.items.map((playlist: any) => ({
+        return data.items.map((playlist) => ({
             id: playlist.id,
             name: playlist.name,
             owner: playlist.owner.display_name,
