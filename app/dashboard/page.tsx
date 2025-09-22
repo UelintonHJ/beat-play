@@ -31,6 +31,8 @@ export default async function DashboardPage() {
     const session = await getServerSession(authOptions) as CustomSessions;
     const accessToken = session.accessToken;
 
+    console.log("Access Token Spotify:", accessToken);
+
     async function fetchSpotifyPlaylists(token: string): Promise<Playlist[]> {
         const res = await fetch("https://api.spotify.com/v1/me/playlists?limit=20", {
             headers: {
