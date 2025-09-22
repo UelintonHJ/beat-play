@@ -1,3 +1,5 @@
+"use client";
+
 import PlaylistCard from "./PlaylistCard";
 import { ChevronRight } from "lucide-react";
 
