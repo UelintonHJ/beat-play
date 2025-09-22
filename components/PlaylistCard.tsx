@@ -24,8 +24,8 @@ export default function PlaylistCard({ name, owner, image, spotifyUrl }: Playlis
                 height={160}
                 className="rounded-lg mb-3"
             />
-            <h3 className="text-white font-semibold truncate w-full">{name}</h3>
-            <p className="text-gray-400 text-sm">por {owner}</p>
+            <h3 className="text-white font-semibold truncate w-40">{name}</h3>
+            <p className="text-gray-400 text-sm truncate w-40">por {owner}</p>
         </a>
     );
 }
