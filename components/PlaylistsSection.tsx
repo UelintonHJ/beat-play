@@ -27,11 +27,6 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 5000);
-        return () => clearTimeout(timer);
-    }, []);
-
     const updateScrollButtons = () => {
         const container = containerRef.current;
         if (container) {
@@ -41,7 +36,10 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
     };
 
     useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 5000);
+
         updateScrollButtons();
+
         const container = containerRef.current;
         if (!container) return;
 
@@ -82,6 +80,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         window.addEventListener("resize", updateScrollButtons);
 
         return () => {
+            clearTimeout(timer);
             container?.removeEventListener("scroll", updateScrollButtons);
             container?.removeEventListener("wheel", handleWheel);
             window.removeEventListener("resize", updateScrollButtons);
@@ -118,8 +117,8 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 {/* Container horizontal com overflow oculto */}
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {loading
-                        ? Array.from({ length: 5 }).map((_, idx) => (
-                            <div key={idx} className="w-40 h-52 bg-neutral-700 animate-pulse rounded-lg" />
+                        ? Array.from({ length: playlists.length || 5 }).map((_, idx) => (
+                            <div key={idx} className="w-40 h-52 bg-neutral-700 animate-pulse rounded-md" />
                         ))
                         : playlists.length > 0
                             ? playlists.map((playlist) => (
