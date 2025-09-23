@@ -60,7 +60,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 {canScrollLeft && (
                     <button 
                         onClick={() => scroll("left")}
-                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white px-3 py-2 rounded-full z-10" 
+                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition shadow-lg hover:shadow-x1 hover:shadow-green-500/20" 
                     >
                         <ChevronLeft size={20}/>
                     </button>
@@ -88,7 +88,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 {/* Botão para avançar */}
                 {canScrollRight && (
                     <button onClick={() => scroll("right")}
-                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white px-3 py-2 rounded-full z-10"
+                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 items-center justify-center rounded-full z-10 transition shadow-lg hover:shadow-x1 hover:shadow-green-500/20"
                     >
                         <ChevronRight size={20}/>
                     </button>
