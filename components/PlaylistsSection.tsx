@@ -43,7 +43,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
             scrollTargetRef.current += e.deltaY * 2;
-            if (!isScrollingRef) requestAnimationFrame(smoothScrollRef.current);
+            if (!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
         };
 
         const smoothScroll = () => {
