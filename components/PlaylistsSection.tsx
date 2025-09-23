@@ -36,8 +36,6 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
     };
 
     useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 5000);
-
         updateScrollButtons();
 
         const container = containerRef.current;
@@ -80,7 +78,6 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         window.addEventListener("resize", updateScrollButtons);
 
         return () => {
-            clearTimeout(timer);
             container?.removeEventListener("scroll", updateScrollButtons);
             container?.removeEventListener("wheel", handleWheel);
             window.removeEventListener("resize", updateScrollButtons);
