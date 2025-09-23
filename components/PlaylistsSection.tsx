@@ -63,10 +63,10 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         container?.addEventListener("scroll", updateScrollButtons);
         container?.addEventListener("wheel", handleWheel, { passive: false });
         window.addEventListener("resize", updateScrollButtons);
-        
+
         return () => {
             container?.removeEventListener("scroll", updateScrollButtons);
-            container?.addEventListener("wheel", handleWheel);
+            container?.removeEventListener("wheel", handleWheel);
             window.removeEventListener("resize", updateScrollButtons);
         };
     }, []);
