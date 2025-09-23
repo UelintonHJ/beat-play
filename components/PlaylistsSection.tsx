@@ -60,14 +60,14 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 {canScrollLeft && (
                     <button 
                         onClick={() => scroll("left")}
-                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-shadow shadow-lg hover:shadow-xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)]" 
+                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-shadow shadow-xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.3)]" 
                     >
                         <ChevronLeft size={18}/>
                     </button>
                 )}
 
                 {/* Container horizontal com overflow oculto */}
-                <div className="flex gap-4 overflow-x-auto px-6" ref={containerRef}>
+                <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {playlists.length > 0 ? (
                         playlists.map((playlist) => (
                             <PlaylistCard
@@ -88,7 +88,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 {/* Botão para avançar */}
                 {canScrollRight && (
                     <button onClick={() => scroll("right")}
-                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-shadow shadow-lg hover:shadow-xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)]"
+                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-shadow shadow-lg hover:shadow-[0_8px_30px_rgba(16,185,129,0.3)]"
                     >
                         <ChevronRight size={18}/>
                     </button>
