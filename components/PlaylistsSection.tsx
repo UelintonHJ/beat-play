@@ -87,6 +87,10 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         };
     }, []);
 
+    useEffect(() => {
+        updateScrollButtons();
+    }, [loading, playlists]);
+
     const scroll = (direction: "left" | "right") => {
         const container = containerRef.current;
         if (container) {
