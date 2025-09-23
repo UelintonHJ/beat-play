@@ -58,6 +58,8 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
             const move = diff * 0.22;
             el.scrollLeft += move;
 
+            updateScrollButtons();
+
             if(Math.abs(diff) > 0.5) {
                 requestAnimationFrame(smoothScrollRef.current);
             } else {
