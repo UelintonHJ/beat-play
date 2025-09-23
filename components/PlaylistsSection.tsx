@@ -32,20 +32,38 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
     useEffect(() => {
         updateScrollButtons();
         const container = containerRef.current;
+        if (!container) return;
+
+        let isScrolling = false;
+        let scrollTarget = 0;
 
         const handleWheel = (e: WheelEvent) => {
-            if (!container) return;
             e.preventDefault();
-            container.scrollBy({
-                left: e.deltaY * 3,
-                behavior: "smooth",
-            });
+            scrollTarget += e.deltaY * 2;
+            if (!isScrolling) requestAnimationFrame(smoothScroll);
+        };
+
+        const smoothScroll = () => {
+            if (!container) return;
+            isScrolling = true;
+
+            const diff = scrollTarget - container.scrollLeft;
+            const move = diff * 0.2;
+            container.scrollLeft += move;
+
+            if (Math.abs(diff) > 0.5) {
+                requestAnimationFrame(smoothScroll);
+            } else {
+                isScrolling = false;
+                scrollTarget = container.scrollLeft;
+            }
         };
 
 
         container?.addEventListener("scroll", updateScrollButtons);
         container?.addEventListener("wheel", handleWheel, { passive: false });
         window.addEventListener("resize", updateScrollButtons);
+        
         return () => {
             container?.removeEventListener("scroll", updateScrollButtons);
             container?.addEventListener("wheel", handleWheel);
