@@ -17,9 +17,13 @@ interface PlaylistsSectionProps {
 }
 
 export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
-    const containerRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
+
+    const scrollTargetRef = useRef<number>(0);
+    const isScrollingRef = useRef<boolean>(false);
+    const smoothScrollRef = useRef<() => void>(() => {});
 
     const updateScrollButtons = () => {
         const container = containerRef.current;
@@ -34,31 +38,35 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         const container = containerRef.current;
         if (!container) return;
 
-        let isScrolling = false;
-        let scrollTarget = 0;
+        scrollTargetRef.current = container.scrollLeft;
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            scrollTarget += e.deltaY * 2;
-            if (!isScrolling) requestAnimationFrame(smoothScroll);
+            scrollTargetRef.current += e.deltaY * 2;
+            if (!isScrollingRef) requestAnimationFrame(smoothScrollRef.current);
         };
 
         const smoothScroll = () => {
-            if (!container) return;
-            isScrolling = true;
+            const el = containerRef.current;
+            if(!el) {
+                isScrollingRef.current = false;
+                return;
+            }
 
-            const diff = scrollTarget - container.scrollLeft;
-            const move = diff * 0.2;
-            container.scrollLeft += move;
+            isScrollingRef.current = true;
+            const diff = scrollTargetRef.current - el.scrollLeft;
+            const move = diff * 0.22;
+            el.scrollLeft += move;
 
-            if (Math.abs(diff) > 0.5) {
-                requestAnimationFrame(smoothScroll);
+            if(Math.abs(diff) > 0.5) {
+                requestAnimationFrame(smoothScrollRef.current);
             } else {
-                isScrolling = false;
-                scrollTarget = container.scrollLeft;
+                isScrollingRef.current = false;
+                scrollTargetRef.current = el.scrollLeft;
             }
         };
 
+        smoothScrollRef.current = smoothScroll;
 
         container?.addEventListener("scroll", updateScrollButtons);
         container?.addEventListener("wheel", handleWheel, { passive: false });
@@ -75,10 +83,11 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         const container = containerRef.current;
         if(container) {
             const scrollAmount = Math.floor(container.clientWidth * 0.8);
-            container.scrollBy({
-                left: direction === "right" ? scrollAmount : -scrollAmount,
-                behavior: "smooth",
-            });
+            const newScroll = container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
+
+            scrollTargetRef.current = Math.max(0, Math.min(newScroll, container.scrollWidth - container.clientWidth));
+
+            if(!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
         }
     };
 
