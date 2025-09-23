@@ -123,7 +123,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                     {loading
                         ? playlists.length > 0 &&
                         Array.from({ length: Math.min(playlists.length, 9) }).map((_, idx) => (
-                            <div key={idx} className="w-[192px] h-[248px] rounded-lg p-4 bg-neutral-800 shadow-md animate-pulse" />
+                            <div key={idx} className="w-[192px] h-[248px] flex-shrink-0 rounded-lg p-4 bg-neutral-800 shadow-md animate-pulse" />
                         ))
                         : playlists.length > 0
                             ? playlists.map((playlist) => (
