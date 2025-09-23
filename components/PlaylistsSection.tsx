@@ -122,7 +122,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {loading
                         ? playlists.length > 0 &&
-                        Array.from({ length: Math.max(playlists.length, 9) }).map((_, idx) => (
+                        Array.from({ length: Math.min(playlists.length, 9) }).map((_, idx) => (
                             <div key={idx} className="w-40 h-52 rounded-lg p-4 bg-neutral-800 shadow-md animate-pulse" />
                         ))
                         : playlists.length > 0
