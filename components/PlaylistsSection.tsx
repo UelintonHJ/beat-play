@@ -23,7 +23,14 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
     const scrollTargetRef = useRef<number>(0);
     const isScrollingRef = useRef<boolean>(false);
-    const smoothScrollRef = useRef<() => void>(() => {});
+    const smoothScrollRef = useRef<() => void>(() => { });
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
 
     const updateScrollButtons = () => {
         const container = containerRef.current;
@@ -48,7 +55,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
         const smoothScroll = () => {
             const el = containerRef.current;
-            if(!el) {
+            if (!el) {
                 isScrollingRef.current = false;
                 return;
             }
@@ -60,7 +67,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
             updateScrollButtons();
 
-            if(Math.abs(diff) > 0.5) {
+            if (Math.abs(diff) > 0.5) {
                 requestAnimationFrame(smoothScrollRef.current);
             } else {
                 isScrollingRef.current = false;
@@ -83,13 +90,13 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
     const scroll = (direction: "left" | "right") => {
         const container = containerRef.current;
-        if(container) {
+        if (container) {
             const scrollAmount = Math.floor(container.clientWidth * 0.8);
             const newScroll = container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
 
             scrollTargetRef.current = Math.max(0, Math.min(newScroll, container.scrollWidth - container.clientWidth));
 
-            if(!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
+            if (!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
         }
     };
 
@@ -100,9 +107,9 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
             <div className="relative">
                 {/* Botão de Voltar */}
                 {canScrollLeft && (
-                    <button 
+                    <button
                         onClick={() => scroll("left")}
-                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md hover:shadow-[0_0_8px_rgba(72,239,128,0.9)]" 
+                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md hover:shadow-[0_0_8px_rgba(72,239,128,0.9)]"
                     >
                         <ChevronLeft size={18} />
                     </button>
@@ -110,21 +117,25 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
                 {/* Container horizontal com overflow oculto */}
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
-                    {playlists.length > 0 ? (
-                        playlists.map((playlist) => (
-                            <PlaylistCard
-                                key={playlist.id}
-                                name={playlist.name}
-                                owner={playlist.owner}
-                                image={playlist.image}
-                                spotifyUrl={playlist.spotifyUrl}
-                            />
+                    {loading
+                        ? Array.from({ length: 5 }).map((_, idx) => (
+                            <div key={idx} className="w-40 h-52 bg-neutral-700 animate-pulse rounded-lg" />
                         ))
-                    ) : (
-                        <p className="text-gray-400 whitespace-nowrap">
-                            Nenhuma playlist encontrada no Spotify.
-                        </p>
-                    )}
+                        : playlists.length > 0
+                            ? playlists.map((playlist) => (
+                                <PlaylistCard
+                                    key={playlist.id}
+                                    name={playlist.name}
+                                    owner={playlist.owner}
+                                    image={playlist.image}
+                                    spotifyUrl={playlist.spotifyUrl}
+                                />
+                            ))
+                            : (
+                                <p className="text-gray-400 whitespace-nowrap">
+                                    Nenhuma playlist encontrada no Spotify.
+                                </p>
+                            )}
                 </div>
 
                 {/* Botão para avançar */}
