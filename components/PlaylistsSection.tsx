@@ -25,7 +25,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         const container = containerRef.current;
         if (container) {
             setCanScrollLeft(container.scrollLeft > 0);
-            setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
+            setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth - 1);
         }
     };
 
@@ -33,7 +33,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         updateScrollButtons();
         const container = containerRef.current;
         container?.addEventListener("scroll", updateScrollButtons);
-        window.removeEventListener("resize", updateScrollButtons);
+        window.addEventListener("resize", updateScrollButtons);
         return () => {
             container?.removeEventListener("scroll", updateScrollButtons);
             window.removeEventListener("resize", updateScrollButtons);
@@ -43,7 +43,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
     const scroll = (direction: "left" | "right") => {
         const container = containerRef.current;
         if(container) {
-            const scrollAmount = 300;
+            const scrollAmount = Math.floor(container.clientWidth * 0.8);
             container.scrollBy({
                 left: direction === "right" ? scrollAmount : -scrollAmount,
                 behavior: "smooth",
@@ -60,14 +60,14 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 {canScrollLeft && (
                     <button 
                         onClick={() => scroll("left")}
-                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition shadow-lg hover:shadow-x1 hover:shadow-green-500/20" 
+                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-shadow shadow-lg hover:shadow-xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)]" 
                     >
-                        <ChevronLeft size={20}/>
+                        <ChevronLeft size={18}/>
                     </button>
                 )}
 
                 {/* Container horizontal com overflow oculto */}
-                <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
+                <div className="flex gap-4 overflow-x-auto px-6" ref={containerRef}>
                     {playlists.length > 0 ? (
                         playlists.map((playlist) => (
                             <PlaylistCard
@@ -88,9 +88,9 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 {/* Botão para avançar */}
                 {canScrollRight && (
                     <button onClick={() => scroll("right")}
-                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 items-center justify-center rounded-full z-10 transition shadow-lg hover:shadow-x1 hover:shadow-green-500/20"
+                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-shadow shadow-lg hover:shadow-xl hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)]"
                     >
-                        <ChevronRight size={20}/>
+                        <ChevronRight size={18}/>
                     </button>
                 )}
             </div>
