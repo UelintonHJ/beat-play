@@ -37,7 +37,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
             if (!container) return;
             e.preventDefault();
             container.scrollBy({
-                left: e.deltaY,
+                left: e.deltaY * 2,
                 behavior: "smooth",
             });
         };
