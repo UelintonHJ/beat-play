@@ -31,7 +31,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         const container = containerRef.current;
         if (container) {
             setCanScrollLeft(container.scrollLeft > 0);
-            setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth - 1);
+            setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
         }
     };
 
