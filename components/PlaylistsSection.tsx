@@ -120,25 +120,26 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
                 {/* Container horizontal com overflow oculto */}
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
-                    {loading ? (
-                        Array.from({ length: Math.min(Math.max(playlists.length, 1), 9) }).map((_, idx) => (
-                            <div key={idx} className="w-40 h-52 rounded-lg p-4 bg-neutral-800 shadow-md animate-pulse"/>
+                    {loading
+                        ? playlists.length > 0 &&
+                        Array.from({ length: Math.max(playlists.length, 9) }).map((_, idx) => (
+                            <div key={idx} className="w-40 h-52 rounded-lg p-4 bg-neutral-800 shadow-md animate-pulse" />
                         ))
-                    ) : playlists.length > 0
-                        ? playlists.map((playlist) => (
-                            <PlaylistCard
-                                key={playlist.id}
-                                name={playlist.name}
-                                owner={playlist.owner}
-                                image={playlist.image}
-                                spotifyUrl={playlist.spotifyUrl}
-                            />
-                        ))
-                        : (
-                            <p className="text-gray-400 whitespace-nowrap">
-                                Nenhuma playlist encontrada no Spotify.
-                            </p>
-                        )}
+                        : playlists.length > 0
+                            ? playlists.map((playlist) => (
+                                <PlaylistCard
+                                    key={playlist.id}
+                                    name={playlist.name}
+                                    owner={playlist.owner}
+                                    image={playlist.image}
+                                    spotifyUrl={playlist.spotifyUrl}
+                                />
+                            ))
+                            : (
+                                <p className="text-gray-400 whitespace-nowrap">
+                                    Nenhuma playlist encontrada no Spotify.
+                                </p>
+                            )}
                 </div>
 
                 {/* Botão para avançar */}
