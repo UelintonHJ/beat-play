@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback, use } from "react";
 import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import ArtistsSectionSkeleton from "./ArtistsSectionSkeleton";
@@ -26,38 +26,34 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
     const isScrollingRef = useRef<boolean>(false);
     const rafRef = useRef<number | null>(null);
 
-    const updateScrollButtons = () => {
+    const updateScrollButtons = useCallback(() => {
         const container = containerRef.current;
         if (container) {
             const tolerance = 1;
             setCanScrollLeft(container.scrollLeft > tolerance);
             setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
         }
-    };
+    }, []);
 
-    const smoothScroll = (fast = false) => {
+    const smoothScroll = useCallback(() => {
         const container = containerRef.current;
         if (!container) return;
 
         const diff = scrollTargetRef.current - container.scrollLeft;
 
-        if (Math.abs(diff) < 1) {
+        if (Math.abs(diff) < 0.5) {
             container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
             return;
         }
 
-        const speed = fast ? 0.85 : 0.6;
-        const minStep = fast ? 12 : 4;
-        const maxStep = fast ? 80 : 40;
-
-        const move = Math.sign(diff) * Math.min(Math.max(Math.abs(diff) * speed, minStep), maxStep);
+        const move = Math.sign(diff) * Math.min(Math.max(Math.abs(diff) * 0.6, 4), 40);
         container.scrollLeft += move;
         updateScrollButtons();
 
-        rafRef.current = requestAnimationFrame(() => smoothScroll(fast));
-    };
+        rafRef.current = requestAnimationFrame(smoothScroll);
+    }, [updateScrollButtons]);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -101,7 +97,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
             isScrollingRef.current = false;
         };
-    }, [artists]);
+    }, [artists, smoothScroll, updateScrollButtons]);
 
     const scroll = (direction: "left" | "right") => {
         const container = containerRef.current;
@@ -115,7 +111,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
         if (!isScrollingRef.current) {
             isScrollingRef.current = true;
-            rafRef.current = requestAnimationFrame(() => smoothScroll(true));
+            rafRef.current = requestAnimationFrame(smoothScroll);
         }
     };
 
