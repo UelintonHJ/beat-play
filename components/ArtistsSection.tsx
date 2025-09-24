@@ -30,14 +30,43 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
 
     useEffect(() => {
         updateScrollButtons();
+
         const container = containerRef.current;
         if (!container) return;
 
+        const scrollTargetRef = { current: container.scrollLeft };
+        const isScrollingRef = { current: false };
+
+        const smoothScroll = () => {
+            if (!container) return;
+            isScrollingRef.current = true;
+            const diff = scrollTargetRef.current - container.scrollLeft;
+            const move = diff * 0.22;
+            container.scrollLeft += move;
+
+            updateScrollButtons();
+
+            if (Math.abs(diff) > 0.5) {
+                requestAnimationFrame(smoothScroll);
+            } else {
+                isScrollingRef.current = false;
+                scrollTargetRef.current = container.scrollLeft;
+            }
+        };
+
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            scrollTargetRef.current += e.deltaY * 2;
+            if (!isScrollingRef.current) requestAnimationFrame(smoothScroll);
+        };
+
         container.addEventListener("scroll", updateScrollButtons);
+        container.addEventListener("wheel", handleWheel, { passive: false });
         window.addEventListener("resize", updateScrollButtons);
 
         return () => {
             container.removeEventListener("scroll", updateScrollButtons);
+            container.removeEventListener("wheel", handleWheel);
             window.removeEventListener("resize", updateScrollButtons);
         };
     }, []);
