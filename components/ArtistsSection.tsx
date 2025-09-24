@@ -37,23 +37,19 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
     const smoothScroll = () => {
         const container = containerRef.current;
-        if (!container) {
-            isScrollingRef.current = false;
-            return;
-        }
+        if (!container) return;
 
         const diff = scrollTargetRef.current - container.scrollLeft;
-        if (Math.abs(diff) < 0.5) {
+
+        if (Math.abs(diff) < 1) {
             container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
             return;
         }
 
-        const move = diff * 0.15;
-        container.scrollLeft += move;
+        container.scrollLeft += diff * 0.4;
         updateScrollButtons();
-
         rafRef.current = requestAnimationFrame(smoothScroll);
     };
 
