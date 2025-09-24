@@ -41,17 +41,17 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
         const diff = scrollTargetRef.current - container.scrollLeft;
 
-        if (Math.abs(diff) < 1) {
+        if (Math.abs(diff) < 0.5) {
             container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
             return;
         }
 
-        const move = Math.sign(diff) * Math.max(Math.abs(diff) * 0.6, 4);
+        const move = Math.sign(diff) * Math.min(Math.max(Math.abs(diff) * 0.6, 4), 40);
         container.scrollLeft += move;
         updateScrollButtons();
-        
+
         rafRef.current = requestAnimationFrame(smoothScroll);
     };
 
