@@ -44,7 +44,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
         const diff = scrollTargetRef.current - container.scrollLeft;
         if (Math.abs(diff) < 0.5) {
-            container.scrollLeft - scrollTargetRef.current;
+            container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
             return;
@@ -143,7 +143,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                 {/* Container */}
                 {artists.length > 0 ? (
                     <div
-                        className="flex gap-4 overflow-x-auto scrollbar-hidden px-6"
+                        className="flex gap-4 overflow-x-hidden px-6"
                         ref={containerRef}
                         style={{ overflowY: 'hidden', scrollBehavior: 'auto' }}
                     >
@@ -162,7 +162,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                         Nenhum artista encontrado.
                     </p>
                 )}
-                
+
                 {canScrollRight && (
                     <button
                         onClick={() => scroll("right")}
