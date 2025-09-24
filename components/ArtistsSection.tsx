@@ -22,12 +22,36 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
 
     const scrollTargetRef = useRef<number>(0);
     const isScrollingRef = useRef<boolean>(false);
+    const rafRef = useRef<number | null>(null);
 
     const updateScrollButtons = () => {
         const container = containerRef.current;
         if (container) {
             setCanScrollLeft(container.scrollLeft > 0);
             setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
+        }
+    };
+
+    const smoothScroll = () => {
+        const container = containerRef.current;
+        if (!container) {
+            isScrollingRef.current = false;
+            return;
+        }
+
+        isScrollingRef.current = true;
+        const diff = scrollTargetRef.current - container.scrollLeft;
+        const move = diff * 0.22;
+        container.scrollLeft += move;
+
+        updateScrollButtons();
+
+        if (Math.abs(diff) > 0.5) {
+            requestAnimationFrame(smoothScroll);
+        } else {
+            isScrollingRef.current = false;
+            scrollTargetRef.current = container.scrollLeft;
+            rafRef.current = null;
         }
     };
 
@@ -38,23 +62,6 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
         if (!container) return;
 
         scrollTargetRef.current = container.scrollLeft;
-
-        const smoothScroll = () => {
-            if (!container) return;
-            isScrollingRef.current = true;
-            const diff = scrollTargetRef.current - container.scrollLeft;
-            const move = diff * 0.22;
-            container.scrollLeft += move;
-
-            updateScrollButtons();
-
-            if (Math.abs(diff) > 0.5) {
-                requestAnimationFrame(smoothScroll);
-            } else {
-                isScrollingRef.current = false;
-                scrollTargetRef.current = container.scrollLeft;
-            }
-        };
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
@@ -81,12 +88,11 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
             const newTarget =
                 container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
 
-                scrollTargetRef.current = newTarget;
+            scrollTargetRef.current = newTarget;
 
-            container.scrollTo({
-                left: newTarget,
-                behavior: "smooth",
-            });
+            if (!isScrollingRef.current) {
+                requestAnimationFrame(smoothScroll);
+            }
         }
     };
 
