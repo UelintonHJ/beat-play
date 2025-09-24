@@ -23,7 +23,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
     const [canScrollRight, setCanScrollRight] = useState(false);
 
     const scrollTargetRef = useRef<number>(0);
-    const isScrollingRef = useRef<boolean>(false);
+    const isScrollingRef = useRef<"button" | "wheel" | false>(false);
     const rafRef = useRef<number | null>(null);
 
     const updateScrollButtons = useCallback(() => {
@@ -41,15 +41,15 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
         const diff = scrollTargetRef.current - container.scrollLeft;
 
-        if (Math.abs(diff) < 0.5) {
+        if (Math.abs(diff) < 1) {
             container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
             return;
         }
 
-        const move = Math.sign(diff) * Math.min(Math.max(Math.abs(diff) * 0.6, 4), 40);
-        container.scrollLeft += move;
+        const speed = isScrollingRef.current === "button" ? 0.25 : 0.12;
+        container.scrollLeft += diff * speed;
         updateScrollButtons();
 
         rafRef.current = requestAnimationFrame(smoothScroll);
