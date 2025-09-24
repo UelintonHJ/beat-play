@@ -18,15 +18,15 @@ interface ArtistsSectionProps {
 }
 
 export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
-    if (loading) return <ArtistsSectionSkeleton />;
-
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
 
     const scrollTargetRef = useRef<number>(0);
     const isScrollingRef = useRef<boolean>(false);
-    const rafRef = useRef<number | null>(null);
+    const rafRef = useRef<number | null>(null); 
+    
+    if (loading) return <ArtistsSectionSkeleton />;
 
     const updateScrollButtons = () => {
         const container = containerRef.current;
