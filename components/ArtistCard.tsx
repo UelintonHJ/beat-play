@@ -14,7 +14,7 @@ export default function ArtistCard({ name, image, spotifyUrl }: ArtistCardProps)
             href={spotifyUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-neutral-800 rounded-lg p-4 hover:g-neutral-700 transition flex flex-col items-center text-center shadow-md"
+            className="bg-neutral-800 rounded-lg p-4 hover:bg-neutral-700 transition flex flex-col items-center text-center shadow-md"
         >
             <Image
                 src={image}
