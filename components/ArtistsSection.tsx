@@ -65,8 +65,10 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            scrollTargetRef.current += e.deltaY * 1.5;
-            if (!isScrollingRef.current) requestAnimationFrame(smoothScroll);
+            scrollTargetRef.current += e.deltaY * 2;
+            if (!isScrollingRef.current) {
+              rafRef.current = requestAnimationFrame(smoothScroll);
+            } 
         };
 
         container.addEventListener("scroll", updateScrollButtons);
@@ -77,6 +79,7 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
             container.removeEventListener("scroll", updateScrollButtons);
             container.removeEventListener("wheel", handleWheel);
             window.removeEventListener("resize", updateScrollButtons);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
     }, []);
 
