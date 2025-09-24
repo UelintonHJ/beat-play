@@ -49,10 +49,10 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
         }
 
         if (isScrollingRef.current === "button") {
-            const move = Math.sign(diff) * Math.min(Math.abs(diff), 60);
+            const move = Math.sign(diff) * Math.min(Math.abs(diff), 80);
             container.scrollLeft += move;
         } else {
-            container.scrollLeft += diff * 0.2;
+            container.scrollLeft += diff * 0.35;
         }
 
         updateScrollButtons();
@@ -69,7 +69,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
             const maxScroll = container.scrollWidth - container.clientWidth;
-            scrollTargetRef.current = Math.max(0, Math.min(scrollTargetRef.current += e.deltaY * 2, maxScroll));
+            scrollTargetRef.current = Math.max(0, Math.min(scrollTargetRef.current += e.deltaY * 1.5, maxScroll));
 
             if (!isScrollingRef.current) {
                 isScrollingRef.current = "wheel";
