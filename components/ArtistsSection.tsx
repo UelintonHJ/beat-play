@@ -65,7 +65,7 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            scrollTargetRef.current += e.deltaY * 2;
+            scrollTargetRef.current += e.deltaY * 1.5;
             if (!isScrollingRef.current) requestAnimationFrame(smoothScroll);
         };
 
