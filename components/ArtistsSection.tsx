@@ -17,25 +17,20 @@ interface ArtistsSectionProps {
     loading?: boolean;
 }
 
-export default function ArtistsSection({ artists/*, loading = false*/ }: ArtistsSectionProps) {
+export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
-    const [loading, setLoading] = useState(true); //loading test
 
     const scrollTargetRef = useRef<number>(0);
     const isScrollingRef = useRef<boolean>(false);
     const rafRef = useRef<number | null>(null);
 
-    useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 5000);
-        return () => clearTimeout(timer);
-    }, []);
-
     const updateScrollButtons = () => {
         const container = containerRef.current;
         if (container) {
-            setCanScrollLeft(container.scrollLeft > 0);
+            const tolerance = 1;
+            setCanScrollLeft(container.scrollLeft > tolerance);
             setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
         }
     };
@@ -47,25 +42,22 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
             return;
         }
 
-        isScrollingRef.current = true;
         const diff = scrollTargetRef.current - container.scrollLeft;
-        const move = diff * 0.22;
-        container.scrollLeft += move;
+        if (Math.abs(diff) < 0.5) {
+            container.scrollLeft - scrollTargetRef.current;
+            isScrollingRef.current = false;
+            updateScrollButtons();
+            return;
+        }
 
+        const move = diff * 0.15;
+        container.scrollLeft += move;
         updateScrollButtons();
 
-        if (Math.abs(diff) > 0.5) {
-            requestAnimationFrame(smoothScroll);
-        } else {
-            isScrollingRef.current = false;
-            scrollTargetRef.current = container.scrollLeft;
-            rafRef.current = null;
-        }
+        rafRef.current = requestAnimationFrame(smoothScroll);
     };
 
     useEffect(() => {
-        updateScrollButtons();
-
         const container = containerRef.current;
         if (!container) return;
 
@@ -73,39 +65,55 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            scrollTargetRef.current += e.deltaY * 2;
+            const maxScroll = container.scrollWidth - container.clientWidth;
+            scrollTargetRef.current = Math.max(0, Math.min(scrollTargetRef.current += e.deltaY * 2, maxScroll));
+
             if (!isScrollingRef.current) {
+                isScrollingRef.current = true;
                 rafRef.current = requestAnimationFrame(smoothScroll);
             }
         };
 
-        container.addEventListener("scroll", updateScrollButtons);
+        const handleScroll = () => {
+            if (!scrollTargetRef.current) {
+                scrollTargetRef.current = container.scrollLeft;
+            }
+            updateScrollButtons();
+        };
+
+        const handleResize = () => {
+            scrollTargetRef.current = container.scrollLeft;
+            updateScrollButtons();
+        }
+
+        container.addEventListener("scroll", handleScroll);
         container.addEventListener("wheel", handleWheel, { passive: false });
-        window.addEventListener("resize", updateScrollButtons);
+        window.addEventListener("resize", handleResize);
+
+        updateScrollButtons();
 
         return () => {
-            container.removeEventListener("scroll", updateScrollButtons);
+            container.removeEventListener("scroll", handleScroll);
             container.removeEventListener("wheel", handleWheel);
-            window.removeEventListener("resize", updateScrollButtons);
+            window.removeEventListener("resize", handleResize);
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            isScrollingRef.current = false;
         };
-    }, []);
+    }, [artists]);
 
     const scroll = (direction: "left" | "right") => {
         const container = containerRef.current;
-        if (container) {
-            const scrollAmount = Math.floor(container.clientWidth * 0.8);
-            const newTarget =
-                container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
+        if (!container) return;
 
-            scrollTargetRef.current = Math.max(
-                0,
-                Math.min(newTarget, container.scrollWidth - container.clientWidth)
-            );
+        const scrollAmount = Math.floor(container.clientWidth * 0.8);
+        const maxScroll = container.scrollWidth - container.clientWidth;
 
-            if (!isScrollingRef.current) {
-                requestAnimationFrame(smoothScroll);
-            }
+        const newTarget = container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
+        scrollTargetRef.current = Math.max(0, Math.min(newTarget, maxScroll));
+
+        if (!isScrollingRef.current) {
+            isScrollingRef.current = true;
+            rafRef.current = requestAnimationFrame(smoothScroll);
         }
     };
 
@@ -132,25 +140,29 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
                     </button>
                 )}
 
-                <div className="flex gap-4 overflow-x-auto scrollbar-hidden px-6" ref={containerRef}>
-                    {artists.length > 0 ? (
-                        artists.map((artist) => (
+                {/* Container */}
+                {artists.length > 0 ? (
+                    <div
+                        className="flex gap-4 overflow-x-auto scrollbar-hidden px-6"
+                        ref={containerRef}
+                        style={{ overflowY: 'hidden', scrollBehavior: 'auto' }}
+                    >
+                        {artists.map((artist) => (
                             <div key={artist.id} className="flex-shrink-0">
                                 <ArtistCard
-                                    key={artist.id}
                                     name={artist.name}
                                     image={artist.image}
                                     spotifyUrl={artist.spotifyUrl}
                                 />
                             </div>
-                        ))
-                    ) : (
-                        <p className="text-gray-400 whitespace-nowrap">
-                            Nenhum artista encontrado.
-                        </p>
-                    )}
-                </div>
-
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-gray-400 whitespace-nowrap">
+                        Nenhum artista encontrado.
+                    </p>
+                )}
+                
                 {canScrollRight && (
                     <button
                         onClick={() => scroll("right")}
