@@ -48,7 +48,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
             return;
         }
 
-        const speed = isScrollingRef.current === "button" ? 0.25 : 0.12;
+        const speed = isScrollingRef.current === "button" ? 0.35 : 0.2;
         container.scrollLeft += diff * speed;
         updateScrollButtons();
 
