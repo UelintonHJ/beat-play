@@ -48,8 +48,13 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
             return;
         }
 
-        const speed = isScrollingRef.current === "button" ? 0.35 : 0.2;
-        container.scrollLeft += diff * speed;
+        if (isScrollingRef.current === "button") {
+            const move = Math.sign(diff) * Math.min(Math.abs(diff), 60);
+            container.scrollLeft += move;
+        } else {
+            container.scrollLeft += diff * 0.2;
+        }
+
         updateScrollButtons();
 
         rafRef.current = requestAnimationFrame(smoothScroll);
