@@ -21,19 +21,16 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
+    const [loading, setLoading] = useState(true); //loading test
 
     const scrollTargetRef = useRef<number>(0);
     const isScrollingRef = useRef<boolean>(false);
     const rafRef = useRef<number | null>(null);
 
-    const [loading, setLoading] = useState(true); //loading test
-
-    useEffect (() => {
+    useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 5000);
         return () => clearTimeout(timer);
     }, []);
-
-    if (loading) return <ArtistsSectionSkeleton />; //fim do loading test
 
     const updateScrollButtons = () => {
         const container = containerRef.current;
