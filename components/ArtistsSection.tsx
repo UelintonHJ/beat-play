@@ -63,22 +63,32 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
 
         scrollTargetRef.current = container.scrollLeft;
 
+        let debounceTimer: number | null = null;
+
+        const debouncedUpdateScrollButtons = () => {
+            if(debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = window.setTimeout(() => {
+                updateScrollButtons();
+            }, 50);
+        };
+
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
             scrollTargetRef.current += e.deltaY * 2;
             if (!isScrollingRef.current) {
               rafRef.current = requestAnimationFrame(smoothScroll);
             } 
+            debouncedUpdateScrollButtons();
         };
 
-        container.addEventListener("scroll", updateScrollButtons);
+        container.addEventListener("scroll", debouncedUpdateScrollButtons);
         container.addEventListener("wheel", handleWheel, { passive: false });
-        window.addEventListener("resize", updateScrollButtons);
+        window.addEventListener("resize", debouncedUpdateScrollButtons);
 
         return () => {
-            container.removeEventListener("scroll", updateScrollButtons);
+            container.removeEventListener("scroll", debouncedUpdateScrollButtons);
             container.removeEventListener("wheel", handleWheel);
-            window.removeEventListener("resize", updateScrollButtons);
+            window.removeEventListener("resize", debouncedUpdateScrollButtons);
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
     }, []);
