@@ -20,6 +20,9 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
 
+    const scrollTargetRef = useRef<number>(0);
+    const isScrollingRef = useRef<boolean>(false);
+
     const updateScrollButtons = () => {
         const container = containerRef.current;
         if (container) {
@@ -34,8 +37,7 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
         const container = containerRef.current;
         if (!container) return;
 
-        const scrollTargetRef = { current: container.scrollLeft };
-        const isScrollingRef = { current: false };
+        scrollTargetRef.current = container.scrollLeft;
 
         const smoothScroll = () => {
             if (!container) return;
@@ -75,8 +77,14 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
         const container = containerRef.current;
         if (container) {
             const scrollAmount = Math.floor(container.clientWidth * 0.8);
+
+            const newTarget =
+                container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
+
+                scrollTargetRef.current = newTarget;
+
             container.scrollTo({
-                left: container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount),
+                left: newTarget,
                 behavior: "smooth",
             });
         }
@@ -89,7 +97,7 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
             <div className="relative">
                 {canScrollLeft && (
                     <button onClick={() => scroll("left")}
-                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-while w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
+                        className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
                         <ChevronLeft size={18} />
                     </button>
@@ -113,7 +121,7 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
                 </div>
 
                 {canScrollRight && (
-                    <button 
+                    <button
                         onClick={() => scroll("right")}
                         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
