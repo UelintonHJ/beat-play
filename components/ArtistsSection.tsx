@@ -117,22 +117,17 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
         }
     };
 
-    return loading ? (
-        artists.length > 0 ? (
-            <section className="mt-8">
-                <h2 className="text-xl font-semibold mb-4">Meus Artistas Favoritos</h2>
+    if (loading) {
+        return artists.length > 0 ? (
+            <ArtistsSectionSkeleton count={Math.min(artists.length, 8)} />
+        ) : null;
+    }
 
-                <div className="flex gap-4 overflow-x-hidden px-6">
-                    {Array.from({ length: Math.min(artists.length, 8) }).map((_, idx) => (
-                        <div 
-                            key={idx}
-                            className="w-[192px] h-[224px] flex-shrink-0 rounded-lg bg-netral-800 shadow-md animate-pulse"
-                        />
-                    ))}
-                </div>
-            </section>
-        ) : null
-    ) : (
+    if (!artists.length) {
+        return null;
+    }
+
+    return (
         <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Meus Artistas Favoritos</h2>
 
