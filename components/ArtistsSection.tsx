@@ -71,32 +71,22 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
 
         scrollTargetRef.current = container.scrollLeft;
 
-        let debounceTimer: number | null = null;
-
-        const debouncedUpdateScrollButtons = () => {
-            if (debounceTimer) clearTimeout(debounceTimer);
-            debounceTimer = window.setTimeout(() => {
-                updateScrollButtons();
-            }, 50);
-        };
-
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
             scrollTargetRef.current += e.deltaY * 2;
             if (!isScrollingRef.current) {
                 rafRef.current = requestAnimationFrame(smoothScroll);
             }
-            debouncedUpdateScrollButtons();
         };
 
-        container.addEventListener("scroll", debouncedUpdateScrollButtons);
+        container.addEventListener("scroll", updateScrollButtons);
         container.addEventListener("wheel", handleWheel, { passive: false });
-        window.addEventListener("resize", debouncedUpdateScrollButtons);
+        window.addEventListener("resize", updateScrollButtons);
 
         return () => {
-            container.removeEventListener("scroll", debouncedUpdateScrollButtons);
+            container.removeEventListener("scroll", updateScrollButtons);
             container.removeEventListener("wheel", handleWheel);
-            window.removeEventListener("resize", debouncedUpdateScrollButtons);
+            window.removeEventListener("resize", updateScrollButtons);
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
     }, []);
@@ -108,7 +98,10 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
             const newTarget =
                 container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
 
-            scrollTargetRef.current = newTarget;
+            scrollTargetRef.current = Math.max(
+                0,
+                Math.min(newTarget, container.scrollWidth - container.clientWidth)
+            );
 
             if (!isScrollingRef.current) {
                 requestAnimationFrame(smoothScroll);
@@ -140,17 +133,20 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
                 )}
 
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
-                    {artists.slice(0, 8).map((artist) => (
-                        <ArtistCard
-                            key={artist.id}
-                            name={artist.name}
-                            image={artist.image}
-                            spotifyUrl={artist.spotifyUrl}
-                        />
-                    ))} :
-                    <p className="text-gray-400 whitespace-nowrap">
-                        Nenhum artista encontrado.
-                    </p>
+                    {artists.length > 0 ? (
+                        artists.slice(0, 8).map((artist) => (
+                            <ArtistCard
+                                key={artist.id}
+                                name={artist.name}
+                                image={artist.image}
+                                spotifyUrl={artist.spotifyUrl}
+                            />
+                        ))
+                    ) : (
+                        <p className="text-gray-400 whitespace-nowrap">
+                            Nenhum artista encontrado.
+                        </p>
+                    )}
                 </div>
 
                 {canScrollRight && (
