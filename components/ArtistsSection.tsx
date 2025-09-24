@@ -24,9 +24,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
     const scrollTargetRef = useRef<number>(0);
     const isScrollingRef = useRef<boolean>(false);
-    const rafRef = useRef<number | null>(null); 
-    
-    if (loading) return <ArtistsSectionSkeleton />;
+    const rafRef = useRef<number | null>(null);
 
     const updateScrollButtons = () => {
         const container = containerRef.current;
@@ -70,7 +68,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
         let debounceTimer: number | null = null;
 
         const debouncedUpdateScrollButtons = () => {
-            if(debounceTimer) clearTimeout(debounceTimer);
+            if (debounceTimer) clearTimeout(debounceTimer);
             debounceTimer = window.setTimeout(() => {
                 updateScrollButtons();
             }, 50);
@@ -80,8 +78,8 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
             e.preventDefault();
             scrollTargetRef.current += e.deltaY * 2;
             if (!isScrollingRef.current) {
-              rafRef.current = requestAnimationFrame(smoothScroll);
-            } 
+                rafRef.current = requestAnimationFrame(smoothScroll);
+            }
             debouncedUpdateScrollButtons();
         };
 
@@ -127,20 +125,21 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                 )}
 
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
-                    {artists.length > 0 ? (
-                        artists.map((artist) => (
-                            <ArtistCard
-                                key={artist.id}
-                                name={artist.name}
-                                image={artist.image}
-                                spotifyUrl={artist.spotifyUrl}
-                            />
-                        ))
-                    ) : (
-                        <p className="text-gray-400 whitespace-nowrap">
-                            Nenhum artista encontrado.
-                        </p>
-                    )}
+                    {loading
+                        ? <ArtistsSectionSkeleton />
+                        : artists.length > 0
+                            ? artists.map((artist) => (
+                                <ArtistCard
+                                    key={artist.id}
+                                    name={artist.name}
+                                    image={artist.image}
+                                    spotifyUrl={artist.spotifyUrl}
+                                />
+                            ))
+                            : <p className="text-gray-400 whitespace-nowrap">
+                                Nenhum artista encontrado.
+                            </p>
+                    }
                 </div>
 
                 {canScrollRight && (
