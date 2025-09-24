@@ -132,15 +132,17 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
                     </button>
                 )}
 
-                <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
+                <div className="flex gap-4 px-6" ref={containerRef}>
                     {artists.length > 0 ? (
-                        artists.slice(0, 8).map((artist) => (
-                            <ArtistCard
-                                key={artist.id}
-                                name={artist.name}
-                                image={artist.image}
-                                spotifyUrl={artist.spotifyUrl}
-                            />
+                        artists.map((artist) => (
+                            <div key={artist.id} className="flex-shrink-0">
+                                <ArtistCard
+                                    key={artist.id}
+                                    name={artist.name}
+                                    image={artist.image}
+                                    spotifyUrl={artist.spotifyUrl}
+                                />
+                            </div>
                         ))
                     ) : (
                         <p className="text-gray-400 whitespace-nowrap">
