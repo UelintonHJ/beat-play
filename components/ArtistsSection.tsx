@@ -117,7 +117,9 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
         }
     };
 
-    return (
+    return loading ? (
+        <ArtistsSectionSkeleton />
+    ) : (
         <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Meus Artistas Favoritos</h2>
 
@@ -131,20 +133,18 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
                 )}
 
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
-                    {loading
-                        ? <ArtistsSectionSkeleton />
-                        : artists.length > 0
-                            ? artists.map((artist) => (
-                                <ArtistCard
-                                    key={artist.id}
-                                    name={artist.name}
-                                    image={artist.image}
-                                    spotifyUrl={artist.spotifyUrl}
-                                />
-                            ))
-                            : <p className="text-gray-400 whitespace-nowrap">
-                                Nenhum artista encontrado.
-                            </p>
+                    {artists.length > 0 ?
+                        artists.map((artist) => (
+                            <ArtistCard
+                                key={artist.id}
+                                name={artist.name}
+                                image={artist.image}
+                                spotifyUrl={artist.spotifyUrl}
+                            />
+                        ))
+                        : <p className="text-gray-400 whitespace-nowrap">
+                            Nenhum artista encontrado.
+                        </p>
                     }
                 </div>
 
