@@ -17,7 +17,7 @@ interface ArtistsSectionProps {
     loading?: boolean;
 }
 
-export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
+export default function ArtistsSection({ artists/*, loading = false*/ }: ArtistsSectionProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
@@ -25,6 +25,15 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
     const scrollTargetRef = useRef<number>(0);
     const isScrollingRef = useRef<boolean>(false);
     const rafRef = useRef<number | null>(null);
+
+    const [loading, setLoading] = useState(true); //loading test
+
+    useEffect (() => {
+        const timer = setTimeout(() => setLoading(false), 5000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading) return <ArtistsSectionSkeleton />; //fim do loading test
 
     const updateScrollButtons = () => {
         const container = containerRef.current;
