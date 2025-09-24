@@ -105,7 +105,6 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
         const container = containerRef.current;
         if (container) {
             const scrollAmount = Math.floor(container.clientWidth * 0.8);
-
             const newTarget =
                 container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
 
@@ -141,19 +140,17 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
                 )}
 
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
-                    {artists.length > 0 ?
-                        artists.map((artist) => (
-                            <ArtistCard
-                                key={artist.id}
-                                name={artist.name}
-                                image={artist.image}
-                                spotifyUrl={artist.spotifyUrl}
-                            />
-                        ))
-                        : <p className="text-gray-400 whitespace-nowrap">
-                            Nenhum artista encontrado.
-                        </p>
-                    }
+                    {artists.slice(0, 8).map((artist) => (
+                        <ArtistCard
+                            key={artist.id}
+                            name={artist.name}
+                            image={artist.image}
+                            spotifyUrl={artist.spotifyUrl}
+                        />
+                    ))} :
+                    <p className="text-gray-400 whitespace-nowrap">
+                        Nenhum artista encontrado.
+                    </p>
                 </div>
 
                 {canScrollRight && (
