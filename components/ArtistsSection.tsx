@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from "react";
 import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import ArtistsSectionSkeleton from "./ArtistsSectionSkeleton";
 
 type Artist = {
     id: string;
@@ -13,9 +14,12 @@ type Artist = {
 
 interface ArtistsSectionProps {
     artists: Artist[];
+    loading?: boolean;
 }
 
-export default function ArtistsSection({ artists }: ArtistsSectionProps) {
+export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
+    if (loading) return <ArtistsSectionSkeleton />;
+
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
