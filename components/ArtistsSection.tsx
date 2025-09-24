@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback, use } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import ArtistsSectionSkeleton from "./ArtistsSectionSkeleton";
@@ -23,7 +23,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
     const [canScrollRight, setCanScrollRight] = useState(false);
 
     const scrollTargetRef = useRef<number>(0);
-    const isScrollingRef = useRef<"button" | "wheel" | false>(false);
+    const isScrollingRef = useRef<false | "button" | "wheel">(false);
     const rafRef = useRef<number | null>(null);
 
     const updateScrollButtons = useCallback(() => {
@@ -67,7 +67,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
             scrollTargetRef.current = Math.max(0, Math.min(scrollTargetRef.current += e.deltaY * 2, maxScroll));
 
             if (!isScrollingRef.current) {
-                isScrollingRef.current = true;
+                isScrollingRef.current = "wheel";
                 rafRef.current = requestAnimationFrame(smoothScroll);
             }
         };
@@ -110,7 +110,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
         scrollTargetRef.current = Math.max(0, Math.min(newTarget, maxScroll));
 
         if (!isScrollingRef.current) {
-            isScrollingRef.current = true;
+            isScrollingRef.current = "button";
             rafRef.current = requestAnimationFrame(smoothScroll);
         }
     };
