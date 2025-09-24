@@ -48,8 +48,10 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
             return;
         }
 
-        container.scrollLeft += diff * 0.4;
+        const move = Math.sign(diff) * Math.max(Math.abs(diff) * 0.6, 4);
+        container.scrollLeft += move;
         updateScrollButtons();
+        
         rafRef.current = requestAnimationFrame(smoothScroll);
     };
 
