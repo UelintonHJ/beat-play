@@ -132,7 +132,7 @@ export default function ArtistsSection({ artists/*, loading = false*/ }: Artists
                     </button>
                 )}
 
-                <div className="flex gap-4 px-6" ref={containerRef}>
+                <div className="flex gap-4 overflow-x-auto scrollbar-hidden px-6" ref={containerRef}>
                     {artists.length > 0 ? (
                         artists.map((artist) => (
                             <div key={artist.id} className="flex-shrink-0">
