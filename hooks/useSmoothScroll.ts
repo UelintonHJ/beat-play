@@ -23,8 +23,13 @@ export function useSmoothScroll() {
         if (!container) return;
 
         const diff = scrollTargetRef.current - container.scrollLeft;
+        const maxScroll = container.scrollWidth - container.clientWidth;
 
-        if (Math.abs(diff) < 0.5) {
+        if (
+            Math.abs(diff) < 0.5 ||
+            scrollTargetRef.current === 0 ||
+            scrollTargetRef.current === maxScroll
+        ) {
             container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
@@ -36,10 +41,6 @@ export function useSmoothScroll() {
         : diff * 0.2;
 
         container.scrollLeft += move;
-
-        const maxScroll = container.scrollWidth - container.clientWidth;
-        if(container.scrollLeft < 0) container.scrollLeft = 0;
-        if(container.scrollLeft > maxScroll) container.scrollLeft = maxScroll;
 
         updateScrollButtons();
         rafRef.current = requestAnimationFrame(smoothScroll);
