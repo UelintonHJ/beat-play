@@ -4,20 +4,19 @@ import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import SectionSkeleton from "./SectionSkeleton";
-
-type Artist = {
-    id: string;
-    name: string;
-    image: string;
-    spotifyUrl: string;
-};
+import { useTopArtists } from "@/hooks/useTopArtists";
 
 interface ArtistsSectionProps {
-    artists: Artist[];
-    loading?: boolean;
+    token: string;
 }
 
-export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
+export default function ArtistsSection({ token }: ArtistsSectionProps) {
+    const {
+        artists,
+        loading,
+        error
+    } = useTopArtists(token);
+
     const {
         containerRef,
         scrollLeft,
@@ -26,7 +25,21 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
         showRightButton,
     } = useSmoothScroll();
 
-    if (!artists.length) return null;
+    if (error) {
+        return (
+            <p className="text-red-500 mt-4">
+                Erro ao carregar artistas favoritos.
+            </p>
+        );
+    }
+
+    if (!artists.length && !loading) {
+        return (
+            <p className="text-gray-400 mt-4 whitespace-nowrap">
+                Nenhum artista encontrado.
+            </p>
+        );
+    }
 
     return (
         <section className="mt-8">
@@ -45,7 +58,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {loading ? (
                         <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
-                    ) : artists.length > 0 ? (
+                    ) : (
                         artists.map((artist) => (
                             <div key={artist.id} className="flex-shrink-0">
                                 <ArtistCard
@@ -55,10 +68,6 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                                 />
                             </div>
                         ))
-                    ) : (
-                        <p className="text-gray-400 whitespace-nowrap">
-                            Nenhum artista encontrado.
-                        </p>
                     )}
                 </div>
 
