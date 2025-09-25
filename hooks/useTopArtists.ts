@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { getTopArtists } from "@/lib/spotify";
-import Spotify from "next-auth/providers/spotify";
 
 type Artist = {
     id: string;
@@ -24,12 +23,12 @@ export function useTopArtists(token: string, limit: number = 10) {
             const formattedArtists = data.items.map((item: any) => ({
                 id: item.id,
                 name: item.name,
-                image: item.image?.[0]?.url || "",
-                SpotifyUrl: item.external_urls.spotify,
+                image: item.images?.[0]?.url || "",
+                spotifyUrl: item.external_urls.spotify,
             }));
             setArtists(formattedArtists);
         })
-        .catch((err) => setError(err.messege || "Erro ao buscar artistas"))
+        .catch((err) => setError(err.message || "Erro ao buscar artistas"))
         .finally(() => setLoading(false));
     },  [token, limit]);
 

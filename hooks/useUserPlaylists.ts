@@ -25,7 +25,7 @@ export function useUserPlaylists(token: string, limit: number = 10) {
                 id: item.id,
                 name: item.name,
                 owner: item.owner.display_name,
-                image: item.image?.[0]?.url || "",
+                image: item.images?.[0]?.url || "",
                 spotifyUrl: item.external_urls.spotify,
             }));
             setPlaylists(formattedPlaylists);
