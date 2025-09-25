@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
 import PlaylistCard from "./PlaylistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 type Playlist = {
     id: string;
@@ -17,90 +17,15 @@ interface PlaylistsSectionProps {
 }
 
 export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const [canScrollLeft, setCanScrollLeft] = useState(false);
-    const [canScrollRight, setCanScrollRight] = useState(false);
+    const {
+        containerRef,
+        showLeftButton,
+        showRightButton,
+        scrollLeft,
+        scrollRight,
+    } = useSmoothScroll();
 
-    const scrollTargetRef = useRef<number>(0);
-    const isScrollingRef = useRef<boolean>(false);
-    const smoothScrollRef = useRef<() => void>(() => { });
-
-    const [loading, setLoading] = useState(true);
-
-    const updateScrollButtons = () => {
-        const container = containerRef.current;
-        if (container) {
-            setCanScrollLeft(container.scrollLeft > 0);
-            setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
-        }
-    };
-
-    useEffect(() => {
-        updateScrollButtons();
-
-        const container = containerRef.current;
-        if (!container) return;
-
-        scrollTargetRef.current = container.scrollLeft;
-
-        const handleWheel = (e: WheelEvent) => {
-            e.preventDefault();
-            scrollTargetRef.current += e.deltaY * 2;
-            if (!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
-        };
-
-        const smoothScroll = () => {
-            const el = containerRef.current;
-            if (!el) {
-                isScrollingRef.current = false;
-                return;
-            }
-
-            isScrollingRef.current = true;
-            const diff = scrollTargetRef.current - el.scrollLeft;
-            const move = diff * 0.22;
-            el.scrollLeft += move;
-
-            updateScrollButtons();
-
-            if (Math.abs(diff) > 0.5) {
-                requestAnimationFrame(smoothScrollRef.current);
-            } else {
-                isScrollingRef.current = false;
-                scrollTargetRef.current = el.scrollLeft;
-            }
-        };
-
-        smoothScrollRef.current = smoothScroll;
-
-        container?.addEventListener("scroll", updateScrollButtons);
-        container?.addEventListener("wheel", handleWheel, { passive: false });
-        window.addEventListener("resize", updateScrollButtons);
-
-        return () => {
-            container?.removeEventListener("scroll", updateScrollButtons);
-            container?.removeEventListener("wheel", handleWheel);
-            window.removeEventListener("resize", updateScrollButtons);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (playlists.length > 0) {
-            setLoading(false);
-        }
-    }, [playlists]);
-
-    const scroll = (direction: "left" | "right") => {
-        const container = containerRef.current;
-        if (container) {
-            const scrollAmount = Math.floor(container.clientWidth * 0.8);
-            const newScroll = container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
-
-            scrollTargetRef.current = Math.max(0, Math.min(newScroll, container.scrollWidth - container.clientWidth));
-
-            if (!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
-        }
-    };
+    const loading = playlists.length === 0;
 
     return (
         <section>
@@ -108,9 +33,9 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
 
             <div className="relative">
                 {/* Botão de Voltar */}
-                {canScrollLeft && (
+                {showLeftButton && (
                     <button
-                        onClick={() => scroll("left")}
+                        onClick={scrollLeft}
                         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
                         <ChevronLeft size={18} />
@@ -142,8 +67,8 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 </div>
 
                 {/* Botão para avançar */}
-                {canScrollRight && (
-                    <button onClick={() => scroll("right")}
+                {showRightButton && (
+                    <button onClick={scrollRight}
                         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
                         <ChevronRight size={18} />
