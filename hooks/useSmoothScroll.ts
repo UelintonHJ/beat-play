@@ -45,25 +45,35 @@ export function useSmoothScroll() {
         rafRef.current = requestAnimationFrame(smoothScroll);
     }, [updateScrollButtons]);
 
+    const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
+
     const scrollLeft = useCallback(() => {
         const container = containerRef.current;
         if (!container) return;
+
+        const maxScroll = container.scrollWidth - container.clientWidth;
         isScrollingRef.current = "button";
-        scrollTargetRef.current = Math.max(
+        scrollTargetRef.current = clamp(
+            container.scrollLeft - container.clientWidth,
             0,
-            container.scrollLeft - container.clientWidth
+            maxScroll
         );
+
         requestAnimationFrame(smoothScroll);
     }, [smoothScroll]);
 
     const scrollRight = useCallback(() => {
         const container = containerRef.current;
         if (!container) return;
+
+        const maxScroll = container.scrollWidth - container.clientWidth;
         isScrollingRef.current = "button";
-        scrollTargetRef.current = Math.min(
-            container.scrollWidth - container.clientWidth,
-            container.scrollLeft + container.clientWidth
+        scrollTargetRef.current = clamp(
+            container.scrollLeft + container.clientWidth,
+            0,
+            maxScroll
         );
+
         requestAnimationFrame(smoothScroll);
     }, [smoothScroll]);
 
@@ -76,9 +86,11 @@ export function useSmoothScroll() {
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
             const maxScroll = container.scrollWidth - container.clientWidth;
-            scrollTargetRef.current = Math.max(
+
+            scrollTargetRef.current = clamp(
+                scrollTargetRef.current + e.deltaY * 1.5, 
                 0,
-                Math.min(scrollTargetRef.current + e.deltaY * 1.5, maxScroll)
+                maxScroll
             );
 
             updateScrollButtons();
