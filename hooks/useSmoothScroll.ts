@@ -12,7 +12,7 @@ export function useSmoothScroll() {
 
     const updateScrollButtons = useCallback(() => {
         const container = containerRef.current;
-        if(!container) return;
+        if (!container) return;
 
         const { scrollLeft, scrollWidth, clientWidth } = container;
         setShowLeftButton(scrollLeft > 0);
@@ -21,18 +21,18 @@ export function useSmoothScroll() {
 
     const smoothScroll = useCallback(() => {
         const container = containerRef.current;
-        if(!container) return;
+        if (!container) return;
 
         const diff = scrollTargetRef.current - container.scrollLeft;
 
-        if(Math.abs(diff) < 1) {
+        if (Math.abs(diff) < 1) {
             container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
             return;
         }
 
-        if(isScrollingRef.current === "button") {
+        if (isScrollingRef.current === "button") {
             const move = Math.sign(diff) * Math.min(Math.abs(diff), 80);
             container.scrollLeft += move;
         } else {
@@ -45,7 +45,7 @@ export function useSmoothScroll() {
 
     const scrollLeft = useCallback(() => {
         const container = containerRef.current;
-        if(!container) return;
+        if (!container) return;
         isScrollingRef.current = "button";
         scrollTargetRef.current = Math.max(
             0,
@@ -56,7 +56,7 @@ export function useSmoothScroll() {
 
     const scrollRight = useCallback(() => {
         const container = containerRef.current;
-        if(!container) return;
+        if (!container) return;
         isScrollingRef.current = "button";
         scrollTargetRef.current = Math.min(
             container.scrollWidth - container.clientWidth,
@@ -67,7 +67,7 @@ export function useSmoothScroll() {
 
     useEffect(() => {
         const container = containerRef.current;
-        if(!container) return;
+        if (!container) return;
 
         scrollTargetRef.current = container.scrollLeft;
 
@@ -79,8 +79,10 @@ export function useSmoothScroll() {
                 Math.min(scrollTargetRef.current + e.deltaY * 1.5, maxScroll)
             );
 
-                isScrollingRef.current = "wheel";
-                rafRef.current = requestAnimationFrame(smoothScroll);
+            updateScrollButtons();
+
+            isScrollingRef.current = "wheel";
+            rafRef.current = requestAnimationFrame(smoothScroll);
         };
 
         updateScrollButtons();
