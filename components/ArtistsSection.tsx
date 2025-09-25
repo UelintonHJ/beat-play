@@ -4,7 +4,6 @@ import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import SectionSkeleton from "./SectionSkeleton";
-import { useState, useEffect } from "react";
 
 type Artist = {
     id: string;
@@ -15,9 +14,10 @@ type Artist = {
 
 interface ArtistsSectionProps {
     artists: Artist[];
+    loading?: boolean;
 }
 
-export default function ArtistsSection({ artists }: ArtistsSectionProps) {
+export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
     const {
         containerRef,
         scrollLeft,
@@ -25,18 +25,6 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
         showLeftButton,
         showRightButton,
     } = useSmoothScroll();
-
-    const [loading, setLoading] = useState(true);
-    const [loadedArtists, setLoadedArtists] = useState<Artist[]>([]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoadedArtists(artists);
-            setLoading(false);
-        }, 5000);
-
-        return () => clearTimeout(timer);
-    }, [artists]);
 
     if (!artists.length) return null;
 
@@ -57,8 +45,8 @@ export default function ArtistsSection({ artists }: ArtistsSectionProps) {
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {loading ? (
                         <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
-                    ) : loadedArtists.length > 0 ? (
-                        loadedArtists.map((artist) => (
+                    ) : artists.length > 0 ? (
+                        artists.map((artist) => (
                             <div key={artist.id} className="flex-shrink-0">
                                 <ArtistCard
                                     name={artist.name}
