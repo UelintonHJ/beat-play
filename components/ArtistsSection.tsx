@@ -2,8 +2,9 @@
 
 import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import ArtistsSectionSkeleton from "./ArtistsSectionSkeleton";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
+import SectionSkeleton from "./SectionSkeleton";
+import { useState, useEffect } from "react";
 
 type Artist = {
     id: string;
@@ -14,7 +15,6 @@ type Artist = {
 
 interface ArtistsSectionProps {
     artists: Artist[];
-    loading?: boolean;
 }
 
 export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
@@ -26,15 +26,19 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
         showRightButton,
     } = useSmoothScroll();
 
-    if (loading) {
-        return artists.length > 0 ? (
-            <ArtistsSectionSkeleton count={Math.min(artists.length, 8)} />
-        ) : null;
-    }
+    const [loading, setLoading] = useState(true);
+    const [loadedArtists, setLoadedArtists] = useState<Artist[]>([]);
 
-    if (!artists.length) {
-        return null;
-    }
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoadedArtists(artists);
+            setLoading(false);
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, [artists]);
+
+    if (!artists.length) return null;
 
     return (
         <section className="mt-8">
@@ -50,9 +54,11 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                 )}
 
                 {/* Container */}
-                {artists.length > 0 ? (
-                    <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
-                        {artists.map((artist) => (
+                <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
+                    {loading ? (
+                        <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
+                    ) : loadedArtists.length > 0 ? (
+                        loadedArtists.map((artist) => (
                             <div key={artist.id} className="flex-shrink-0">
                                 <ArtistCard
                                     name={artist.name}
@@ -60,23 +66,22 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                                     spotifyUrl={artist.spotifyUrl}
                                 />
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-gray-400 whitespace-nowrap">
-                        Nenhum artista encontrado.
-                    </p>
-                )}
+                        ))
+                    ) : (
+                        <p className="text-gray-400 whitespace-nowrap">
+                            Nenhum artista encontrado.
+                        </p>
+                    )}
 
-                {showRightButton && (
-                    <button
-                        onClick={scrollRight}
-                        className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
-                    >
-                        <ChevronRight size={18} />
-                    </button>
-                )}
-            </div>
+                    {showRightButton && (
+                        <button
+                            onClick={scrollRight}
+                            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
+                    )}
+                </div>
         </section>
     );
 }
