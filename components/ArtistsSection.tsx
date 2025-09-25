@@ -17,7 +17,7 @@ interface ArtistsSectionProps {
     artists: Artist[];
 }
 
-export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
+export default function ArtistsSection({ artists }: ArtistsSectionProps) {
     const {
         containerRef,
         scrollLeft,
