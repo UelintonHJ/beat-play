@@ -1,107 +1,46 @@
-import { getServerSession } from "next-auth";
-import { Session } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+"use client";
+
+import { useSession } from "next-auth/react";
 import PlaylistsSection from "@/components/PlaylistsSection";
 import ArtistsSection from "@/components/ArtistsSection";
-import { getTopArtists } from "@/lib/spotify";
+import { useUserPlaylists } from "@/hooks/useUserPlaylists";
+import { useTopArtists } from "@/hooks/useTopArtists";
 
-interface SpotifyArtists {
-    id: string;
-    name: string;
-    images: { url: string }[];
-    external_urls: {
-        spotify: string;
-    };
-}
+export default function DashboardPage() {
+    const { data: session } = useSession();
+    const token = session?.accessToken;
 
-type Artist = {
-    id: string;
-    name: string;
-    image: string;
-    spotifyUrl: string;
-};
+    const {
+        playlists,
+        loading: playlistsLoading,
+        error: playlistsError
+    } = useUserPlaylists(token ?? "");
 
-interface SpotifyPlaylist {
-    id: string;
-    name: string;
-    owner: {
-        display_name: string;
-    };
-    images: { url: string }[];
-    external_urls: {
-        spotify: string;
-    };
-}
+    const {
+        artists,
+        loading: artistsLoading,
+        error: artistsError
+    } = useTopArtists(token ?? "");
 
-type Playlist = {
-    id: string;
-    name: string;
-    owner: string;
-    image: string;
-    spotifyUrl: string;
-};
-
-export default async function DashboardPage() {
-    interface CustomSessions extends Session {
-        accessToken?: string;
-    }
-
-    const session = await getServerSession(authOptions) as CustomSessions;
-    const accessToken = session.accessToken;
-
-    async function fetchSpotifyPlaylists(token: string): Promise<Playlist[]> {
-        const res = await fetch("https://api.spotify.com/v1/me/playlists?limit=20", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-
-        if (!res.ok) {
-            throw new Error("Não foi possível buscar as playlists do Spotify");
-        }
-
-        const data = await res.json() as { items: SpotifyPlaylist[] };
-
-        return data.items.map((playlist) => {
-
-            return {
-                id: playlist.id,
-                name: playlist.name,
-                owner: playlist.owner?.display_name || "Desconhecido",
-                image: playlist.images?.[0]?.url ?? "/playlist-mock.png",
-                spotifyUrl: playlist.external_urls.spotify,
-            };
-
-        });
-    }
-
-    async function fecthSpotifyArtists(token: string): Promise<Artist[]> {
-        const data = await getTopArtists(token, 10);
-        return data.items.map((artist: SpotifyArtists) => ({
-            id: artist.id,
-            name: artist.name,
-            image:artist.images?.[0]?.url ?? "/artist-mock.png",
-            spotifyUrl: artist.external_urls.spotify,
-        }));
-    }
-
-    let playlists: Playlist[] = [];
-    let artists: Artist[] = [];
-
-    if (accessToken) {
-        try {
-            playlists = await fetchSpotifyPlaylists(accessToken);
-            artists = await fecthSpotifyArtists(accessToken);
-        } catch (error) {
-            console.error(error);
-        }
+    if(!token) {
+        return <p className="text-white p-8">Você precisa estar logado para acessar o dashboard.</p>
     }
 
     return (
         <div className="text-white p-8">
-            <h1 className="text-2x1 font-bold mb-4">Bem-vindo ao Beatplay</h1>
-            <PlaylistsSection playlists={playlists} />
-            <ArtistsSection artists={artists} />
+            <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Beatplay</h1>
+            
+            {playlistsError ? (
+                <p className="text-red-500 mb-4">Erro ao carregar playlists.</p>
+            ) : (
+                <PlaylistsSection playlists={playlists} loading={playlistsLoading} />
+            )}
+
+            {artistsError ? (
+                <p className="text-red-500 mt-4">Erro ao carregar artistas favoritos.</p>
+            ) : (
+                <ArtistsSection token={token} />
+            )}
         </div>
     );
 }

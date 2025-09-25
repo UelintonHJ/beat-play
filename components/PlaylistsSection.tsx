@@ -15,9 +15,10 @@ type Playlist = {
 
 interface PlaylistsSectionProps {
     playlists: Playlist[];
+    loading?: boolean;
 }
 
-export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
+export default function PlaylistsSection({ playlists, loading }: PlaylistsSectionProps) {
     const {
         containerRef,
         showLeftButton,
@@ -25,8 +26,6 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         scrollLeft,
         scrollRight,
     } = useSmoothScroll();
-
-    const loading = playlists.length === 0;
 
     return (
         <section>
