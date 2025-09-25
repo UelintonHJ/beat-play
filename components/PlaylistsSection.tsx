@@ -4,21 +4,19 @@ import PlaylistCard from "./PlaylistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import SectionSkeleton from "./SectionSkeleton";
-
-type Playlist = {
-    id: string;
-    name: string;
-    owner: string;
-    image: string;
-    spotifyUrl: string;
-};
+import { useUserPlaylists } from "@/hooks/useUserPlaylists";
 
 interface PlaylistsSectionProps {
-    playlists: Playlist[];
-    loading?: boolean;
+    token: string
 }
 
-export default function PlaylistsSection({ playlists, loading }: PlaylistsSectionProps) {
+export default function PlaylistsSection({ token}: PlaylistsSectionProps) {
+    const {
+        playlists,
+        loading,
+        error,
+    } = useUserPlaylists(token);
+
     const {
         containerRef,
         showLeftButton,
@@ -26,6 +24,22 @@ export default function PlaylistsSection({ playlists, loading }: PlaylistsSectio
         scrollLeft,
         scrollRight,
     } = useSmoothScroll();
+
+    if(error) {
+        return (
+            <p className="text-red-500 mb-4">
+                Erro ao carregar playlists.
+            </p>
+        );
+    }
+
+    if(!playlists.length && !loading) {
+        return (
+            <p className="text-gray-400 mb-4">
+                Nenhuma playlist encontrada no Spotify.
+            </p>
+        );
+    }
 
     return (
         <section>
@@ -46,7 +60,7 @@ export default function PlaylistsSection({ playlists, loading }: PlaylistsSectio
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {loading ? (
                         <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
-                    ) : playlists.length > 0 ? (
+                    ) : (
                         playlists.map((playlist) => (
                             <PlaylistCard
                                 key={playlist.id}
@@ -56,10 +70,6 @@ export default function PlaylistsSection({ playlists, loading }: PlaylistsSectio
                                 spotifyUrl={playlist.spotifyUrl}
                             />
                         ))
-                    ) : (
-                        <p className="text-gray-400 whitespace-nowrap">
-                            Nenhuma playlist encontrada no Spotify.
-                        </p>
                     )}
                 </div>
 

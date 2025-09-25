@@ -33,7 +33,7 @@ export default function DashboardPage() {
             {playlistsError ? (
                 <p className="text-red-500 mb-4">Erro ao carregar playlists.</p>
             ) : (
-                <PlaylistsSection playlists={playlists} loading={playlistsLoading} />
+                <PlaylistsSection token={token} />
             )}
 
             {artistsError ? (
