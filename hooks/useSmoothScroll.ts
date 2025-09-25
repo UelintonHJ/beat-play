@@ -39,7 +39,7 @@ export function useSmoothScroll() {
 
         const maxScroll = container.scrollWidth - container.clientWidth;
         if(container.scrollLeft < 0) container.scrollLeft = 0;
-        if(container.scrollLeft > maxScroll) container.scrollLeft - maxScroll;
+        if(container.scrollLeft > maxScroll) container.scrollLeft = maxScroll;
 
         updateScrollButtons();
         rafRef.current = requestAnimationFrame(smoothScroll);
