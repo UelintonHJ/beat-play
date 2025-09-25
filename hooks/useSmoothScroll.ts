@@ -1,4 +1,3 @@
-import { Currency } from "lucide-react";
 import { useRef, useState, useCallback, useEffect, } from "react";
 
 export function useSmoothScroll() {
@@ -32,12 +31,11 @@ export function useSmoothScroll() {
             return;
         }
 
-        if (isScrollingRef.current === "button") {
-            const move = Math.sign(diff) * Math.min(Math.abs(diff), 80);
-            container.scrollLeft += move;
-        } else {
-            container.scrollLeft += diff * 0.2;
-        }
+        const move = isScrollingRef.current === "button"
+        ? Math.sign(diff) * Math.min(Math.abs(diff), 80)
+        : diff * 0.2;
+
+        container.scrollLeft += move;
 
         updateScrollButtons();
         rafRef.current = requestAnimationFrame(smoothScroll);
