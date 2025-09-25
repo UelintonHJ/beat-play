@@ -34,7 +34,7 @@ export function useSmoothScroll() {
 
         if(isScrollingRef.current === "button") {
             const move = Math.sign(diff) * Math.min(Math.abs(diff), 80);
-            container.scrollLeft + move;
+            container.scrollLeft += move;
         } else {
             container.scrollLeft += diff * 0.2;
         }
@@ -79,10 +79,8 @@ export function useSmoothScroll() {
                 Math.min(scrollTargetRef.current + e.deltaY * 1.5, maxScroll)
             );
 
-            if(!isScrollingRef.current) {
                 isScrollingRef.current = "wheel";
                 rafRef.current = requestAnimationFrame(smoothScroll);
-            }
         };
 
         updateScrollButtons();
