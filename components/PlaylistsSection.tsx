@@ -4,7 +4,6 @@ import PlaylistCard from "./PlaylistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 import SectionSkeleton from "./SectionSkeleton";
-import { useState, useEffect } from "react";
 
 type Playlist = {
     id: string;
@@ -27,17 +26,7 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
         scrollRight,
     } = useSmoothScroll();
 
-    const [loading, setLoading] = useState(true);
-    const [loadedPlaylists, setLoadedPlaylists] = useState<Playlist[]>([]);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoadedPlaylists(playlists);
-            setLoading(false);
-        }, 5000);
-
-        return () => clearTimeout(timer);
-    }, [playlists]);
+    const loading = playlists.length === 0;
 
     return (
         <section>
@@ -58,8 +47,8 @@ export default function PlaylistsSection({ playlists }: PlaylistsSectionProps) {
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {loading ? (
                         <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
-                    ) : loadedPlaylists.length > 0 ? (
-                        loadedPlaylists.map((playlist) => (
+                    ) : playlists.length > 0 ? (
+                        playlists.map((playlist) => (
                             <PlaylistCard
                                 key={playlist.id}
                                 name={playlist.name}
