@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import ArtistsSectionSkeleton from "./ArtistsSectionSkeleton";
+import { News_Cycle } from "next/font/google";
 
 type Artist = {
     id: string;
@@ -23,42 +24,16 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
     const [canScrollRight, setCanScrollRight] = useState(false);
 
     const scrollTargetRef = useRef<number>(0);
-    const isScrollingRef = useRef<false | "button" | "wheel">(false);
-    const rafRef = useRef<number | null>(null);
+    const isScrollingRef = useRef<boolean>(false);
+    const smoothScrollRef = useRef<() => void>(() => { });
 
-    const updateScrollButtons = useCallback(() => {
+    const updateScrollButtons = () => {
         const container = containerRef.current;
         if (container) {
-            const tolerance = 1;
-            setCanScrollLeft(container.scrollLeft > tolerance);
+            setCanScrollLeft(container.scrollLeft > 0);
             setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
         }
-    }, []);
-
-    const smoothScroll = useCallback(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const diff = scrollTargetRef.current - container.scrollLeft;
-
-        if (Math.abs(diff) < 1) {
-            container.scrollLeft = scrollTargetRef.current;
-            isScrollingRef.current = false;
-            updateScrollButtons();
-            return;
-        }
-
-        if (isScrollingRef.current === "button") {
-            const move = Math.sign(diff) * Math.min(Math.abs(diff), 80);
-            container.scrollLeft += move;
-        } else {
-            container.scrollLeft += diff * 0.35;
-        }
-
-        updateScrollButtons();
-
-        rafRef.current = requestAnimationFrame(smoothScroll);
-    }, [updateScrollButtons]);
+    };
 
     useEffect(() => {
         const container = containerRef.current;
@@ -68,55 +43,55 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
         const handleWheel = (e: WheelEvent) => {
             e.preventDefault();
-            const maxScroll = container.scrollWidth - container.clientWidth;
-            scrollTargetRef.current = Math.max(0, Math.min(scrollTargetRef.current += e.deltaY * 1.5, maxScroll));
-
-            if (!isScrollingRef.current) {
-                isScrollingRef.current = "wheel";
-                rafRef.current = requestAnimationFrame(smoothScroll);
-            }
-        };
-
-        const handleScroll = () => {
-            if (!scrollTargetRef.current) {
-                scrollTargetRef.current = container.scrollLeft;
-            }
-            updateScrollButtons();
-        };
-
-        const handleResize = () => {
-            scrollTargetRef.current = container.scrollLeft;
-            updateScrollButtons();
+            scrollTargetRef.current += e.deltaY * 2;
+            if (!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
         }
 
-        container.addEventListener("scroll", handleScroll);
-        container.addEventListener("wheel", handleWheel, { passive: false });
-        window.addEventListener("resize", handleResize);
+        const smoothScroll = () => {
+            const el = containerRef.current;
+            if (!el) {
+                isScrollingRef.current = false;
+                return;
+            }
 
-        updateScrollButtons();
+            isScrollingRef.current = true;
+            const diff = scrollTargetRef.current - el.scrollLeft;
+            const move = diff * 0.22;
+            el.scrollLeft += move;
+
+            updateScrollButtons();
+
+            if (Math.abs(diff) > 0.5) {
+                requestAnimationFrame(smoothScrollRef.current);
+            } else {
+                isScrollingRef.current = false;
+                scrollTargetRef.current = el.scrollLeft;
+            }
+        };
+
+        smoothScrollRef.current = smoothScroll;
+
+        container.addEventListener("scroll", updateScrollButtons);
+        container.addEventListener("wheel", handleWheel, { passive: false });
+        window.addEventListener("resize", updateScrollButtons);
 
         return () => {
-            container.removeEventListener("scroll", handleScroll);
+            container.removeEventListener("scroll", updateScrollButtons);
             container.removeEventListener("wheel", handleWheel);
-            window.removeEventListener("resize", handleResize);
-            if (rafRef.current) cancelAnimationFrame(rafRef.current);
-            isScrollingRef.current = false;
+            window.removeEventListener("resize", updateScrollButtons);
         };
-    }, [artists, smoothScroll, updateScrollButtons]);
+
+    }, []);
 
     const scroll = (direction: "left" | "right") => {
         const container = containerRef.current;
-        if (!container) return;
+        if (container) {
+            const scrollAmount = Math.floor(container.clientWidth * 0.8);
+            const newScroll = container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
 
-        const scrollAmount = Math.floor(container.clientWidth * 0.8);
-        const maxScroll = container.scrollWidth - container.clientWidth;
+            scrollTargetRef.current = Math.max(0, Math.min(newScroll, container.scrollWidth - container.clientWidth))
 
-        const newTarget = container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
-        scrollTargetRef.current = Math.max(0, Math.min(newTarget, maxScroll));
-
-        if (!isScrollingRef.current) {
-            isScrollingRef.current = "button";
-            rafRef.current = requestAnimationFrame(smoothScroll);
+            if(!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
         }
     };
 
@@ -145,11 +120,7 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
 
                 {/* Container */}
                 {artists.length > 0 ? (
-                    <div
-                        className="flex gap-4 overflow-x-hidden px-6"
-                        ref={containerRef}
-                        style={{ overflowY: 'hidden', scrollBehavior: 'auto' }}
-                    >
+                    <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                         {artists.map((artist) => (
                             <div key={artist.id} className="flex-shrink-0">
                                 <ArtistCard
