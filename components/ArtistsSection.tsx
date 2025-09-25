@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
 import ArtistCard from "./ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import ArtistsSectionSkeleton from "./ArtistsSectionSkeleton";
-import { News_Cycle } from "next/font/google";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 type Artist = {
     id: string;
@@ -19,81 +18,13 @@ interface ArtistsSectionProps {
 }
 
 export default function ArtistsSection({ artists, loading = false }: ArtistsSectionProps) {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const [canScrollLeft, setCanScrollLeft] = useState(false);
-    const [canScrollRight, setCanScrollRight] = useState(false);
-
-    const scrollTargetRef = useRef<number>(0);
-    const isScrollingRef = useRef<boolean>(false);
-    const smoothScrollRef = useRef<() => void>(() => { });
-
-    const updateScrollButtons = () => {
-        const container = containerRef.current;
-        if (container) {
-            setCanScrollLeft(container.scrollLeft > 0);
-            setCanScrollRight(container.scrollLeft + container.clientWidth < container.scrollWidth);
-        }
-    };
-
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        scrollTargetRef.current = container.scrollLeft;
-
-        const handleWheel = (e: WheelEvent) => {
-            e.preventDefault();
-            scrollTargetRef.current += e.deltaY * 2;
-            if (!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
-        }
-
-        const smoothScroll = () => {
-            const el = containerRef.current;
-            if (!el) {
-                isScrollingRef.current = false;
-                return;
-            }
-
-            isScrollingRef.current = true;
-            const diff = scrollTargetRef.current - el.scrollLeft;
-            const move = diff * 0.22;
-            el.scrollLeft += move;
-
-            updateScrollButtons();
-
-            if (Math.abs(diff) > 0.5) {
-                requestAnimationFrame(smoothScrollRef.current);
-            } else {
-                isScrollingRef.current = false;
-                scrollTargetRef.current = el.scrollLeft;
-            }
-        };
-
-        smoothScrollRef.current = smoothScroll;
-
-        container.addEventListener("scroll", updateScrollButtons);
-        container.addEventListener("wheel", handleWheel, { passive: false });
-        window.addEventListener("resize", updateScrollButtons);
-
-        return () => {
-            container.removeEventListener("scroll", updateScrollButtons);
-            container.removeEventListener("wheel", handleWheel);
-            window.removeEventListener("resize", updateScrollButtons);
-        };
-
-    }, []);
-
-    const scroll = (direction: "left" | "right") => {
-        const container = containerRef.current;
-        if (container) {
-            const scrollAmount = Math.floor(container.clientWidth * 0.8);
-            const newScroll = container.scrollLeft + (direction === "right" ? scrollAmount : -scrollAmount);
-
-            scrollTargetRef.current = Math.max(0, Math.min(newScroll, container.scrollWidth - container.clientWidth))
-
-            if(!isScrollingRef.current) requestAnimationFrame(smoothScrollRef.current);
-        }
-    };
+    const {
+        containerRef,
+        scrollLeft,
+        scrollRight,
+        showLeftButton,
+        showRightButton,
+    } = useSmoothScroll();
 
     if (loading) {
         return artists.length > 0 ? (
@@ -110,8 +41,8 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
             <h2 className="text-xl font-semibold mb-4">Meus Artistas Favoritos</h2>
 
             <div className="relative">
-                {canScrollLeft && (
-                    <button onClick={() => scroll("left")}
+                {showLeftButton && (
+                    <button onClick={scrollLeft}
                         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
                         <ChevronLeft size={18} />
@@ -137,9 +68,9 @@ export default function ArtistsSection({ artists, loading = false }: ArtistsSect
                     </p>
                 )}
 
-                {canScrollRight && (
+                {showRightButton && (
                     <button
-                        onClick={() => scroll("right")}
+                        onClick={scrollRight}
                         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
                         <ChevronRight size={18} />
