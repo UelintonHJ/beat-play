@@ -15,7 +15,7 @@ export function useSmoothScroll() {
 
         const { scrollLeft, scrollWidth, clientWidth } = container;
         setShowLeftButton(scrollLeft > 0);
-        setShowRightButton(scrollLeft + clientWidth < scrollWidth - 1);
+        setShowRightButton(scrollLeft + clientWidth < scrollWidth - 0.5);
     }, []);
 
     const smoothScroll = useCallback(() => {
@@ -24,7 +24,7 @@ export function useSmoothScroll() {
 
         const diff = scrollTargetRef.current - container.scrollLeft;
 
-        if (Math.abs(diff) < 1) {
+        if (Math.abs(diff) < 0.5) {
             container.scrollLeft = scrollTargetRef.current;
             isScrollingRef.current = false;
             updateScrollButtons();
@@ -36,6 +36,10 @@ export function useSmoothScroll() {
         : diff * 0.2;
 
         container.scrollLeft += move;
+
+        const maxScroll = container.scrollWidth - container.clientWidth;
+        if(container.scrollLeft < 0) container.scrollLeft = 0;
+        if(container.scrollLeft > maxScroll) container.scrollLeft - maxScroll;
 
         updateScrollButtons();
         rafRef.current = requestAnimationFrame(smoothScroll);
