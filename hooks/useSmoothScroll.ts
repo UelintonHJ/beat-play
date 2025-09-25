@@ -1,9 +1,11 @@
-import { useRef, useState, useCallback, useEffect, use } from "react";
+import { Currency } from "lucide-react";
+import { useRef, useState, useCallback, useEffect, } from "react";
 
 export function useSmoothScroll() {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const scrollTargetRef = useRef(0);
-    const isScrollingRef = useRef<false | "button">(false);
+    const isScrollingRef = useRef<false | "button" | "wheel">(false);
+    const rafRef = useRef<number | null>(null);
 
     const [showLeftButton, setShowLeftButton] = useState(false);
     const [showRightButton, setShowRightButton] = useState(false);
@@ -30,8 +32,15 @@ export function useSmoothScroll() {
             return;
         }
 
-        container.scrollLeft += diff * 0.2;
-        requestAnimationFrame(smoothScroll);
+        if(isScrollingRef.current === "button") {
+            const move = Math.sign(diff) * Math.min(Math.abs(diff), 80);
+            container.scrollLeft + move;
+        } else {
+            container.scrollLeft += diff * 0.2;
+        }
+
+        updateScrollButtons();
+        rafRef.current = requestAnimationFrame(smoothScroll);
     }, [updateScrollButtons]);
 
     const scrollLeft = useCallback(() => {
@@ -60,15 +69,35 @@ export function useSmoothScroll() {
         const container = containerRef.current;
         if(!container) return;
 
+        scrollTargetRef.current = container.scrollLeft;
+
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            const maxScroll = container.scrollWidth - container.clientWidth;
+            scrollTargetRef.current = Math.max(
+                0,
+                Math.min(scrollTargetRef.current + e.deltaY * 1.5, maxScroll)
+            );
+
+            if(!isScrollingRef.current) {
+                isScrollingRef.current = "wheel";
+                rafRef.current = requestAnimationFrame(smoothScroll);
+            }
+        };
+
         updateScrollButtons();
         container.addEventListener("scroll", updateScrollButtons);
+        container.addEventListener("wheel", handleWheel);
         window.addEventListener("resize", updateScrollButtons);
 
         return () => {
             container.removeEventListener("scroll", updateScrollButtons);
+            container.removeEventListener("wheel", handleWheel);
             window.removeEventListener("resize", updateScrollButtons);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            isScrollingRef.current = false;
         };
-    }, [updateScrollButtons]);
+    }, [smoothScroll, updateScrollButtons]);
 
     return {
         containerRef,
