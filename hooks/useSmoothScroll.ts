@@ -93,10 +93,10 @@ export function useSmoothScroll() {
                 maxScroll
             );
 
-            updateScrollButtons();
-
             isScrollingRef.current = "wheel";
             rafRef.current = requestAnimationFrame(smoothScroll);
+            
+            updateScrollButtons();
         };
 
         updateScrollButtons();
