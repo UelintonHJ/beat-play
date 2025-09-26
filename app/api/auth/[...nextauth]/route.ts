@@ -1,7 +1,14 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, JWT } from "next-auth";
 import SpotifyProvider from "next-auth/providers/spotify";
 
-async function refreshAccessToken(token: any) {
+interface ExtendedJWT extends JWT {
+    accessToken?: string;
+    refreshToken?: string;
+    accessTokenExpires?: number;
+    error?: string;
+}
+
+async function refreshAccessToken(token: ExtendedJWT) {
     try {
         const response = await fetch ("https://accounts.spotify.com/api/token", {
             method: "POST",
@@ -13,7 +20,7 @@ async function refreshAccessToken(token: any) {
             },
             body: new URLSearchParams({
                 grant_type: "refresh_token",
-                refresh_token: token.refreshToken as string,
+                refresh_token: token.refreshToken!,
             }),
         });
 
@@ -47,23 +54,26 @@ export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
         async jwt({ token, account }) {
+            const t = token as ExtendedJWT;
+
             if (account) {
-                token.accessToken = account.access_token;
-                token.refreshToken = account.refresh_token;
-                token.accessTokenExpires = Date.now() + account.expires_in * 1000;
+                t.accessToken = account.access_token;
+                t.refreshToken = account.refresh_token;
+                t.accessTokenExpires = Date.now() + account.expires_in * 1000;
             }
     
-            if (Date.now() < (token.accessTokenExpires as number)) {
-                return token;
+            if (Date.now() < (t.accessTokenExpires ?? 0)) {
+                return t;
             }
 
-            return await refreshAccessToken(token);
+            return await refreshAccessToken(t);
         },
         async session ({ session, token }) {
+            const t = token as ExtendedJWT;
             return {
                 ...session,
-                accessToken: token.accessToken,
-                error: token.error,
+                accessToken: t.accessToken,
+                error: t.error,
             };
         },
     },
