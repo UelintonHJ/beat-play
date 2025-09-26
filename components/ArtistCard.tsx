@@ -23,7 +23,7 @@ export default function ArtistCard({ name, image, spotifyUrl }: ArtistCardProps)
                 height={160}
                 className="w-40 h-40 rounded-full object-cover"
             />
-            <h3 className="mt-2 text-while font-semibold truncate w-40">{name}</h3>
+            <h3 className="mt-2 text-white font-semibold truncate w-40">{name}</h3>
         </a>
     );
 }
