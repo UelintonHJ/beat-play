@@ -53,7 +53,7 @@ export const authOptions: NextAuthOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-        async jwt({ token, account }): Promise<ExtendedJWT> {
+        async jwt({ token, account }) {
             const t = token as ExtendedJWT;
 
             if (account) {
@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
                 return t;
             }
 
-            return await refreshAccessToken(t);
+            return (await refreshAccessToken(t)) as JWT;
         },
         async session ({ session, token }) {
             const t = token as ExtendedJWT;
