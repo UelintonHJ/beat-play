@@ -53,13 +53,13 @@ export const authOptions: NextAuthOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-        async jwt({ token, account }) {
+        async jwt({ token, account }): Promise<ExtendedJWT> {
             const t = token as ExtendedJWT;
 
             if (account) {
                 t.accessToken = account.access_token;
                 t.refreshToken = account.refresh_token;
-                t.accessTokenExpires = Date.now() + account.expires_in * 1000;
+                t.accessTokenExpires = Date.now() + Number(account.expires_in ?? 0)  * 1000;
             }
     
             if (Date.now() < (t.accessTokenExpires ?? 0)) {
