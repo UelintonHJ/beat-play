@@ -26,7 +26,7 @@ export default function TopTracksSection({ token }: Props) {
             </h2>
             <HorizontalScrollSection>
                 {loading ? (
-                    <SectionSkeleton count={6} cardWidth="w-48" cardHeight="h-48" />
+                    <SectionSkeleton count={6} cardWidth="w-[192px]" cardHeight="h-[235.99px]" />
                 ) : (
                     tracks.map((track) => (
                         <div
