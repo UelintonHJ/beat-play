@@ -20,7 +20,7 @@ export default function TopTracksSection({ token }: Props) {
     const { tracks, loading, error } = useUserTopTracks(token);
 
     return (
-        <section className="mb-8">
+        <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">
                 Músicas mais ouvidas
             </h2>
