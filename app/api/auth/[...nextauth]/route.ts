@@ -6,9 +6,10 @@ interface ExtendedJWT extends JWT {
     refreshToken?: string;
     accessTokenExpires?: number;
     error?: string;
+    [key: string]: unknown;
 }
 
-async function refreshAccessToken(token: ExtendedJWT) {
+async function refreshAccessToken(token: ExtendedJWT): Promise<ExtendedJWT> {
     try {
         const response = await fetch ("https://accounts.spotify.com/api/token", {
             method: "POST",
@@ -53,7 +54,7 @@ export const authOptions: NextAuthOptions = {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-        async jwt({ token, account }) {
+        async jwt({ token, account }): Promise<ExtendedJWT> {
             const t = token as ExtendedJWT;
 
             if (account) {
@@ -66,7 +67,7 @@ export const authOptions: NextAuthOptions = {
                 return t;
             }
 
-            return (await refreshAccessToken(t)) as JWT;
+            return (await refreshAccessToken(t)) as unknown as ExtendedJWT;
         },
         async session ({ session, token }) {
             const t = token as ExtendedJWT;
