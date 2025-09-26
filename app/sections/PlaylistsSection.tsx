@@ -17,7 +17,7 @@ interface Props {
     token: string;
 }
 
-export default function PlaylistsSection({ token }: PlaylistsSectionProps) {
+export default function PlaylistsSection({ token }: Props) {
     const {
         playlists,
         loading,
