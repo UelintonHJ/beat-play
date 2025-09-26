@@ -35,7 +35,7 @@ export default function HorizontalScrollSection({ children, className = "" }: Pr
             {showRightButton && (
                 <button 
                     onClick={scrollRight}
-                    className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center ronded-full z-10 transition-all shadow-md"
+                    className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     aria-label="Scroll right"
                 >
                     <ChevronRight size={18} />
