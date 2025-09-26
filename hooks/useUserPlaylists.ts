@@ -30,7 +30,7 @@ export function useUserPlaylists(token: string, limit: number = 10) {
             }));
             setPlaylists(formattedPlaylists);
         })
-        .catch((err) => setError(err.messege || "Erro ao buscar playlists"))
+        .catch((err) => setError(err.message || "Erro ao buscar playlists"))
         .finally(() => setLoading(false));
     }, [token, limit]);
 
