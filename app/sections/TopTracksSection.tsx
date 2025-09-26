@@ -41,7 +41,7 @@ export default function TopTracksSection({ token }: TopTracksSectionProps) {
                             />
                             <p className="text-sm font-medium truncate">{track.name}</p>
                             <p className="text-xs text-neutral-400 truncate">
-                                {track.artist.map((a) => a.name).join(", ")}
+                                {track.artists.map((a) => a.name).join(", ")}
                             </p>
                         </div>
                     ))}

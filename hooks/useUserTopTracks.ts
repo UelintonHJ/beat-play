@@ -6,7 +6,7 @@ type Track = {
     album: {
         images: { url: string }[];
     };
-    artist: { name: string }[];
+    artists: { name: string }[];
 };
 
 export function useUserTopTracks(token: string) {
