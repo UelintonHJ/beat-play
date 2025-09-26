@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import PlaylistsSection from "@/app/sections/PlaylistsSection";
 import ArtistsSection from "@/app/sections/ArtistsSection";
+import TopTracksSection from "../sections/TopTracksSection";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
@@ -22,6 +23,7 @@ export default function DashboardPage() {
             
                 <PlaylistsSection token={token} />
                 <ArtistsSection token={token} />
+                <TopTracksSection token={token} />
         </div>
     );
 }
