@@ -5,11 +5,18 @@ import SectionSkeleton from "../../components/SectionSkeleton";
 import { useTopArtists } from "@/hooks/useTopArtists";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
 
-interface ArtistsSectionProps {
+interface Artists {
+    id: string;
+    name: string;
+    image: string;
+    spotifyUrl: string;
+}
+
+interface Props {
     token: string;
 }
 
-export default function ArtistsSection({ token }: ArtistsSectionProps) {
+export default function ArtistsSection({ token }: Props) {
     const {
         artists,
         loading,
@@ -36,11 +43,11 @@ export default function ArtistsSection({ token }: ArtistsSectionProps) {
         <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Meus Artistas Favoritos</h2>
 
-            <HorizontalScrollSection
-                items={loading ? Array.from({ length: 8 }) : artists}
-                isLoading={loading}
-                renderItem={(artist: any, index: number) =>
-                    loading ? null : (
+            <HorizontalScrollSection>
+                {loading ? (
+                    <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
+                ) : (
+                    artists.map((artist) => (
                         <div key={artist.id} className="flex-shrink-0">
                             <ArtistCard
                                 name={artist.name}
@@ -48,11 +55,9 @@ export default function ArtistsSection({ token }: ArtistsSectionProps) {
                                 spotifyUrl={artist.spotifyUrl}
                             />
                         </div>
-                    )
-                }
-                cardWidth="w-[192px]"
-                carHeight="h-[248px]"
-            />
-        </section >
+                    ))
+                )}
+            </HorizontalScrollSection>
+        </section>
     );
 }
