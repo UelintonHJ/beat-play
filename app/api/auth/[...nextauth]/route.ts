@@ -68,13 +68,16 @@ export const authOptions: NextAuthOptions = {
                 t.accessToken = account.access_token;
                 t.refreshToken = account.refresh_token;
                 t.accessTokenExpires = Date.now() + Number(account.expires_in ?? 0)  * 1000;
-            }
-    
-            if (Date.now() < (t.accessTokenExpires ?? 0)) {
                 return t;
             }
 
-            return (await refreshAccessToken(t)) as unknown as ExtendedJWT;
+            const shouldRefresh = (t.accessTokenExpires ?? 0) - Date.now() < 60 * 1000;
+    
+            if (! shouldRefresh) {
+                return t;
+            }
+
+            return (await refreshAccessToken(t)) as ExtendedJWT;
         },
         async session ({ session, token }) {
             const t = token as ExtendedJWT;
