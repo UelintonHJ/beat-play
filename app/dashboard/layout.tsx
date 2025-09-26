@@ -15,7 +15,7 @@ export default async function DashboardLayout({
             <Sidebar user={session?.user || undefined} />
 
             {/* Conteúdo do Dashboard */}
-            <main className="flex-1 pp-8 overflow-y-auto">
+            <main className="flex-1 p-8 overflow-y-auto">
                 {children}
             </main>
         </div>
