@@ -1,87 +1,86 @@
 "use client";
 
-import PlaylistCard from "./PlaylistCard";
+import ArtistCard from "../../components/ArtistCard";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
-import SectionSkeleton from "./SectionSkeleton";
-import { useUserPlaylists } from "@/hooks/useUserPlaylists";
+import SectionSkeleton from "../../components/SectionSkeleton";
+import { useTopArtists } from "@/hooks/useTopArtists";
 
-interface PlaylistsSectionProps {
-    token: string
+interface ArtistsSectionProps {
+    token: string;
 }
 
-export default function PlaylistsSection({ token}: PlaylistsSectionProps) {
+export default function ArtistsSection({ token }: ArtistsSectionProps) {
     const {
-        playlists,
+        artists,
         loading,
-        error,
-    } = useUserPlaylists(token);
+        error
+    } = useTopArtists(token);
 
     const {
         containerRef,
-        showLeftButton,
-        showRightButton,
         scrollLeft,
         scrollRight,
+        showLeftButton,
+        showRightButton,
     } = useSmoothScroll();
 
-    if(error) {
+    if (error) {
         return (
-            <p className="text-red-500 mb-4">
-                Erro ao carregar playlists.
+            <p className="text-red-500 mt-4">
+                Erro ao carregar artistas favoritos.
             </p>
         );
     }
 
-    if(!playlists.length && !loading) {
+    if (!artists.length && !loading) {
         return (
-            <p className="text-gray-400 mb-4">
-                Nenhuma playlist encontrada no Spotify.
+            <p className="text-gray-400 mt-4 whitespace-nowrap">
+                Nenhum artista encontrado.
             </p>
         );
     }
 
     return (
-        <section>
-            <h2 className="text-xl font-semibold mb-4">Minhas Playlists</h2>
+        <section className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Meus Artistas Favoritos</h2>
 
             <div className="relative">
-                {/* Botão de Voltar */}
                 {showLeftButton && (
-                    <button
-                        onClick={scrollLeft}
+                    <button onClick={scrollLeft}
                         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
                         <ChevronLeft size={18} />
                     </button>
                 )}
 
-                {/* Container horizontal com overflow oculto */}
+                {/* Container */}
                 <div className="flex gap-4 overflow-x-hidden px-6" ref={containerRef}>
                     {loading ? (
                         <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
                     ) : (
-                        playlists.map((playlist) => (
-                            <PlaylistCard
-                                key={playlist.id}
-                                name={playlist.name}
-                                owner={playlist.owner}
-                                image={playlist.image}
-                                spotifyUrl={playlist.spotifyUrl}
-                            />
+                        artists.map((artist) => (
+                            <div key={artist.id} className="flex-shrink-0">
+                                <ArtistCard
+                                    name={artist.name}
+                                    image={artist.image}
+                                    spotifyUrl={artist.spotifyUrl}
+                                />
+                            </div>
                         ))
                     )}
                 </div>
 
-                {/* Botão para avançar */}
                 {showRightButton && (
-                    <button onClick={scrollRight}
+                    <button
+                        onClick={scrollRight}
                         className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-neutral-700 hover:bg-neutral-600 text-white w-10 h-10 flex items-center justify-center rounded-full z-10 transition-all shadow-md"
                     >
                         <ChevronRight size={18} />
                     </button>
                 )}
             </div>
+
         </section>
     );
 }

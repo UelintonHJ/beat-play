@@ -1,8 +1,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import PlaylistsSection from "@/components/PlaylistsSection";
-import ArtistsSection from "@/components/ArtistsSection";
+import PlaylistsSection from "@/app/sections/PlaylistsSection";
+import ArtistsSection from "@/app/sections/ArtistsSection";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
