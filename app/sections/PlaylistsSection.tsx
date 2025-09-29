@@ -13,16 +13,12 @@ interface Playlist {
     spotifyUrl: string;
 }
 
-interface Props {
-    token: string;
-}
-
-export default function PlaylistsSection({ token }: Props) {
+export default function PlaylistsSection() {
     const {
         playlists,
         loading,
         error,
-    } = useUserPlaylists(token);
+    } = useUserPlaylists(20);
 
     if (error) {
         return (
