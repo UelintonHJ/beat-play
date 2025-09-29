@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getUserTopTracks } from "@/lib/spotify";
 
 type Track = {
     id: string;
@@ -9,7 +10,7 @@ type Track = {
     artists: { name: string }[];
 };
 
-export function useUserTopTracks(token: string) {
+export function useUserTopTracks(token: string, limit: number = 10) {
     const [tracks, setTracks] = useState<Track[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -17,28 +18,22 @@ export function useUserTopTracks(token: string) {
     useEffect(() => {
         if (!token) return;
 
-        const fetchTopTracks = async () => {
-            try {
-                setLoading(true);
-                const res = await fetch("https://api.spotify.com/v1/me/top/tracks?limit=10", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+        setLoading(true);
+        setError(null);
 
-                if (!res.ok) {
-                    throw new Error("Erro ao buscar músicas mais ouvidas");
-                }
-
-                const data = await res.json();
-                setTracks(data.items || []);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTopTracks();
-    }, [token]);
+        getUserTopTracks(token, limit)
+            .then((data) => {
+                const formattedTracks = data.items.map((item: any) => ({
+                    id: item.id,
+                    name: item.name,
+                    album: item.album,
+                    artists: item.artists,
+                }));
+                setTracks(formattedTracks);
+            })
+            .catch((err) => setError(err.messege || "Erro ao buscar faixas"))
+            .finally(() => setLoading(false));
+    }, [token,, limit]);
 
     return { tracks, loading, error };
 }
