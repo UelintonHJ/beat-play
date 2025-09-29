@@ -12,12 +12,8 @@ type Track = {
     artists: { name: string }[];
 };
 
-type Props = {
-    token: string;
-};
-
-export default function TopTracksSection({ token }: Props) {
-    const { tracks, loading, error } = useUserTopTracks(token);
+export default function TopTracksSection() {
+    const { tracks, loading, error } = useUserTopTracks(20);
 
     return (
         <section className="mt-8">
