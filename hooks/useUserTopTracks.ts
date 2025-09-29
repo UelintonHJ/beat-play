@@ -28,7 +28,12 @@ export function useUserTopTracks(limit: number = 10) {
                 const formattedTracks = data.items.map((item: any) => ({
                     id: item.id,
                     name: item.name,
-                    album: item.album,
+                    album: {
+                        ...item.album, 
+                        images: item.album.images.leght 
+                        ? item.album.images 
+                        : [{ url: "/track-mock.png"}]
+                    }, 
                     artists: item.artists,
                 }));
                 setTracks(formattedTracks);
