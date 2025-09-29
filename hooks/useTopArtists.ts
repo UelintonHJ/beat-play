@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getTopArtists } from "@/lib/spotify";
+import { useSpotifyToken } from "./useSpotifyToken";
 
 type Artist = {
     id: string;
@@ -8,7 +9,8 @@ type Artist = {
     spotifyUrl: string;
 };
 
-export function useTopArtists(token: string, limit: number = 10) {
+export function useTopArtists(limit: number = 10) {
+    const token = useSpotifyToken();
     const [artists, setArtists] = useState<Artist[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
