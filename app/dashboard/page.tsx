@@ -23,7 +23,7 @@ export default function DashboardPage() {
             
                 <PlaylistsSection />
                 <ArtistsSection />
-                <TopTracksSection token={token} />
+                <TopTracksSection />
         </div>
     );
 }
