@@ -30,7 +30,7 @@ export default function TopTracksSection() {
                             className="flex-shrink-0 w-48 bg-neutral-900 rounded-lg p-2"
                         >
                             <Image
-                                src={track.album.images[0]?.url || ""}
+                                src={track.album.images[0]?.url}
                                 alt={track.name}
                                 width={192}
                                 height={192}
