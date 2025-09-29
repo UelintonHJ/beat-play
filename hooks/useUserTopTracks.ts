@@ -31,9 +31,9 @@ export function useUserTopTracks(token: string, limit: number = 10) {
                 }));
                 setTracks(formattedTracks);
             })
-            .catch((err) => setError(err.messege || "Erro ao buscar faixas"))
+            .catch((err) => setError(err.message || "Erro ao buscar faixas"))
             .finally(() => setLoading(false));
-    }, [token,, limit]);
+    }, [token, limit]);
 
     return { tracks, loading, error };
 }
