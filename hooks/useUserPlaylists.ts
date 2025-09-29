@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { getUserPlaylists } from "@/lib/spotify"
+import { getUserPlaylists } from "@/lib/spotify";
+import { useSpotifyToken } from "./useSpotifyToken";
 
 type Playlists = {
     id: string;
@@ -9,7 +10,8 @@ type Playlists = {
     spotifyUrl: string;
 };
 
-export function useUserPlaylists(token: string, limit: number = 10) {
+export function useUserPlaylists(limit: number = 10) {
+    const token = useSpotifyToken();
     const [playlists, setPlaylists] = useState<Playlists[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
