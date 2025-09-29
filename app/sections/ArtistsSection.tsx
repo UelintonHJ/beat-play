@@ -12,16 +12,12 @@ interface Artists {
     spotifyUrl: string;
 }
 
-interface Props {
-    token: string;
-}
-
-export default function ArtistsSection({ token }: Props) {
+export default function ArtistsSection() {
     const {
         artists,
         loading,
         error
-    } = useTopArtists(token);
+    } = useTopArtists(20);
 
     if (error) {
         return (

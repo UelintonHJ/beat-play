@@ -10,7 +10,7 @@ type Artist = {
 };
 
 export function useTopArtists(limit: number = 10) {
-    const token = useSpotifyToken();
+    const token = useSpotifyToken();    
     const [artists, setArtists] = useState<Artist[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
