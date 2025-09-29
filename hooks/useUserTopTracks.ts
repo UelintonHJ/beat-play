@@ -30,7 +30,7 @@ export function useUserTopTracks(limit: number = 10) {
                     name: item.name,
                     album: {
                         ...item.album, 
-                        images: item.album.images.leght 
+                        images: item.album.images.length
                         ? item.album.images 
                         : [{ url: "/track-mock.png"}]
                     }, 
