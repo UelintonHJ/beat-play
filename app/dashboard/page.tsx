@@ -21,7 +21,7 @@ export default function DashboardPage() {
         <div className="text-white p-8">
             <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Beatplay</h1>
             
-                <PlaylistsSection token={token} />
+                <PlaylistsSection />
                 <ArtistsSection />
                 <TopTracksSection token={token} />
         </div>
