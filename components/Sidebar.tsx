@@ -51,7 +51,7 @@ export default function Sidebar({ user }: SidebarProps) {
                     <Image 
                         src={user.image}
                         alt={user.name || "Avatar"}
-                        width={40}
+                        width={45}
                         height={40}
                         className="rounded-full"
                     />
