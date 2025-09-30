@@ -27,7 +27,7 @@ export default function TopTracksSection() {
                     tracks.map((track) => (
                         <div
                             key={track.id}
-                            className="flex-shrink-0 w-48 bg-neutral-900 p-2 transition-all duration-200 shadow-md relative rounded-lg hover:bg-neutral-800 hover:scale-101"
+                            className="flex-shrink-0 w-48 bg-neutral-900 p-2 transition-all duration-200 shadow-md relative rounded-lg hover:bg-neutral-800"
                         >
                             <Image
                                 src={track.album.images[0]?.url}
