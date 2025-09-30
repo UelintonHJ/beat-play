@@ -24,6 +24,8 @@ export function useUserPlaylists(limit: number = 10) {
                 spotifyUrl: item.external_urls.spotify,
             }));
             setPlaylists(formattedPlaylists);
+
+            console.log("Plalists recebidas:", formattedPlaylists)
         })
         .catch((err) => setError(err.message || "Erro ao buscar playlists"))
         .finally(() => setLoading(false));
