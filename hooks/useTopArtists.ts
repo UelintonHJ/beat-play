@@ -16,7 +16,7 @@ export function useTopArtists(limit: number = 10) {
         setError(null);
 
         getTopArtists(token, limit).then((data) => {
-            const formattedArtists = data.items.map((item: any) => ({
+            const formattedArtists: Artist[] = data.items.map((item: any) => ({
                 id: item.id,
                 name: item.name,
                 image: (item.images?.[0]?.url ?? "/artist-mock.png") as string,
