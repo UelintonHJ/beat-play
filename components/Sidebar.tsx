@@ -22,7 +22,7 @@ export default function Sidebar({ user }: SidebarProps) {
                     <Image
                         src="/logotipo.png"
                         alt="Beatplay logo"
-                        width={140}
+                        width={170}
                         height={40}
                         priority
                     />
@@ -30,7 +30,7 @@ export default function Sidebar({ user }: SidebarProps) {
 
                 {/* Links de navegação */}
                 <nav className="flex flex-col gap-4">
-                    <Link href="/dashboard" className="flex items-center gap-3 hover:text-green-300 hover:bg-white-200 transition">
+                    <Link href="/dashboard" className="flex items-center gap-3 hover:text-green-300 transition">
                         <Home size={20} /> Home
                     </Link>
                     <Link href="/dashboard/playlists" className="flex items-center gap-3 hover:text-green-300 transition">
