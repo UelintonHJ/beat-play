@@ -20,7 +20,7 @@ export function useTopArtists(limit: number = 10) {
                 id: item.id,
                 name: item.name,
                 image: (item.images?.[0]?.url ?? "/artist-mock.png") as string,
-                spotifyUrl: item.external_urls.spotify,
+                spotifyUrl: item.external_urls.spotify ?? "#",
             }));
             setArtists(formattedArtists);
         })
