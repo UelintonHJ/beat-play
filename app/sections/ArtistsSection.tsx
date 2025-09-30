@@ -4,6 +4,7 @@ import ArtistCard from "../../components/ArtistCard";
 import SectionSkeleton from "../../components/SectionSkeleton";
 import { useTopArtists } from "@/hooks/useTopArtists";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
+import ErrorMessage from "@/components/ErrorMessege";
 
 interface Artists {
     id: string;
@@ -20,11 +21,7 @@ export default function ArtistsSection() {
     } = useTopArtists(20);
 
     if (error) {
-        return (
-            <p className="text-red-500 mt-4">
-                Erro ao carregar artistas favoritos.
-            </p>
-        );
+        return <ErrorMessage message="Erro ao carregar artistas" />
     }
 
     if (!artists.length && !loading) {

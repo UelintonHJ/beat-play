@@ -4,6 +4,7 @@ import { useUserTopTracks } from "@/hooks/useUserTopTracks";
 import SectionSkeleton from "@/components/SectionSkeleton";
 import Image from "next/image";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
+import ErrorMessage from "@/components/ErrorMessege";
 
 type Track = {
     id: string;
@@ -14,6 +15,10 @@ type Track = {
 
 export default function TopTracksSection() {
     const { tracks, loading, error } = useUserTopTracks(20);
+
+    if(error) {
+        return <ErrorMessage message="Erro ao carregar músicas favoritas." />
+    }
 
     return (
         <section className="mt-8">

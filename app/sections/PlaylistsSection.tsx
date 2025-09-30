@@ -4,6 +4,7 @@ import PlaylistCard from "../../components/PlaylistCard";
 import SectionSkeleton from "../../components/SectionSkeleton";
 import { useUserPlaylists } from "@/hooks/useUserPlaylists";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
+import ErrorMessage from "@/components/ErrorMessege";
 
 interface Playlist {
     id: string;
@@ -21,11 +22,7 @@ export default function PlaylistsSection() {
     } = useUserPlaylists(20);
 
     if (error) {
-        return (
-            <p className="text-red-500 mb-4">
-                Erro ao carregar playlists.
-            </p>
-        );
+        return <ErrorMessage message="Erro ao carregar playlists."/>
     }
 
     if (!playlists.length && !loading) {
