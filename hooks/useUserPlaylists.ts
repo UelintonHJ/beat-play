@@ -25,7 +25,6 @@ export function useUserPlaylists(limit: number = 10) {
             }));
             setPlaylists(formattedPlaylists);
 
-            console.log("Plalists recebidas:", formattedPlaylists)
         })
         .catch((err) => setError(err.message || "Erro ao buscar playlists"))
         .finally(() => setLoading(false));

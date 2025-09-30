@@ -30,7 +30,6 @@ export function useUserTopTracks(limit: number = 10) {
                 }));
                 setTracks(formattedTracks);
 
-                console.log("Tracks recebidas:", formattedTracks);
             })
             .catch((err) => setError(err.message || "Erro ao buscar faixas"))
             .finally(() => setLoading(false));

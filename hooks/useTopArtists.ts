@@ -24,7 +24,6 @@ export function useTopArtists(limit: number = 10) {
             }));
             setArtists(formattedArtists);
 
-            console.log("Artistas recebidos: ", formattedArtists);
         })
         .catch((err) => setError(err.message || "Erro ao buscar artistas"))
         .finally(() => setLoading(false));
