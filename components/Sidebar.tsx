@@ -30,16 +30,16 @@ export default function Sidebar({ user }: SidebarProps) {
 
                 {/* Links de navegação */}
                 <nav className="flex flex-col gap-4">
-                    <Link href="/dashboard" className="flex items-center gap-3 hover:text-green-200 transition">
+                    <Link href="/dashboard" className="flex items-center gap-3 hover:text-green-300 hover:bg-white-200 transition">
                         <Home size={20} /> Home
                     </Link>
-                    <Link href="/dashboard/playlists" className="flex items-center gap-3 hover:text-green-200 transition">
+                    <Link href="/dashboard/playlists" className="flex items-center gap-3 hover:text-green-300 transition">
                         <Music size={20} /> Playlists
                     </Link>
-                    <Link href="/dashboard/artistas" className="flex items-center gap-3 hover:text-green-200 transition">
+                    <Link href="/dashboard/artistas" className="flex items-center gap-3 hover:text-green-300 transition">
                         <User size={20} /> Artistas
                     </Link>
-                    <Link href="/dashboard/configuracoes" className="flex items-center gap-3 hover:text-green-200 transition">
+                    <Link href="/dashboard/configuracoes" className="flex items-center gap-3 hover:text-green-300 transition">
                         <Settings size={20} /> Configurações
                     </Link>
                 </nav>
