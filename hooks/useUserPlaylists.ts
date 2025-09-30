@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
 import { getUserPlaylists } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
-
-type Playlists = {
-    id: string;
-    name: string;
-    owner: string;
-    image: string;
-    spotifyUrl: string;
-};
+import { Playlist } from "@/types/spotify";
 
 export function useUserPlaylists(limit: number = 10) {
     const token = useSpotifyToken();
-    const [playlists, setPlaylists] = useState<Playlists[]>([]);
+    const [playlists, setPlaylists] = useState<Playlist[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +16,7 @@ export function useUserPlaylists(limit: number = 10) {
         setError(null);
 
         getUserPlaylists(token, limit).then((data) => {
-            const formattedPlaylists = data.items.map((item: any) => ({
+            const formattedPlaylists: Playlist[] = data.items.map((item: any) => ({
                 id: item.id,
                 name: item.name,
                 owner: item.owner.display_name,
