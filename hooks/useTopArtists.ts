@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
 import { getTopArtists } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
-
-type Artist = {
-    id: string;
-    name: string;
-    image: string;
-    spotifyUrl: string;
-};
+import { Artist } from "@/types/spotify";
 
 export function useTopArtists(limit: number = 10) {
     const token = useSpotifyToken();    
