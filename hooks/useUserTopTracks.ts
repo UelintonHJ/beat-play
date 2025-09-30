@@ -17,6 +17,8 @@ export function useUserTopTracks(limit: number = 10) {
 
         getUserTopTracks(token, limit)
             .then((data) => {
+                throw new Error("Erro simulado para teste de UI");
+
                 const formattedTracks: Track[] = data.items.map((item: any) => ({
                     id: item.id,
                     name: item.name,
