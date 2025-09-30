@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import { getUserTopTracks } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
-
-type Track = {
-    id: string;
-    name: string;
-    album: {
-        images: { url: string }[];
-    };
-    artists: { name: string }[];
-};
+import { Track } from "@/types/spotify";
 
 export function useUserTopTracks(limit: number = 10) {
     const token = useSpotifyToken();
@@ -25,7 +17,7 @@ export function useUserTopTracks(limit: number = 10) {
 
         getUserTopTracks(token, limit)
             .then((data) => {
-                const formattedTracks = data.items.map((item: any) => ({
+                const formattedTracks: Track[] = data.items.map((item: any) => ({
                     id: item.id,
                     name: item.name,
                     album: {
