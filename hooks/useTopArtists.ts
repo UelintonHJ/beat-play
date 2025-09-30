@@ -19,7 +19,7 @@ export function useTopArtists(limit: number = 10) {
             const formattedArtists = data.items.map((item: any) => ({
                 id: item.id,
                 name: item.name,
-                image: item.images?.[0]?.url || "/artist-mock.png",
+                image: item.images?.[0]?.url ?? "/artist-mock.png",
                 spotifyUrl: item.external_urls.spotify,
             }));
             setArtists(formattedArtists);
