@@ -2,7 +2,7 @@ export interface Artist {
     id: string;
     name: string;
     image: string;
-    spotifyUrl?: string;
+    spotifyUrl: string;
 }
 
 export interface Playlist {
