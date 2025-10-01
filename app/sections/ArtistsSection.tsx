@@ -21,7 +21,7 @@ export default function ArtistsSection() {
     } = useTopArtists(20);
 
     if (error) {
-        return <ErrorMessage message="Erro ao carregar artistas" />
+        return <ErrorMessage message="Erro ao carregar artistas." />
     }
 
     if (!artists.length && !loading) {
