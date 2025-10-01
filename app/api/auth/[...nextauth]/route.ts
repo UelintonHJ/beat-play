@@ -87,6 +87,9 @@ export const authOptions: NextAuthOptions = {
                 error: t.error,
             };
         },
+        async redirect({ url, baseUrl }) {
+            return baseUrl + "/dashboard";
+        }
     },
 };
 
