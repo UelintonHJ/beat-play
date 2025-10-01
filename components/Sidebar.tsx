@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Home, Music, User, Settings } from "lucide-react";
 
 interface SidebarProps {
@@ -13,6 +13,25 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ user }: SidebarProps) {
+    const { data: session } = useSession();
+
+    const handleLogout = async () => {
+        if(session?.accessToken) {
+            try {
+                await fetch('/api/auth/revoke', {
+                    method: 'POST',
+                });
+            } catch (error) {
+                console.error('Erro ao revogar token:', error);
+            }
+        }
+
+        await signOut({
+            redirect: true,
+            callbackUrl: "/"
+        });
+    };
+
     return (
         <aside className="h-screen w-64 bg-black/80 text-gray-200 flex flex-col justify-between p-6">
             {/* Topo: Logo + Navegação */}
@@ -59,10 +78,7 @@ export default function Sidebar({ user }: SidebarProps) {
                 <div className="flex flex-col items-center">
                     <span className="text-sm font-semibold">{user?.name}</span>
                     <button
-                        onClick={() => {
-                            signOut({ redirect: true, callbackUrl: "/" });
-                        } 
-                    }
+                        onClick={handleLogout}
                         className="inline-block w-10 mt-2 text-xs bg-red-500 hover:bg-red-700 text-white-300 px-1 py-1 rounded-full transition cursor-pointer"
                     >
                         Sair
