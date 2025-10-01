@@ -16,8 +16,6 @@ export function useUserPlaylists(limit: number = 10) {
         setError(null);
 
         getUserPlaylists(token, limit).then((data) => {
-            throw new Error("Erro simulado para teste de UI");
-
             const formattedPlaylists: Playlist[] = data.items.map((item: any) => ({
                 id: item.id,
                 name: item.name,
