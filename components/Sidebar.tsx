@@ -59,7 +59,11 @@ export default function Sidebar({ user }: SidebarProps) {
                 <div className="flex flex-col items-center">
                     <span className="text-sm font-semibold">{user?.name}</span>
                     <button
-                        onClick={() => signOut({ callbackUrl: "/" })}
+                        onClick={() => signOut({ 
+                            redirect: true,
+                            callbackUrl: "/", 
+                        })
+                    }
                         className="inline-block w-10 mt-2 text-xs bg-red-500 hover:bg-red-700 text-white-300 px-1 py-1 rounded-full transition cursor-pointer"
                     >
                         Sair

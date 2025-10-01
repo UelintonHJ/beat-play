@@ -5,3 +5,4 @@ export const useSpotifyToken = () => {
 
     return session?.accessToken ?? null;
 };
+
