@@ -16,8 +16,6 @@ export function useTopArtists(limit: number = 10) {
         setError(null);
 
         getTopArtists(token, limit).then((data) => {
-            throw new Error("Erro simulado para teste de UI");
-
             const formattedArtists: Artist[] = data.items.map((item: any) => ({
                 id: item.id,
                 name: item.name,
