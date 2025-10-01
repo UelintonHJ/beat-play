@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
         SpotifyProvider({
             clientId: process.env.SPOTIFY_CLIENT_ID!,
             clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
-            authorization: "https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,playlist-read-private,playlist-read-collaborative,user-top-read,user-read-playback-state,user-read-currently-playing,ugc-image-upload&prompt=login"
+            authorization: "https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,playlist-read-private,playlist-read-collaborative,user-top-read,user-read-playback-state,user-read-currently-playing,ugc-image-upload&prompt=consent"
         }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
@@ -88,8 +88,17 @@ export const authOptions: NextAuthOptions = {
             };
         },
         async redirect({ url, baseUrl }) {
+
+            if (url.includes('signOut')) {
+                return baseUrl;
+            }
+
             return baseUrl + "/dashboard";
         }
+    },
+    pages: {
+        signIn: '/',
+        signOut: '/',
     },
 };
 
