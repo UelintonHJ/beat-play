@@ -4,7 +4,7 @@ import PlaylistCard from "../../components/PlaylistCard";
 import SectionSkeleton from "../../components/SectionSkeleton";
 import { useUserPlaylists } from "@/hooks/useUserPlaylists";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
-import ErrorMessage from "@/components/ErrorMessege";
+import ErrorMessage from "@/components/ErrorMessage";
 
 interface Playlist {
     id: string;

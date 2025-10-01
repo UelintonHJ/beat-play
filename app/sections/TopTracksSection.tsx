@@ -4,7 +4,7 @@ import { useUserTopTracks } from "@/hooks/useUserTopTracks";
 import SectionSkeleton from "@/components/SectionSkeleton";
 import Image from "next/image";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
-import ErrorMessage from "@/components/ErrorMessege";
+import ErrorMessage from "@/components/ErrorMessage";
 
 type Track = {
     id: string;

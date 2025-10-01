@@ -4,7 +4,7 @@ import ArtistCard from "../../components/ArtistCard";
 import SectionSkeleton from "../../components/SectionSkeleton";
 import { useTopArtists } from "@/hooks/useTopArtists";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
-import ErrorMessage from "@/components/ErrorMessege";
+import ErrorMessage from "@/components/ErrorMessage";
 
 interface Artists {
     id: string;
