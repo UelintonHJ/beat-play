@@ -60,9 +60,9 @@ export default function Sidebar({ user }: SidebarProps) {
                     <span className="text-sm font-semibold">{user?.name}</span>
                     <button
                         onClick={() => signOut({ 
-                            redirect: true,
-                            callbackUrl: "https://accounts.spotify.com/logout", 
-                        })
+                            redirect: false }).then(() => {
+                                window.location.href = "https://accounts.spotify.com/logout?continue=https://beat-play-two.vercel.app";
+                            }) 
                     }
                         className="inline-block w-10 mt-2 text-xs bg-red-500 hover:bg-red-700 text-white-300 px-1 py-1 rounded-full transition cursor-pointer"
                     >
