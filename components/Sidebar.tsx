@@ -61,7 +61,7 @@ export default function Sidebar({ user }: SidebarProps) {
                     <button
                         onClick={() => signOut({ 
                             redirect: true,
-                            callbackUrl: "/", 
+                            callbackUrl: "https://accounts.spotify.com/logout", 
                         })
                     }
                         className="inline-block w-10 mt-2 text-xs bg-red-500 hover:bg-red-700 text-white-300 px-1 py-1 rounded-full transition cursor-pointer"
