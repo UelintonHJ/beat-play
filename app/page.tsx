@@ -35,7 +35,7 @@ export default function Home() {
 
         {/* Botão de login */}
           <button
-            onClick={() => signIn("spotify", { callbackUrl: "/dashboard" })}
+            onClick={() => signIn("spotify", { callbackUrl: "/dashboard", authorizationParams: { prompt: "login" }, })}
             className="mt-6 flex items-center gap-3 bg-green-500 hover:bg-green-600 text-black font-semibold px-6 py-3 rounded-full shadow-lg transition"
           >
             <Image
