@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getRecentlyPlayedTracks } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
 import { Track } from "@/types/spotify";
+import Spotify from "next-auth/providers/spotify";
 
 export function useRecentlyPlayedTracks(limit: number = 10) {
     const token = useSpotifyToken();
@@ -22,11 +23,16 @@ export function useRecentlyPlayedTracks(limit: number = 10) {
                     name: item.track.name,
                     album: {
                         ...item.track.album,
-                        imagens: item.track.album.imagens.length
-                            ? item.track.album.imagens
+                        images: item.track.album.images.length
+                            ? item.track.album.images
                             : [{ url: "/track-mock.png" }],
                     },
-                    artists: item.track.artists,
+                    artists: item.track.artists.map((a:any) => ({
+                        id: a.id || a.name,
+                        name: a.name,
+                        image: a.image?.[0]?.url || "",
+                        spotifyUrl: a.external_urls?.spotify || "",
+                    })),
                 }));
                 setTracks(formattedTracks);
             })
