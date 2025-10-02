@@ -57,9 +57,11 @@ export async function getUserTopArtists(token: string, limit: number = 5) {
 }
 
 export async function getRecommendationsFromTopArtists(token: string, artistSeeds: string[] = [], limit: number = 20) {
-    const seed_artists = artistSeeds.slice(0, 5).join(",");
+    const seeds = artistSeeds.slice(0, 5).join(",");
 
-    const url = `https://api.spotify.com/v1/recommendations?limit=${limit}&seed_artists=${seed_artists}`;
+    const url = seeds 
+    ? `https://api.spotify.com/v1/recommendations?limit=${limit}&seed_artists=${seed_artists}`
+    : `https://api.spotify.com/v1/recommendations?limit=${limit}&seed_genres=trance`;
     
     const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}`},
