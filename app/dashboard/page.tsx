@@ -5,7 +5,7 @@ import PlaylistsSection from "@/app/sections/PlaylistsSection";
 import ArtistsSection from "@/app/sections/ArtistsSection";
 import TopTracksSection from "../sections/TopTracksSection";
 import RecentlyPlayedSection from "../sections/RecentlyPlayedSection";
-import RecommendationsSection from "../sections/RecommedationsSection";
+import RecommendationsSection from "../sections/RecommendationsSection";
 
 export default function DashboardPage() {
     const { data: session } = useSession();

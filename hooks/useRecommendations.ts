@@ -17,7 +17,7 @@ export function useRecommendations(limit: number = 20) {
 
         getUserTopArtists(token, 5)
             .then((data) => {
-                const artistSeeds = data.items.mao((artists: any) => artistSeeds.id);
+                const artistSeeds = data.items.map((artist: any) => artist.id);
                 return getRecommendationsFromTopArtists(token, artistSeeds, limit);
             })
 
@@ -27,7 +27,7 @@ export function useRecommendations(limit: number = 20) {
                     name: track.name,
                     album: {
                         ...track.album,
-                        images: track.album.images.lenght ? track.album.images : [{ url: "/track-mock.png" }],
+                        images: track.album.images.length ? track.album.images : [{ url: "/track-mock.png" }],
                     },
                     artists: track.artists,
                 }));
