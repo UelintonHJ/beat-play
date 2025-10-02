@@ -4,6 +4,12 @@ import Image from "next/image";
 import { signIn } from "next-auth/react";
 
 export default function Home() {
+  const handleLogin = () => {
+    signIn("spotify", {
+      callbackUrl: "/dashboard",
+    });
+  };
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-start pt-35 text-white font-sans">
       {/* Background */}
@@ -34,18 +40,18 @@ export default function Home() {
         </p>
 
         {/* Botão de login */}
-          <button
-            onClick={() => signIn("spotify", { callbackUrl: "/dashboard", authorizationParams: { prompt: "login" }, })}
-            className="mt-6 flex items-center gap-3 bg-green-500 hover:bg-green-600 text-black font-semibold px-6 py-3 rounded-full shadow-lg transition"
-          >
-            <Image
-              src="/spotify.svg"
-              alt="Spotify logo"
-              width={24}
-              height={24}
-            />
-            Entrar com Spotify
-          </button>
+        <button
+          onClick={handleLogin}
+          className="mt-6 flex items-center gap-3 bg-green-500 hover:bg-green-600 text-black font-semibold px-6 py-3 rounded-full shadow-lg transition"
+        >
+          <Image
+            src="/spotify.svg"
+            alt="Spotify logo"
+            width={24}
+            height={24}
+          />
+          Entrar com Spotify
+        </button>
       </div>
     </main>
   );
