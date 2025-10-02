@@ -1,3 +1,4 @@
+import ErrorMessage from "@/components/ErrorMessage";
 import {
     SpotifyTopArtistsResponse,
     SpotifyTopTracksResponse,
@@ -103,6 +104,10 @@ export async function getUserSavedTracks(token: string, limit: number = 50): Pro
     return res.json();
 }
 
+interface TopTracksWithItems {
+    items: SpotifyTrackAPI[];
+}
+
 export async function getPersonalizedRecommendations(token: string, limit: number = 20) {
     try {
         const [topArtistData, topTracksData, savedTracksData] = await Promise.all([
@@ -112,12 +117,12 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
         ]);
 
         const topArtists = topArtistData.items || [];
-        const topTracks = topTracksData.items || [];
-        const savedTracks = savedTracksData.items?.map((item: any) => item.track) || [];
+        const topTracks = (topTracksData as TopTracksWithItems).items || [];
+        const savedTracks = savedTracksData.items?.map((item) => item.track) || [];
 
         const knowTrackIds = new Set([
-            ...topTracks.map((t: any) => t.id),
-            ...savedTracks.map((t: any) => t.id),
+            ...topTracks.map((t) => t.id),
+            ...savedTracks.map((t) => t.id),
         ]);
 
         const recommendedTracks: SpotifyTrackAPI[] = [];
@@ -140,6 +145,7 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                     
                 });
             } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
                 console.error(`Erro ao buscar tracks do artista ${artist.name}:`, err);
             }
         }
@@ -165,6 +171,7 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                     });
                 }
             } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
                 console.error(`Erro ao buscar artistas relacionados:`, err);
             }
         }
@@ -189,7 +196,8 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
 
         return { tracks: sortedTracks };
     } catch (error) {
-        console.error("Erro ao gerar recomendações:", error);
+        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+        console.error("Erro ao gerar recomendações:", errorMessage);
         throw new Error("Erro ao buscar recomendações personalizadas");
     }
 }
