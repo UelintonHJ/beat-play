@@ -34,7 +34,7 @@ export interface SpotifyArtistAPI {
     id: string;
     name: string;
     images?: SpotifyImage[];
-    externa_urls?: { spotify: string };
+    external_urls?: { spotify: string };
 }
 
 export interface SpotifyAlbumAPI {
@@ -48,7 +48,7 @@ export interface SpotifyTrackAPI {
     name: string;
     album: SpotifyAlbumAPI;
     artists: SpotifyArtistAPI[];
-    preview_urls?: string;
+    preview_url?: string;
     popularity?: number;
     external_urls?: { spotify: string };
 }

@@ -1,10 +1,11 @@
-import ErrorMessage from "@/components/ErrorMessage";
+
 import {
     SpotifyTopArtistsResponse,
     SpotifyTopTracksResponse,
     SpotifyRelatedArtistsResponse,
     SpotifySavedTracksResponse,
     SpotifyTrackAPI,
+    SpotifyArtistAPI,
 } from "@/types/spotify"
 
 export async function getTopArtists(token: string, limit: number = 10) {
@@ -133,7 +134,7 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                 const topTracksData = await getArtistTopTracks(token, artist.id);
                 const artistTracks = topTracksData.tracks || [];
 
-                artistTracks.forEach((track: any) => {
+                artistTracks.forEach((track: SpotifyTrackAPI) => {
                     if (!knowTrackIds.has(track.id) && track.preview_url) {
                         const score = (trackScores.get(track.id) || 0) + 10;
                         trackScores.set(track.id, score);
@@ -145,7 +146,6 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                     
                 });
             } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
                 console.error(`Erro ao buscar tracks do artista ${artist.name}:`, err);
             }
         }
@@ -153,13 +153,13 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
         for (const artist of topArtists.slice(0, 3)) {
             try {
                 const relatedData = await getRelatedArtists(token, artist.id);
-                const relatedArtists = (relatedData.artists || []).slice(0, 2);
+                const relatedArtists: SpotifyArtistAPI[] = (relatedData.artists || []).slice(0, 2);
 
                 for (const relatedArtist of relatedArtists) {
                     const topTracksData = await getArtistTopTracks(token, relatedArtist.id);
-                    const artistTracks = (topTracksData.tracks || []).slice(0, 3);
+                    const artistTracks: SpotifyTrackAPI[] = (topTracksData.tracks || []).slice(0, 3);
 
-                    artistTracks.forEach((track: any) => {
+                    artistTracks.forEach((track: SpotifyTrackAPI) => {
                         if (!knowTrackIds.has(track.id) && track.preview_url) {
                             const score = (trackScores.get(track.id) || 0) + 5;
                             trackScores.set(track.id, score);
@@ -171,12 +171,11 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                     });
                 }
             } catch (err) {
-                const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
                 console.error(`Erro ao buscar artistas relacionados:`, err);
             }
         }
         
-        recommendedTracks.forEach((track: any) => {
+        recommendedTracks.forEach((track: SpotifyTrackAPI) => {
             const popularity = track.popularity || 0;
             let popularityBonus = 0;
 
@@ -196,8 +195,7 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
 
         return { tracks: sortedTracks };
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-        console.error("Erro ao gerar recomendações:", errorMessage);
+        console.error("Erro ao gerar recomendações:", error);
         throw new Error("Erro ao buscar recomendações personalizadas");
     }
 }
