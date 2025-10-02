@@ -140,12 +140,10 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                 const artistTracks = topTracksData.tracks || [];
 
                 artistTracks.forEach((track: SpotifyTrackAPI) => {
-                    if (!knowTrackIds.has(track.id) && track.preview_url) {
-                        const score = (trackScores.get(track.id) || 0) + 10;
-                        trackScores.set(track.id, score);
-
+                    if (!knowTrackIds.has(track.id)) {
                         if(!recommendedTracks.find(t => t.id === track.id)) {
                             recommendedTracks.push(track);
+                            knowTrackIds.add(track.id)
                         }
                     }
                     
@@ -165,12 +163,10 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                     const artistTracks: SpotifyTrackAPI[] = (topTracksData.tracks || []).slice(0, 3);
 
                     artistTracks.forEach((track: SpotifyTrackAPI) => {
-                        if (!knowTrackIds.has(track.id) && track.preview_url) {
-                            const score = (trackScores.get(track.id) || 0) + 5;
-                            trackScores.set(track.id, score);
-
+                        if (!knowTrackIds.has(track.id)) {
                             if (!recommendedTracks.find(t => t.id === track.id)) {
                                 recommendedTracks.push(track);
+                                knowTrackIds.add(track.id);
                             }
                         }
                     });
