@@ -49,7 +49,12 @@ export const authOptions: NextAuthOptions = {
         SpotifyProvider({
             clientId: process.env.SPOTIFY_CLIENT_ID!,
             clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
-            authorization: "https://accounts.spotify.com/authorize?scope=user-read-email,user-read-private,playlist-read-private,playlist-read-collaborative,user-top-read,user-read-playback-state,user-read-currently-playing,ugc-image-upload&prompt=consent"
+            authorization: {
+                params: {
+                    scope: "user-read-email user-read-private playlist-read-private playlist-read-collaborative user-top-read user-read-playback-state user-read-currently-playing ugc-image-upload",
+                    show_dialog: "true",
+                }
+            }
         }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
