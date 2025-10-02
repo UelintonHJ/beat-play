@@ -13,19 +13,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ user }: SidebarProps) {
-    const { data: session } = useSession();
-
     const handleLogout = async () => {
-        if(session?.accessToken) {
-            try {
-                await fetch('/api/auth/revoke', {
-                    method: 'POST',
-                });
-            } catch (error) {
-                console.error('Erro ao revogar token:', error);
-            }
-        }
-
         await signOut({
             redirect: true,
             callbackUrl: "/"
