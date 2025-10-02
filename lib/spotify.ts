@@ -49,9 +49,8 @@ export async function getUserTopArtists(token: string, limit: number = 5) {
         headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!res.ok) {
-        throw new Error("Erro ao buscar top artistas do usuário");
-    }
+    if (!res.ok) throw new Error("Erro ao buscar top artistas do usuário");
+    
 
     return res.json();
 }
@@ -67,9 +66,7 @@ export async function getRecommendationsFromTopArtists(token: string, artistSeed
         headers: { Authorization: `Bearer ${token}`},
     });
 
-    if (!res.ok) {
-        throw new Error(`Erro ao buscar recomendações personalizadas: ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`Erro ao buscar recomendações personalizadas: ${res.status}`);
     
     return res.json();
 }

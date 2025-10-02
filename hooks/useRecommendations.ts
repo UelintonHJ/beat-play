@@ -18,11 +18,6 @@ export function useRecommendations(limit: number = 20) {
         getUserTopArtists(token, 5)
             .then((data) => {
                 const artistSeeds = data.items.map((artist: any) => artist.id).filter(Boolean);
-
-                if(!artistSeeds.length) {
-                   return getRecommendationsFromTopArtists(token, [], limit);
-                }
-
                 return getRecommendationsFromTopArtists(token, artistSeeds, limit);
             })
 
