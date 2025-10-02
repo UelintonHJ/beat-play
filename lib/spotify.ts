@@ -43,3 +43,14 @@ export async function getRecentlyPlayedTracks(token: string, limit: number = 10)
 
     return res.json();
 }
+
+export async function getRecommendations(token: string, limit: number = 20) {
+    const res = await fetch(`https://api.spotify.com/v1/recommendations?limit=${limit}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!res.ok) throw new Error("Erro ao buscar recomendações personalizadas.");
+    return res.json();
+}
