@@ -60,7 +60,7 @@ export async function getRecommendationsFromTopArtists(token: string, artistSeed
     const seeds = artistSeeds.slice(0, 5).join(",");
 
     const url = seeds 
-    ? `https://api.spotify.com/v1/recommendations?limit=${limit}&seed_artists=${seed_artists}`
+    ? `https://api.spotify.com/v1/recommendations?limit=${limit}&seed_artists=${seeds}`
     : `https://api.spotify.com/v1/recommendations?limit=${limit}&seed_genres=trance`;
     
     const res = await fetch(url, {
