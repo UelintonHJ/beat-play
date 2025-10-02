@@ -28,3 +28,18 @@ export async function getUserTopTracks(token: string, limit: number = 10) {
     
     return res.json();
 }
+
+export async function getRecentlyPlayedTracks(token: string, limit: number = 10) {
+    const res = await fetch(
+        `https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`,
+        {
+            headers: { Authorization: `Bearer ${token}` },
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Erro ao buscar músicas reproduzidas recentemente");
+    }
+
+    return res.json();
+}
