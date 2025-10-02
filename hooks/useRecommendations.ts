@@ -17,7 +17,12 @@ export function useRecommendations(limit: number = 20) {
 
         getUserTopArtists(token, 5)
             .then((data) => {
-                const artistSeeds = data.items.map((artist: any) => artist.id);
+                const artistSeeds = data.items.map((artist: any) => artist.id).filter(Boolean);
+
+                if(!artistSeeds.length) {
+                    throw new Error("Nenhum artista válido encontrado para gerar recomendações");
+                }
+                
                 return getRecommendationsFromTopArtists(token, artistSeeds, limit);
             })
 

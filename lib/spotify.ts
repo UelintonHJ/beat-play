@@ -56,14 +56,17 @@ export async function getUserTopArtists(token: string, limit: number = 5) {
     return res.json();
 }
 
-export async function getRecommendationsFromTopArtists(token: string, artistSeeds: string[], limit: number = 20) {
+export async function getRecommendationsFromTopArtists(token: string, artistSeeds: string[] = [], limit: number = 20) {
     const seed_artists = artistSeeds.slice(0, 5).join(",");
-    const res = await fetch(`https://api.spotify.com/v1/recommendations?limit=${limit}&seed_artists=${seed_artists}`, {
+
+    const url = `https://api.spotify.com/v1/recommendations?limit=${limit}&seed_artists=${seed_artists}`;
+    
+    const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}`},
     });
 
     if (!res.ok) {
-        throw new Error("Erro ao buscar recomendações personalizadas");
+        throw new Error(`Erro ao buscar recomendações personalizadas: ${res.status}`);
     }
     
     return res.json();
