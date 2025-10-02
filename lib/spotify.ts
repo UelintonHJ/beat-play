@@ -157,7 +157,7 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
 
         for (const artist of topArtists.slice(0, 3)) {
             try {
-                const relatedData = await getRelatedArtists(token, artist.id);
+                const relatedData = await getRelatedArtists(token, artist.id); 
                 const relatedArtists: SpotifyArtistAPI[] = (relatedData.artists || []).slice(0, 2);
 
                 for (const relatedArtist of relatedArtists) {
@@ -175,8 +175,8 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
                         }
                     });
                 }
-            } catch (err) {
-                console.error(`Erro ao buscar artistas relacionados:`, err);
+            } catch (err: unknown) {
+                console.warn(`Não foi possível buscar artistas relacionados de ${artist.name}`, err);
             }
         }
         
