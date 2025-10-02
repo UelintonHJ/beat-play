@@ -1,10 +1,10 @@
 "use client";
 
 import { useRecentlyPlayedTracks } from "@/hooks/useRecentlyPlayedTracks";
-import SectionSkeleton from "./SectionSkeleton";
+import SectionSkeleton from "../../components/SectionSkeleton";
 import Image from "next/image";
-import HorizontalScrollSection from "./HorizontalScrollSection";
-import ErrorMessage from "./ErrorMessage";
+import HorizontalScrollSection from "../../components/HorizontalScrollSection";
+import ErrorMessage from "../../components/ErrorMessage";
 
 export default function RecentlyPlayedSection() {
     const { tracks, loading, error } = useRecentlyPlayedTracks(20);
