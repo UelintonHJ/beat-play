@@ -1,3 +1,11 @@
+import {
+    SpotifyTopArtistsResponse,
+    SpotifyTopTracksResponse,
+    SpotifyRelatedArtistsResponse,
+    SpotifySavedTracksResponse,
+    SpotifyTrackAPI,
+} from "@/types/spotify"
+
 export async function getTopArtists(token: string, limit: number = 10) {
     const res = await fetch(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, {
         headers: {
@@ -44,7 +52,7 @@ export async function getRecentlyPlayedTracks(token: string, limit: number = 10)
     return res.json();
 }
 
-export async function getUserTopArtists(token: string, limit: number = 5) {
+export async function getUserTopArtists(token: string, limit: number = 5): Promise<SpotifyTopArtistsResponse> {
     const res = await fetch(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
@@ -55,7 +63,7 @@ export async function getUserTopArtists(token: string, limit: number = 5) {
     return res.json();
 }
 
-export async function getArtistAlbums(token: string, artistId: string, limit: number = 10) {
+export async function getArtistAlbums(token: string, artistId: string, limit: number = 10): Promise<SpotifyTopTracksResponse> {
     const res = await fetch(
         `https://api.spotify.com/v1/artists/${artistId}/albums?limit=${limit}&include_groups=album,single`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -75,7 +83,7 @@ export async function getArtistTopTracks(token: string, artistId: string) {
     return res.json();
 }
 
-export async function getRelatedArtists(token: string, artistId: string) {
+export async function getRelatedArtists(token: string, artistId: string): Promise<SpotifyRelatedArtistsResponse> {
     const res = await fetch(
         `https://api.spotify.com/v1/artists/${artistId}/related-artists`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -85,7 +93,7 @@ export async function getRelatedArtists(token: string, artistId: string) {
     return res.json();
 }
 
-export async function getUserSavedTracks(token: string, limit: number = 50) {
+export async function getUserSavedTracks(token: string, limit: number = 50): Promise<SpotifySavedTracksResponse> {
     const res = await fetch(
         `https://api.spotify.com/v1/me/tracks?limit=${limit}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -112,7 +120,7 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
             ...savedTracks.map((t: any) => t.id),
         ]);
 
-        const recommendedTracks: any[] = [];
+        const recommendedTracks: SpotifyTrackAPI[] = [];
         const trackScores = new Map<string, number>();
 
         for (const artist of topArtists.slice(0, 5)) {

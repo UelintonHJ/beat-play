@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getPersonalizedRecommendations } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
-import { Track } from "@/types/spotify";
+import { Track, SpotifyTrackAPI } from "@/types/spotify";
 
 export function useRecommendations(limit: number = 20) {
     const token = useSpotifyToken();
@@ -16,7 +16,7 @@ export function useRecommendations(limit: number = 20) {
         setError(null);
 
         getPersonalizedRecommendations(token, limit)
-            .then((data) => {
+            .then((data: { tracks: SpotifyTrackAPI[] }) => {
                 const formattedTracks: Track[] = data.tracks.map((track: any) => ({
                     id: track.id,
                     name: track.name,
