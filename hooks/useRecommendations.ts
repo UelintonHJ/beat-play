@@ -17,23 +17,22 @@ export function useRecommendations(limit: number = 20) {
 
         getPersonalizedRecommendations(token, limit)
             .then((data: { tracks: SpotifyTrackAPI[] }) => {
-                const formattedTracks: Track[] = data.tracks.map((track: any) => ({
+                const formattedTracks: Track[] = data.tracks.map((track: SpotifyTrackAPI) => ({
                     id: track.id,
                     name: track.name,
                     album: {
-                        ...track.album,
-                        images: track.album.images.length
-                            ? track.album.images
-                            : [{ url: "/track-mock.png" }],
+                        images: track.album.images,
                     },
-                    artists: track.artists.map((artist: any) => ({
+                    artists: track.artists.map((artist) => ({ 
                         id: artist.id,
-                        name: artist.name,
-                        image: artist.images?.[0]?.url || "",
+                        name: artist.name, 
+                        image: artist.images?.[0].url || "/artist-mock.png",
                         spotifyUrl: artist.external_urls?.spotify || "",
                     })),
+                        preview_url: track.preview_url,
                 }));
                 setTracks(formattedTracks);
+                setLoading(false);
             })
             .catch((err) => {
                 console.error("Erro ao carregar recomendações:", err);
