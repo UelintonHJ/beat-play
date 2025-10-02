@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getUserTopArtists, getRecommendationsFromTopArtists } from "@/lib/spotify";
+import { getPersonalizedRecommendations } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
 import { Track } from "@/types/spotify";
 
@@ -15,27 +15,31 @@ export function useRecommendations(limit: number = 20) {
         setLoading(true);
         setError(null);
 
-        getUserTopArtists(token, 5)
-            .then((data) => {
-                const artistSeeds = data.items.map((artist: any) => artist.id).filter(Boolean);
-                return getRecommendationsFromTopArtists(token, artistSeeds, limit);
-            })
-
+        getPersonalizedRecommendations(token, limit)
             .then((data) => {
                 const formattedTracks: Track[] = data.tracks.map((track: any) => ({
                     id: track.id,
                     name: track.name,
                     album: {
                         ...track.album,
-                        images: track.album.images.length ? track.album.images : [{ url: "/track-mock.png" }],
+                        images: track.album.images.length
+                            ? track.album.images
+                            : [{ url: "/track-mock.png" }],
                     },
-                    artists: track.artists,
+                    artists: track.artists.map((artist: any) => ({
+                        id: artist.id,
+                        name: artist.name,
+                        image: artist.images?.[0]?.url || "",
+                        spotifyUrl: artist.external_urls?.spotify || "",
+                    })),
                 }));
                 setTracks(formattedTracks);
             })
-            .catch((err) => setError(err.message || "Erro ao buscar recomendações"))
+            .catch((err) => {
+                console.error("Erro ao carregar recomendações:", err);
+                setError(err.message || "Erro ao buscar recomendações");
+            })
             .finally(() => setLoading(false));
     }, [token, limit]);
-
     return { tracks, loading, error };
 }
