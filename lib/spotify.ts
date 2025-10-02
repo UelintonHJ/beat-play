@@ -91,6 +91,11 @@ export async function getRelatedArtists(token: string, artistId: string): Promis
             headers: { Authorization: `Bearer ${token}` },
         }
     );
+
+    if (res.status === 404) {
+        return { artists: [] };
+    }
+
     if (!res.ok) throw new Error("Erro ao buscar artistas relacionados");
     return res.json();
 }
