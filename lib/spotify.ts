@@ -6,6 +6,8 @@ import {
     SpotifySavedTracksResponse,
     SpotifyTrackAPI,
     SpotifyArtistAPI,
+    SpotifyAlbumsResponse,
+    SpotifyAlbumTracksResponse
 } from "@/types/spotify"
 
 export async function getTopArtists(token: string, limit: number = 10) {
@@ -65,7 +67,7 @@ export async function getUserTopArtists(token: string, limit: number = 5): Promi
     return res.json();
 }
 
-export async function getArtistAlbums(token: string, artistId: string, limit: number = 10): Promise<SpotifyTopTracksResponse> {
+export async function getArtistAlbums(token: string, artistId: string, limit: number = 10): Promise<SpotifyAlbumsResponse> {
     const res = await fetch(
         `https://api.spotify.com/v1/artists/${artistId}/albums?limit=${limit}&include_groups=album,single`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -245,7 +247,7 @@ export async function getWeeklyDiscoveries(token: string, limit: number = 20) {
 
 }
 
-export async function getAlbumTracks(token: string, albumId: string, limit: number = 20) {
+export async function getAlbumTracks(token: string, albumId: string, limit: number = 50): Promise<SpotifyAlbumTracksResponse> {
     const res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?limit=${limit}`, {
         headers: {
             Authorization: `Bearer ${token}`

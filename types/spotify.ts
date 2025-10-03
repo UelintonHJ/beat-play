@@ -35,6 +35,9 @@ export interface SpotifyArtistAPI {
     name: string;
     images?: SpotifyImage[];
     external_urls?: { spotify: string };
+    href?: string;
+    followers?: { total: number };
+    genres?: string[];
 }
 
 export interface SpotifyAlbumAPI {
@@ -42,6 +45,11 @@ export interface SpotifyAlbumAPI {
     name: string;
     images: SpotifyImage[];
     release_date?: string;
+    release_date_precision?: string;
+    album_group?: string;
+    album_type?: string;
+    external_urls?: { spotify: string };
+    href?: string;
 }
 
 export interface SpotifyTrackAPI {
@@ -56,6 +64,12 @@ export interface SpotifyTrackAPI {
 
 export interface SpotifyTopArtistsResponse {
     items: SpotifyArtistAPI[];
+    href?: string;
+    limit?: number;
+    next?: string | null;
+    offset?: number;
+    previous?: string | null;
+    total?: number;
 }
 
 export interface SpotifyTopTracksResponse {
@@ -68,4 +82,24 @@ export interface SpotifyRelatedArtistsResponse {
 
 export interface SpotifySavedTracksResponse {
     items: Array<{ track: SpotifyTrackAPI }>;
+}
+
+export interface SpotifyAlbumsResponse {
+    href?: string;
+    items: SpotifyAlbumAPI[];
+    limit?: number;
+    next?: string | null;
+    offset?: number;
+    previous?: string | null;
+    total?: number;
+}
+
+export interface SpotifyAlbumTracksResponse {
+    href?: string;
+    items: SpotifyTrackAPI[];
+    limit?: number;
+    next?: string | null;
+    offset?: number;
+    previous?: string | null;
+    total?: number;
 }

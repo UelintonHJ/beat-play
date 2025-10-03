@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSpotifyToken } from "./useSpotifyToken";
-import { Track, SpotifyTrackAPI } from "@/types/spotify"
-import { getArtistAlbums, getUserSavedTracks, getUserTopArtists } from "@/lib/spotify";
+import { Track, SpotifyTrackAPI, SpotifyAlbumAPI } from "@/types/spotify"
+import { getAlbumTracks, getArtistAlbums, getUserSavedTracks, getUserTopArtists } from "@/lib/spotify";
 
 export function useWeeklyReleases(limit: number = 20) {
     const token = useSpotifyToken();
@@ -32,19 +32,41 @@ export function useWeeklyReleases(limit: number = 20) {
                     try {
                         const albumsData = await getArtistAlbums(token!, artist.id, 50);
                         console.log(albumsData); //test
-                        const recentAlbums = (albumsData.tracks || []).filter(track => {
-                            const releaseDateStr = track.album.release_date;
-                            if (!releaseDateStr) return false;
-                            const releaseDate = new Date(releaseDateStr);
+                        const recentAlbums = (albumsData.items || []).filter((album: SpotifyAlbumAPI) => {
+                            if (!album.release_date) return false;
+                            const releaseDate = new Date(album.release_date);
                             return releaseDate >= oneWeekAgo;
                         });
                         console.log(recentAlbums); //test
 
-                        for (const track of recentAlbums) {
-                            if (!savedTracksIds.has(track.id) && !releaseTracks.find(t => t.id === track.id)) {
-                                releaseTracks.push(track);
+                        for (const album of recentAlbums) {
+                            try {
+                                const albumTracksData = await getAlbumTracks(token!, album.id, 20);
+                                const albumTracks = albumTracksData.items || [];
+
+                                for (const rawTrack of albumTracks) {
+                                    const trackWithAlbum: SpotifyTrackAPI = {
+                                        ...rawTrack,
+                                        album: {
+                                            id: album.id,
+                                            name: album.name,
+                                            images: album.images && album.images.length > 0 
+                                            ? album.images 
+                                            : [{ url: "/track-mock.png " }],
+                                            release_date: album.release_date,
+                                        },
+                                    };
+
+                                    if (!savedTracksIds.has(trackWithAlbum.id) && !releaseTracks.find(t => t.id === trackWithAlbum.id)) {
+                                        releaseTracks.push(trackWithAlbum);
+                                    }
+                                }
+                            } catch (err) {
+                                console.warn(`Erro ao buscar faixas do álbum ${album.id}`, err);
                             }
+
                         }
+
                     } catch (err) {
                         console.warn(`Èrro ao buscar álbuns de ${artist.name}`, err);
                     }
