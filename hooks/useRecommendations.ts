@@ -17,41 +17,31 @@ export function useRecommendations(limit: number = 20) {
 
         const fetchRecommendations = async () => {
             try {
-                console.log("Token disponível:", token);
-
                 const topArtistsData = await getUserTopArtists(token, 10);
                 const savedTracksData = await getUserSavedTracks(token, 50);
                 const savedTrackIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
 
                 const topArtists = topArtistsData.items || [];
-                console.log("Top artistas encontrados:", topArtists.map(a => a.name));
 
                 const recommendationsTracks: SpotifyTrackAPI[] = [];
 
                 await Promise.all(topArtists.map(async (artist) => {
-                    console.log(`Buscando artistas relacionados para ${artist.name}...`);
                     const relatedData = await getRelatedArtists(token, artist.id);
-                    console.log(`Artistas relacionados de ${artist.name}:`, relatedData.artists?.map(a => a.name));
                     const relatedArtists = (relatedData.artists || []).slice(0, 2);
 
                     const artistsToFetch = relatedArtists.length ? relatedArtists : [artist];
 
                     await Promise.all(artistsToFetch.map(async (related) => {
-                        console.log(`Buscando top tracks de ${related.name}...`)
                         const topTracksData = await getArtistTopTracks(token, related.id);
                         const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, 3) || [];
-                        console.log(`Top tracks de ${related.name}:`, topTracksData.tracks?.map((t: SpotifyTrackAPI) => t.name));
 
                         artistTracks.forEach(track => {
-                            console.log(`Tentando adicionar track: ${track.name}, já salva?`, savedTrackIds.has(track.id));
                             if (!savedTrackIds.has(track.id) && !recommendationsTracks.find(t => t.id === track.id)) {
                                 recommendationsTracks.push(track);
                             }
                         });
                     }));
                 }));
-
-                console.log("Tracks encontradas:", recommendationsTracks.length);
 
                 if (recommendationsTracks.length === 0) {
                     setError("Nenhuma música nova encontrada para os artistas relacionados");
