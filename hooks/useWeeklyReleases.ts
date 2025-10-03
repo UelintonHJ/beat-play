@@ -49,6 +49,8 @@ export function useWeeklyReleases(limit: number = 20) {
 
                 const shuffled = releaseTracks.sort(() => 0.5 - Math.random());
 
+                console.log("releaseTracks antes do setTracks:", releaseTracks);
+
                 setTracks(shuffled.slice(0, limit).map(track => ({
                     id: track.id,
                     name: track.name,
