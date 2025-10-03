@@ -34,7 +34,10 @@ export function useRecommendations(limit: number = 20) {
                         const topTracksData = await getArtistTopTracks(token, related.id);
                         const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, 3) || [];
 
+                        console.log(`Artista relacionado: ${related.name}, topTracks`, artistTracks.length);
+
                         artistTracks.forEach(track => {
+                            console.log(`Tentando adicionar track: ${track.name}, já salva?`, savedTrackIds.has(track.id));
                             if (!savedTrackIds.has(track.id) && !recommendationsTracks.find(t => t.id === track.id)) {
                                 recommendationsTracks.push(track);
                             }
