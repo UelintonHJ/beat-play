@@ -24,6 +24,8 @@ export function useRecommendations(limit: number = 20) {
                 const savedTrackIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
 
                 const topArtists = topArtistsData.items || [];
+                console.log("Top artistas encontrados:", topArtists.map(a => a.name));
+
                 const recommendationsTracks: SpotifyTrackAPI[] = [];
 
                 await Promise.all(topArtists.map(async (artist) => {
