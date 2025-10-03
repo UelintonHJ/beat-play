@@ -34,13 +34,13 @@ export function useRecommendations(limit: number = 20) {
                     console.log(`Artistas relacionados de ${artist.name}:`, relatedData.artists?.map(a => a.name));
                     const relatedArtists = (relatedData.artists || []).slice(0, 2);
 
-                    await Promise.all(relatedArtists.map(async (related) => {
+                    const artistsToFetch = relatedArtists.length ? relatedArtists : [artist];
+
+                    await Promise.all(artistsToFetch.map(async (related) => {
                         console.log(`Buscando top tracks de ${related.name}...`)
                         const topTracksData = await getArtistTopTracks(token, related.id);
-                        console.log(`Top tracks de ${related.name}:`, topTracksData.tracks?.map((t: SpotifyTrackAPI) => t.name));
                         const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, 3) || [];
-
-                        console.log(`Artista relacionado: ${related.name}, topTracks`, artistTracks.length);
+                        console.log(`Top tracks de ${related.name}:`, topTracksData.tracks?.map((t: SpotifyTrackAPI) => t.name));
 
                         artistTracks.forEach(track => {
                             console.log(`Tentando adicionar track: ${track.name}, já salva?`, savedTrackIds.has(track.id));
