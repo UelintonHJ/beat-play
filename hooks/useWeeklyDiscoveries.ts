@@ -15,7 +15,7 @@ export function useWeeklyDiscoveries(limit: number = 20) {
         setLoading(true);
         setError(null);
 
-        getPersonalizedRecommendations(token, limit)
+        getWeeklyDiscoveries(token, limit)
             .then((data) => {
                 const formattedTracks: Track[] = data.tracks.map((track: SpotifyTrackAPI) => ({
                     id: track.id,
