@@ -13,11 +13,11 @@ export default function RecommendationsSection() {
 
     return (
         <section className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Recomendações personalizadas</h2>
+            <h2 className="text-xl font-semibold mb-4">Descubra novos sons</h2>
             <HorizontalScrollSection>
                 {loading ? (
                     <SectionSkeleton
-                        count={6}
+                        count={8}
                         cardWidth="w-[192px]"
                         cardHeight="h-[235.99px]"
                     />
