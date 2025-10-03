@@ -10,21 +10,16 @@ export function useWeeklyReleases(limit: number = 20) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!token) {
-            setLoading(true);
-            setError("Token do Spotify não disponível");
-            return;
-        }
+        if (!token) return;
+        
 
         async function fetchReleases() {
+            setLoading(true);
             try {
                 const topArtistsData = await getUserTopArtists(token!, 10);
                 console.log(topArtistsData.items); //test
                 const savedTracksData = await getUserSavedTracks(token!, 50);
                 const savedTracksIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
-
-                const oneWeekAgo = new Date();
-                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
                 const releaseTracks: SpotifyTrackAPI[] = [];
 
