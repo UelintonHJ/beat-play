@@ -6,6 +6,7 @@ import ArtistsSection from "@/app/sections/ArtistsSection";
 import TopTracksSection from "../sections/TopTracksSection";
 import RecentlyPlayedSection from "../sections/RecentlyPlayedSection";
 import RecommendationsSection from "../sections/RecommendationsSection";
+import WeeklyDiscoveriesSection from "../sections/WeeklyDiscoveriesSection";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
@@ -28,6 +29,7 @@ export default function DashboardPage() {
                 <TopTracksSection />
                 <RecentlyPlayedSection />
                 <RecommendationsSection />
+                <WeeklyDiscoveriesSection />
         </div>
     );
 }
