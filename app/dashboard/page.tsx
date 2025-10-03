@@ -7,7 +7,7 @@ import TopTracksSection from "../sections/TopTracksSection";
 import RecentlyPlayedSection from "../sections/RecentlyPlayedSection";
 import RecommendationsSection from "../sections/RecommendationsSection";
 import WeeklyDiscoveriesSection from "../sections/WeeklyDiscoveriesSection";
-import WeeklyReleasesSection from "../sections/WeekyReleasesSection";
+import WeeklyReleasesSection from "../sections/WeeklyReleasesSection";
 
 export default function DashboardPage() {
     const { data: session } = useSession();
