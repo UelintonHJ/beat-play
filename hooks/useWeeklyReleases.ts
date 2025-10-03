@@ -17,57 +17,65 @@ export function useWeeklyReleases(limit: number = 20) {
             try {
                 const topArtistsData = await getUserTopArtists(token!, 10);
                 const savedTracksData = await getUserSavedTracks(token!, 50);
-                const savedTracksIds = new Set(savedTracksData.items?.map((t) => t.track.id) || []
+                const savedTracksIds = new Set(savedTracksData.items?.map(t => t.track.id) || []
                 );
 
-                const releaseTracks: SpotifyTrackAPI[] = [];
+                const now = new Date();
+                const sixtyDaysAgo = new Date();
+                sixtyDaysAgo.setDate(now.getDate() - 60);
 
-                const albumsResults = await Promise.all(
-                    (topArtistsData.items || []).map(async (artist) => {
-                        try {
-                            const albumsData = await getArtistAlbums(token!, artist.id, 50);
-                            return albumsData.items || [];
-                        } catch (err) {
-                            console.warn(`Erro ao buscar álbuns de ${artist.name}`, err);
-                            return [];
-                        }
-                    })
+                const oneYearAgo = new Date();
+                oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+                const albumsByArtist = await Promise.all(
+                    (topArtistsData.items || []).map(artist =>
+                        getArtistAlbums(token!, artist.id, 50).catch(() => ({ items: [] }))
+                    )
                 );
 
-                const allAlbums: SpotifyAlbumAPI[] = albumsResults.flat();
+                const allAlbums: SpotifyAlbumAPI[] = albumsByArtist.flatMap(a => a.items || []);
 
-                const tracksResults = await Promise.all(
-                    allAlbums.map(async (album) => {
-                        try {
-                            const albumTracksData = await getAlbumTracks(token!, album.id, 20);
-                            return (albumTracksData.items || []).map((rawTrack) => ({
-                                ...rawTrack,
-                                album: {
-                                    id: album.id,
-                                    name: album.name,
-                                    images: album.images && album.images.length > 0
-                                        ? album.images
-                                        : [{ url: "/track-mock.png " }],
-                                    release_date: album.release_date,
-                                },
-                            }));
-                        } catch (err) {
-                            console.warn(`Erro ao buscar faixas do álbum ${album.id}`, err);
-                            return [];
-                        }
-                    })
+                const recentAlbums = allAlbums.filter(album => {
+                    if (!album.release_date) return false;
+                    const releaseDate = new Date(album.release_date);
+                    return releaseDate >= sixtyDaysAgo && releaseDate <= now;
+                });
+
+                const fallbackAlbums = recentAlbums.length < limit
+                    ? allAlbums
+                        .filter(album => {
+                            if (!album.release_date) return false;
+                            const releaseDate = new Date(album.release_date);
+                            return releaseDate >= oneYearAgo && releaseDate < sixtyDaysAgo;
+                        })
+                        .sort((a, b) => new Date(b.release_date!).getTime() - new Date(a.release_date!).getTime())
+                    : [];
+
+                const albumsToFetch = [...recentAlbums, ...fallbackAlbums];
+
+                const tracksByAlbum = await Promise.all(
+                    albumsToFetch.map(album =>
+                        getAlbumTracks(token!, album.id, 20)
+                            .then(res => ({ album, tracks: res.items || [] }))
+                            .catch(() => ({ album, tracks: [] }))
+                    )
                 );
 
-                const allTracks: SpotifyTrackAPI[] = tracksResults.flat();
-
-                for (const track of allTracks) {
-                    if (
-                        !savedTracksIds.has(track.id) &&
-                        !releaseTracks.find((t) => t.id === track.id)
-                        ) {
-                        releaseTracks.push(track);
-                    }
-                }
+                const releaseTracks: SpotifyTrackAPI[] = tracksByAlbum
+                    .flatMap(({ album, tracks }) =>
+                        tracks.map(rawTrack => ({
+                            ...rawTrack,
+                            album: {
+                                id: album.id,
+                                name: album.name,
+                                images: album.images && album.images.length > 0
+                                    ? album.images
+                                    : [{ url: "/track-mock.png " }],
+                                release_date: album.release_date,
+                            },
+                        }))
+                    )
+                    .filter(track => !savedTracksIds.has(track.id));
 
                 const shuffled = releaseTracks.sort(() => 0.5 - Math.random());
 
