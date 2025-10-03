@@ -32,11 +32,7 @@ export function useWeeklyReleases(limit: number = 20) {
                     try {
                         const albumsData = await getArtistAlbums(token!, artist.id, 50);
                         console.log(albumsData); //test
-                        const recentAlbums = (albumsData.items || []).filter((album: SpotifyAlbumAPI) => {
-                            if (!album.release_date) return false;
-                            const releaseDate = new Date(album.release_date);
-                            return releaseDate >= oneWeekAgo;
-                        });
+                        const recentAlbums = albumsData.items || [];
                         console.log(recentAlbums); //test
 
                         for (const album of recentAlbums) {
