@@ -244,3 +244,14 @@ export async function getWeeklyDiscoveries(token: string, limit: number = 20) {
     }
 
 }
+
+export async function getAlbumTracks(token: string, albumId: string, limit: number = 20) {
+    const res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?limit=${limit}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        },
+    });
+
+    if (!res.ok) throw new Error("Erro ao buscar músicas do álbum");
+    return res.json();
+}
