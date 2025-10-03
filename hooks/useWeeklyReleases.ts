@@ -19,6 +19,7 @@ export function useWeeklyReleases(limit: number = 20) {
         async function fetchReleases() {
             try {
                 const topArtistsData = await getUserTopArtists(token!, 10);
+                console.log(topArtistsData.items); //test
                 const savedTracksData = await getUserSavedTracks(token!, 50);
                 const savedTracksIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
 
@@ -30,12 +31,14 @@ export function useWeeklyReleases(limit: number = 20) {
                 for (const artist of topArtistsData.items || []) {
                     try {
                         const albumsData = await getArtistAlbums(token!, artist.id, 10);
+                        console.log(albumsData); //test
                         const recentAlbums = (albumsData.tracks || []).filter(track => {
                             const releaseDateStr = track.album.release_date;
                             if (!releaseDateStr) return false;
                             const releaseDate = new Date(releaseDateStr);
                             return releaseDate >= oneWeekAgo;
                         });
+                        console.log(recentAlbums); //test
 
                         for (const track of recentAlbums) {
                             if (!savedTracksIds.has(track.id) && !releaseTracks.find(t => t.id === track.id)) {
@@ -49,7 +52,7 @@ export function useWeeklyReleases(limit: number = 20) {
 
                 const shuffled = releaseTracks.sort(() => 0.5 - Math.random());
 
-                console.log("releaseTracks antes do setTracks:", releaseTracks);
+                console.log("releaseTracks antes do setTracks:", releaseTracks); //test
 
                 setTracks(shuffled.slice(0, limit).map(track => ({
                     id: track.id,
