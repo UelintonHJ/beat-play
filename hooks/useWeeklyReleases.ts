@@ -11,63 +11,67 @@ export function useWeeklyReleases(limit: number = 20) {
 
     useEffect(() => {
         if (!token) return;
-        
+
 
         async function fetchReleases() {
-            setLoading(true);
             try {
                 const topArtistsData = await getUserTopArtists(token!, 10);
-                console.log(topArtistsData.items); //test
                 const savedTracksData = await getUserSavedTracks(token!, 50);
-                const savedTracksIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
+                const savedTracksIds = new Set(savedTracksData.items?.map((t) => t.track.id) || []
+                );
 
                 const releaseTracks: SpotifyTrackAPI[] = [];
 
-                for (const artist of topArtistsData.items || []) {
-                    try {
-                        const albumsData = await getArtistAlbums(token!, artist.id, 50);
-                        console.log(albumsData); //test
-                        const recentAlbums = albumsData.items || [];
-                        console.log(recentAlbums); //test
-
-                        for (const album of recentAlbums) {
-                            try {
-                                const albumTracksData = await getAlbumTracks(token!, album.id, 20);
-                                const albumTracks = albumTracksData.items || [];
-
-                                for (const rawTrack of albumTracks) {
-                                    const trackWithAlbum: SpotifyTrackAPI = {
-                                        ...rawTrack,
-                                        album: {
-                                            id: album.id,
-                                            name: album.name,
-                                            images: album.images && album.images.length > 0 
-                                            ? album.images 
-                                            : [{ url: "/track-mock.png " }],
-                                            release_date: album.release_date,
-                                        },
-                                    };
-
-                                    if (!savedTracksIds.has(trackWithAlbum.id) && !releaseTracks.find(t => t.id === trackWithAlbum.id)) {
-                                        releaseTracks.push(trackWithAlbum);
-                                    }
-                                }
-                            } catch (err) {
-                                console.warn(`Erro ao buscar faixas do álbum ${album.id}`, err);
-                            }
-
+                const albumsResults = await Promise.all(
+                    (topArtistsData.items || []).map(async (artist) => {
+                        try {
+                            const albumsData = await getArtistAlbums(token!, artist.id, 50);
+                            return albumsData.items || [];
+                        } catch (err) {
+                            console.warn(`Erro ao buscar álbuns de ${artist.name}`, err);
+                            return [];
                         }
+                    })
+                );
 
-                    } catch (err) {
-                        console.warn(`Èrro ao buscar álbuns de ${artist.name}`, err);
+                const allAlbums: SpotifyAlbumAPI[] = albumsResults.flat();
+
+                const tracksResults = await Promise.all(
+                    allAlbums.map(async (album) => {
+                        try {
+                            const albumTracksData = await getAlbumTracks(token!, album.id, 20);
+                            return (albumTracksData.items || []).map((rawTrack) => ({
+                                ...rawTrack,
+                                album: {
+                                    id: album.id,
+                                    name: album.name,
+                                    images: album.images && album.images.length > 0
+                                        ? album.images
+                                        : [{ url: "/track-mock.png " }],
+                                    release_date: album.release_date,
+                                },
+                            }));
+                        } catch (err) {
+                            console.warn(`Erro ao buscar faixas do álbum ${album.id}`, err);
+                            return [];
+                        }
+                    })
+                );
+
+                const allTracks: SpotifyTrackAPI[] = tracksResults.flat();
+
+                for (const track of allTracks) {
+                    if (
+                        !savedTracksIds.has(track.id) &&
+                        !releaseTracks.find((t) => t.id === track.id)
+                        ) {
+                        releaseTracks.push(track);
                     }
                 }
 
                 const shuffled = releaseTracks.sort(() => 0.5 - Math.random());
 
-                console.log("releaseTracks antes do setTracks:", releaseTracks); //test
-
-                setTracks(shuffled.slice(0, limit).map(track => ({
+                setTracks(shuffled.slice(0, limit).map((track) => ({
                     id: track.id,
                     name: track.name,
                     album: {
@@ -76,7 +80,7 @@ export function useWeeklyReleases(limit: number = 20) {
                             ? track.album.images
                             : [{ url: "/track-mock.png" }],
                     },
-                    artists: track.artists.map(a => ({
+                    artists: track.artists.map((a) => ({
                         id: a.id,
                         name: a.name,
                         image: a.images?.[0]?.url || "",
