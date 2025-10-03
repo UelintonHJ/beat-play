@@ -29,9 +29,10 @@ export function useWeeklyDiscoveries(limit: number = 20) {
                     artists: track.artists.map((a) => ({
                         id: a.id,
                         name: a.name,
-                        image: a.images?.[0]?.url || "",
+                        image: a.images?.[0]?.url || "/artist-mock.png",
                         spotifyUrl: a.external_urls?.spotify || "",
                     })),
+                    preview_url: track.preview_url,
                 }));
                 setTracks(formattedTracks);
             })

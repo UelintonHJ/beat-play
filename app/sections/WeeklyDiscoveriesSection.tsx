@@ -15,11 +15,11 @@ export default function WeeklyDiscoveriesSection() {
 
     return (
         <section className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Descobertas da semana</h2>
+            <h2 className="text-xl font-semibold mb-4">Pra você</h2>
             <HorizontalScrollSection>
                 {loading ? (
                     <SectionSkeleton
-                        count={6}
+                        count={8}
                         cardWidth="w-[192px]"
                         cardHeight="h-[235.99px]"
                     />
