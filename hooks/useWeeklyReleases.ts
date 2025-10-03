@@ -30,7 +30,7 @@ export function useWeeklyReleases(limit: number = 20) {
 
                 for (const artist of topArtistsData.items || []) {
                     try {
-                        const albumsData = await getArtistAlbums(token!, artist.id, 10);
+                        const albumsData = await getArtistAlbums(token!, artist.id, 50);
                         console.log(albumsData); //test
                         const recentAlbums = (albumsData.tracks || []).filter(track => {
                             const releaseDateStr = track.album.release_date;
