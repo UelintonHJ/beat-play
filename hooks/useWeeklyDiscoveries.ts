@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getPersonalizedRecommendations } from "@/lib/spotify";
+import { getWeeklyDiscoveries } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
 import { Track, SpotifyTrackAPI } from "@/types/spotify"
 
