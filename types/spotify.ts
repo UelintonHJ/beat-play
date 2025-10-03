@@ -41,6 +41,7 @@ export interface SpotifyAlbumAPI {
     id: string;
     name: string;
     images: SpotifyImage[];
+    release_date?: string;
 }
 
 export interface SpotifyTrackAPI {
