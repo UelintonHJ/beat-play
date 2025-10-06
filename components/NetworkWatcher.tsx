@@ -1,36 +1,59 @@
 "use client";
 
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ErrorMessage from "./ErrorMessage";
 
 export default function NetworkWatcher() {
     const isOnline = useNetworkStatus();
     const [showOnlineMessage, setShowOnlineMessage] = useState(false);
-    const [wasOffline, setWasOffline] = useState(false);
-    const [initialized, setInitialized] = useState(false);
-
-
-    useEffect(() => {
-        setInitialized(true);
-    }, []);
+    
+    const initialRef = useRef(true);
+    const seenOfflineRef = useRef(false);
+    const timerRef = useRef<number | null>(null);
 
     useEffect(() => {
-        if (!initialized) return;
+        if (initialRef.current) {
+            initialRef.current = false;
+            return;
+        } 
 
         if (!isOnline) {
-            setWasOffline(true);
+            seenOfflineRef.current = true;
+            setShowOnlineMessage(false);
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+            return;
         }
 
-        if (isOnline) {
+        if (isOnline && seenOfflineRef.current) {
             setShowOnlineMessage(true);
-            const timer = setTimeout(() => setShowOnlineMessage(false), 5000);
-            return () => clearTimeout(timer);
+        
+
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
         }
-    }, [isOnline, initialized, wasOffline]);
+
+        timerRef.current = window.setTimeout(() => {
+            setShowOnlineMessage(false);
+            timerRef.current = null;
+        }, 5000);
+
+        seenOfflineRef.current = false;
+    }
+
+    return () => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
+    };
+}, [isOnline]);
 
     return (
-        <div className="fixed top-0 left-0 w-full flex justify-center z-50">
+        <div className="pointer-events-auto fixed top-0 left-0 w-full flex justify-center z-50">
             {!isOnline && (
                 <ErrorMessage
                     message="Você está offline. Algumas informações podem não estar disponíveis."
