@@ -18,11 +18,13 @@ export default function PlaylistsSection() {
     const {
         playlists,
         loading,
-        error,
+        error: realError, //test
     } = useUserPlaylists(20);
 
+    const error = true; //test
+
     if (error) {
-        return <ErrorMessage message="Erro ao carregar playlists."/>
+        return <ErrorMessage message="Erro ao carregar playlists." type="error"/>
     }
 
     if (!playlists.length && !loading) {
