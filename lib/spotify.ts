@@ -10,6 +10,15 @@ import {
     SpotifyAlbumTracksResponse
 } from "@/types/spotify"
 
+function handleSpotifyAuthError(response: Response) {
+    if (response.status === 401 || response.status === 403) {
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('spotify_token_expired', 'true');
+            window.dispatchEvent(new CustomEvent('spotify-auth-error'));
+        }
+    }
+}
+
 export async function getTopArtists(token: string, limit: number = 10) {
     const res = await fetch(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, {
         headers: {
@@ -17,6 +26,7 @@ export async function getTopArtists(token: string, limit: number = 10) {
         },
     });
 
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar artistas favoritos");
     return res.json();
 }
@@ -25,6 +35,8 @@ export async function getUserPlaylists(token: string, limit: number = 10) {
     const res = await fetch(`https://api.spotify.com/v1/me/playlists?limit=${limit}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
+
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar playlists");
     return res.json();
 }
@@ -34,10 +46,8 @@ export async function getUserTopTracks(token: string, limit: number = 10) {
         headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (!res.ok) {
-        throw new Error("Erro ao buscar músicas mais ouvidas");
-    }
-
+    handleSpotifyAuthError(res);
+    if (!res.ok) throw new Error("Erro ao buscar músicas mais ouvidas");
     return res.json();
 }
 
@@ -49,10 +59,8 @@ export async function getRecentlyPlayedTracks(token: string, limit: number = 10)
         }
     );
 
-    if (!res.ok) {
-        throw new Error("Erro ao buscar músicas reproduzidas recentemente");
-    }
-
+    handleSpotifyAuthError(res);
+    if (!res.ok) throw new Error("Erro ao buscar músicas reproduzidas recentemente");
     return res.json();
 }
 
@@ -61,9 +69,8 @@ export async function getUserTopArtists(token: string, limit: number = 5): Promi
         headers: { Authorization: `Bearer ${token}` },
     });
 
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar top artistas do usuário");
-
-
     return res.json();
 }
 
@@ -71,8 +78,9 @@ export async function getArtistAlbums(token: string, artistId: string, limit: nu
     const res = await fetch(
         `https://api.spotify.com/v1/artists/${artistId}/albums?limit=${limit}&include_groups=album,single`, {
         headers: { Authorization: `Bearer ${token}` },
-    }
-    );
+    });
+
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar álbuns do artista");
     return res.json();
 }
@@ -81,8 +89,9 @@ export async function getArtistTopTracks(token: string, artistId: string) {
     const res = await fetch(
         `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=BR`, {
         headers: { Authorization: `Bearer ${token}` },
-    }
-    );
+    });
+
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar top tracks do artista");
     return res.json();
 }
@@ -91,23 +100,24 @@ export async function getRelatedArtists(token: string, artistId: string): Promis
     const res = await fetch(
         `https://api.spotify.com/v1/artists/${artistId}/related-artists`, {
         headers: { Authorization: `Bearer ${token}` },
-    }
-    );
+    });
 
     if (res.status === 404) {
         return { artists: [] };
     }
 
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar artistas relacionados");
-    return res.json();
+    return res.json();;
 }
 
 export async function getUserSavedTracks(token: string, limit: number = 50): Promise<SpotifySavedTracksResponse> {
     const res = await fetch(
         `https://api.spotify.com/v1/me/tracks?limit=${limit}`, {
         headers: { Authorization: `Bearer ${token}` },
-    }
-    );
+    });
+
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar músicas salvas");
     return res.json();
 }
@@ -254,6 +264,7 @@ export async function getAlbumTracks(token: string, albumId: string, limit: numb
         },
     });
 
+    handleSpotifyAuthError(res);
     if (!res.ok) throw new Error("Erro ao buscar músicas do álbum");
     return res.json();
 }

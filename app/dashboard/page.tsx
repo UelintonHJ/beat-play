@@ -9,6 +9,8 @@ import RecommendationsSection from "../sections/RecommendationsSection";
 import WeeklyDiscoveriesSection from "../sections/WeeklyDiscoveriesSection";
 import WeeklyReleasesSection from "../sections/WeeklyReleasesSection";
 
+
+
 export default function DashboardPage() {
     const { data: session } = useSession();
     const token = session?.accessToken;
