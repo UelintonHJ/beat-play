@@ -18,10 +18,8 @@ export default function PlaylistsSection() {
     const {
         playlists,
         loading,
-        error: realError, //test
+        error
     } = useUserPlaylists(20);
-
-    const error = true; //test
 
     if (!playlists.length && !loading) {
         return (
