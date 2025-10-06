@@ -38,6 +38,7 @@ export default function PlaylistsSection() {
     return (
         <section>
             <h2 className="text-xl font-semibold mb-4">Minhas Playlists</h2>
+            {error && <ErrorMessage message="Erro ao carregar playlists." type="error"/>}
             <HorizontalScrollSection>
                 {loading ? (
                     <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
