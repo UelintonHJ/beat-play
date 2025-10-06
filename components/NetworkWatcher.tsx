@@ -7,16 +7,17 @@ import ErrorMessage from "./ErrorMessage";
 export default function NetworkWatcher() {
     const isOnline = useNetworkStatus();
     const [showOnlineMessage, setShowOnlineMessage] = useState(false);
+    const [mounted, setMounted] = useState(false);
     
-    const initialRef = useRef(true);
     const seenOfflineRef = useRef(false);
     const timerRef = useRef<number | null>(null);
 
     useEffect(() => {
-        if (initialRef.current) {
-            initialRef.current = false;
-            return;
-        } 
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!mounted) return;
 
         if (!isOnline) {
             seenOfflineRef.current = true;
@@ -50,7 +51,9 @@ export default function NetworkWatcher() {
             timerRef.current = null;
         }
     };
-}, [isOnline]);
+}, [isOnline, mounted]);
+
+if (!mounted) return null;
 
     return (
         <div className="pointer-events-auto fixed top-0 left-0 w-full flex justify-center z-50">
