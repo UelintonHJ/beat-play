@@ -19,7 +19,7 @@ export default function ErrorMessage({ message, type = "error", className }: Err
     }
 
     return (
-        <div className={`flex justify-center items-center border rounded-2xl mt-6 p-4 mx-auto w-fit text-center shadow-sm ${getColor} ${className || ""}`}
+        <div className={`flex justify-center items-center border rounded-2xl mt-6 p-4 mx-auto w-fit text-center shadow-sm ${getColor()} ${className || ""}`}
         >
             {message}
             
