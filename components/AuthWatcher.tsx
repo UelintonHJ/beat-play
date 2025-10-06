@@ -11,6 +11,7 @@ export default function AuthWatcher() {
     const [authStatus, setAuthStatus] = useState<"unauthenticated" | "sessionExpired" | null>(null);
     const [mounted, setMounted] = useState(false);
     const timerRef = useRef<number | null>(null);
+    const hadSessionRef = useRef(false);
 
     const publicRoutes = ["/"];
 
@@ -28,12 +29,8 @@ export default function AuthWatcher() {
 
         if (status === "loading") return;
 
-        if (status === "unauthenticated") {
-            setAuthStatus("unauthenticated");
-            return;
-        }
-
         if (status === "authenticated" && session?.expires) {
+            hadSessionRef.current = true;
             const expirationTime = new Date(session.expires).getTime();
             const now = Date.now();
 
@@ -50,6 +47,12 @@ export default function AuthWatcher() {
             }, timeout);
 
             setAuthStatus(null);
+        }
+
+        if (status === "unauthenticated" && hadSessionRef.current) {
+            setAuthStatus("sessionExpired");
+            hadSessionRef.current = false;
+            return;
         }
 
         return () => {
