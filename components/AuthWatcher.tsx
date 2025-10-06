@@ -3,18 +3,29 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import ErrorMessage from "./ErrorMessage";
+import { usePathname } from "next/navigation";
 
 export default function AuthWatcher() {
     const { data: session, status } = useSession();
+    const pathname = usePathname();
     const [authStatus, setAuthStatus] = useState<"unauthenticated" | "sessionExpired" | null>(null);
 
+    const publicRoutes = ["app/page.tsx"];
+
     useEffect(() => {
+        if (publicRoutes.includes(pathname)) {
+            setAuthStatus(null);
+            return;
+        }
+
         if (status === "unauthenticated") {
             setAuthStatus("unauthenticated");
-        } else if (status === "authenticated") {
+        }
+
+        if (status === "authenticated") {
             setAuthStatus(null);
         }
-    }, [status]);
+    }, [status, pathname]);
 
     useEffect(() => {
         if (status === "authenticated" && session?.expires) {
