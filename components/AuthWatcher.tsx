@@ -26,26 +26,30 @@ export default function AuthWatcher() {
             return;
         }
 
+        if (status === "loading") return;
+
         if (status === "unauthenticated") {
             setAuthStatus("unauthenticated");
             return;
         }
 
-        if (status === "authenticated") {
-            setAuthStatus(null);
-            if (session?.expires) {
-                const expirationTime = new Date(session.expires).getTime();
-                const now = Date.now();
-                const timeout = expirationTime - now;
+        if (status === "authenticated" && session?.expires) {
+            const expirationTime = new Date(session.expires).getTime();
+            const now = Date.now();
 
-                if (timeout > 0) {
-                    if (timerRef.current) clearTimeout(timerRef.current);
-                    timerRef.current = window.setTimeout(() => {
-                        setAuthStatus("sessionExpired");
-                    }, timeout);
-                }
-
+            if (expirationTime <= now) {
+                setAuthStatus("sessionExpired");
+                return;
             }
+
+            const timeout = expirationTime - now;
+            if (timerRef.current) clearTimeout(timerRef.current);
+
+            timerRef.current = window.setTimeout(() => {
+                setAuthStatus("sessionExpired");
+            }, timeout);
+
+            setAuthStatus(null);
         }
 
         return () => {
@@ -53,26 +57,26 @@ export default function AuthWatcher() {
         };
     }, [status, session, pathname, mounted]);
 
-    if (!mounted || !authStatus) return null;
+if (!mounted || !authStatus) return null;
 
-    const getMessage = () => {
-        switch (authStatus) {
-            case "unauthenticated":
-                return "Você precisa estar logado para acessar suas músicas.";
-            case "sessionExpired":
-                return "Sua sessão expirou. Faça login novamente para continuar.";
-            default:
-                return "";
-        }
-    };
+const getMessage = () => {
+    switch (authStatus) {
+        case "unauthenticated":
+            return "Você precisa estar logado para acessar suas músicas.";
+        case "sessionExpired":
+            return "Sua sessão expirou. Faça login novamente para continuar.";
+        default:
+            return "";
+    }
+};
 
-    return (
-        <div className="pointer-events-auto fixed top-0 left-0 w-full justify-center z-50">
-            <ErrorMessage
-                message={getMessage()}
-                type={authStatus}
-                className="w-full text-center"
-            />
-        </div>
-    );
+return (
+    <div className="pointer-events-auto fixed top-0 left-0 w-full justify-center z-50">
+        <ErrorMessage
+            message={getMessage()}
+            type={authStatus}
+            className="w-full text-center"
+        />
+    </div>
+);
 }
