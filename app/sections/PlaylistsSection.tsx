@@ -23,10 +23,6 @@ export default function PlaylistsSection() {
 
     const error = true; //test
 
-    if (error) {
-        return <ErrorMessage message="Erro ao carregar playlists." type="error"/>
-    }
-
     if (!playlists.length && !loading) {
         return (
             <p className="text-gray-400 mb-4">
