@@ -11,12 +11,18 @@ export default function AuthWatcher() {
     const [authStatus, setAuthStatus] = useState<"unauthenticated" | "sessionExpired" | null>(null);
     const [mounted, setMounted] = useState(false);
     const timerRef = useRef<number | null>(null);
-    const hadSessionRef = useRef(false);
+    const hadSessionRef = useRef<boolean>(false);
+    const STORAGE_KEY = "hadValidSession_v1";
 
     const publicRoutes = ["/"];
 
     useEffect(() => {
         setMounted(true);
+        try {
+            hadSessionRef.current = typeof window !== "undefined" && !!sessionStorage.getItem(STORAGE_KEY);
+        } catch {
+            hadSessionRef.current = false;
+        }
     }, []);
 
     useEffect(() => {
@@ -29,36 +35,61 @@ export default function AuthWatcher() {
 
         if (status === "loading") return;
 
-        if (status === "authenticated" && session?.expires) {
+        if (status === "authenticated") {
             hadSessionRef.current = true;
-            const expirationTime = new Date(session.expires).getTime();
-            const now = Date.now();
 
-            if (expirationTime <= now) {
-                setAuthStatus("sessionExpired");
-                return;
-            }
-
-            const timeout = expirationTime - now;
-            if (timerRef.current) clearTimeout(timerRef.current);
-
-            timerRef.current = window.setTimeout(() => {
-                setAuthStatus("sessionExpired");
-            }, timeout);
+            try { sessionStorage.setItem(STORAGE_KEY, "1"); } catch { }
 
             setAuthStatus(null);
-        }
 
-        if (status === "unauthenticated" && hadSessionRef.current) {
-            setAuthStatus("sessionExpired");
-            hadSessionRef.current = false;
+            if (session?.expires) {
+                const expirationTime = new Date(session.expires).getTime();
+                const now = Date.now();
+                const timeout = expirationTime - now;
+
+                if (timerRef.current) {
+                    clearTimeout(timerRef.current);
+                    timerRef.current = null;
+                }
+
+                if (timeout <= 0) {
+                    setAuthStatus("sessionExpired");
+                } else {
+                    timerRef.current = window.setTimeout(() => {
+                        setAuthStatus("sessionExpired");
+                    }, timeout);
+                }
+            }
+
             return;
         }
 
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-        };
+        if (status === "unauthenticated") {
+            let hadBefore = hadSessionRef.current;
+            try {
+                if (!hadBefore) hadBefore = !!sessionStorage.getItem(STORAGE_KEY);
+            } catch {}
+
+            if (hadBefore) {
+                setAuthStatus("sessionExpired");
+                try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+                hadSessionRef.current = false;
+            } else {
+                setAuthStatus("unauthenticated");
+            }
+
+            return;
+        }
     }, [status, session, pathname, mounted]);
+       
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        };
+    }, []);
 
 if (!mounted || !authStatus) return null;
 
