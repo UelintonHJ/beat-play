@@ -10,7 +10,7 @@ export default function AuthWatcher() {
     const pathname = usePathname();
     const [authStatus, setAuthStatus] = useState<"unauthenticated" | "sessionExpired" | null>(null);
 
-    const publicRoutes = ["app/page.tsx"];
+    const publicRoutes = ["/"];
 
     useEffect(() => {
         if (publicRoutes.includes(pathname)) {
