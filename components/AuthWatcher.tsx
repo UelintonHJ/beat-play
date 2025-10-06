@@ -22,10 +22,28 @@ export default function AuthWatcher() {
         } catch {
             hadSessionRef.current = false;
         }
+
+        const handleSpotifyError = () => {
+            setAuthStatus("sessionExpired");
+        };
+
+        window.addEventListener('spotify-auth-error', handleSpotifyError);
+
+        return () => {
+            window.removeEventListener('spotify-auth-error', handleSpotifyError);
+        }
     }, []);
 
     useEffect(() => {
         if (!mounted) return;
+
+        const spotifyTokenExpired = typeof window !== 'undefined' && 
+        sessionStorage.getItem('spotify_token_expired') === 'true';
+
+        if (spotifyTokenExpired) {
+            setAuthStatus("sessionExpired");
+            return;
+        }
 
         if (publicRoutes.includes(pathname)) {
             setAuthStatus(null);
