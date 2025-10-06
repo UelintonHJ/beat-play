@@ -20,10 +20,6 @@ export default function ArtistsSection() {
         error
     } = useTopArtists(20);
 
-    if (error) {
-        return <ErrorMessage message="Erro ao carregar artistas." />
-    }
-
     if (!artists.length && !loading) {
         return (
             <p className="text-gray-400 mt-4 whitespace-nowrap">
@@ -35,22 +31,25 @@ export default function ArtistsSection() {
     return (
         <section className="mt-8">
             <h2 className="text-xl font-semibold mb-4">Meus Artistas Favoritos</h2>
-
-            <HorizontalScrollSection>
-                {loading ? (
-                    <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
-                ) : (
-                    artists.map((artist) => (
-                        <div key={artist.id} className="flex-shrink-0">
-                            <ArtistCard
-                                name={artist.name}
-                                image={artist.image}
-                                spotifyUrl={artist.spotifyUrl}
-                            />
-                        </div>
-                    ))
-                )}
-            </HorizontalScrollSection>
+            {error ? (
+                <ErrorMessage message="Erro ao carregar seus artistas favoritos." type="error" className="mb-6" />
+            ) : (
+                <HorizontalScrollSection>
+                    {loading ? (
+                        <SectionSkeleton count={8} cardWidth="w-[192px]" cardHeight="h-[248px]" />
+                    ) : (
+                        artists.map((artist) => (
+                            <div key={artist.id} className="flex-shrink-0">
+                                <ArtistCard
+                                    name={artist.name}
+                                    image={artist.image}
+                                    spotifyUrl={artist.spotifyUrl}
+                                />
+                            </div>
+                        ))
+                    )}
+                </HorizontalScrollSection>
+            )}
         </section>
     );
 }
