@@ -72,6 +72,22 @@ export default function MusicPlayer() {
     const handleNext = async () => player?.nextTrack();
     const handlePrevious = async () => player?.previousTrack();
 
+    const playTrackOnDevice = async (trackUri: string) => {
+        if (!token || !deviceId) return;
+
+        await fetch(
+            `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+            {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ uris: [trackUri] }),
+            }
+        );
+    };
+
     if (!currentTrack) return null;
 
     return (
