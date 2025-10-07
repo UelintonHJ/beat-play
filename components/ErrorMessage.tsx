@@ -3,7 +3,7 @@
 interface ErrorMessageProps {
     message: string;
     className?: string;
-    type?: "error" | "offline" | "online" | "unauthenticated" | "sessionExpired";
+    type?: "error" | "offline" | "online" | "unauthenticated" | "sessionExpired" | "apiError";
 }
 
 export default function ErrorMessage({ message, type = "error", className }: ErrorMessageProps) {
@@ -16,6 +16,8 @@ export default function ErrorMessage({ message, type = "error", className }: Err
             case "unauthenticated":
             case "sessionExpired":
                 return "bg-orange-400 text-black rounded-none";
+            case "apiError":
+                return "bg-red-500 text-white rounded-none";
             case "error":
             default:
                 return "bg-red-400 text-black rounded-full px-6";
