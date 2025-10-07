@@ -25,7 +25,7 @@ export default function ErrorMessage({ message, type = "error", className }: Err
     };
 
     return (
-        <div className={`flex justify-center items-center border py-2 mx-auto w-fit text-center shadow-sm font-semibold ${getColor()} ${className || ""}`}
+        <div className={`flex justify-center items-center py-2 mx-auto w-fit text-center shadow-sm font-semibold ${getColor()} ${className || ""}`}
         >
             {message}
 
