@@ -10,7 +10,7 @@ export default function MusicPlayer() {
     const token = session?.accessToken as string | undefined;
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
-    const [currentTrack, setCurrentTrack] = useState<any | null>(null);
+    const [currentTrack, setCurrentTrack] = useState<Spotify.PlayerState["track_window"]["current_track"] | null>(null);
     const [deviceId, setDeviceId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -33,6 +33,10 @@ export default function MusicPlayer() {
             player.addListener("ready", ({ device_id }: { device_id: string }) => {
                 console.log("Player pronto com ID:", device_id);
                 setDeviceId(device_id);
+
+                if (deviceId) {
+                    console.log("Spotify conectado ao device:", deviceId);
+                }
             });
 
             player.addListener("not_ready", ({ device_id }: { device_id: string }) => {
@@ -76,7 +80,7 @@ export default function MusicPlayer() {
             <div className="flex items-center gap-3">
                 {currentTrack.album?.images?.[0]?.url && (
                     <Image
-                        src={currentTrack.albumImageUrl}
+                        src={currentTrack.album?.images?.[0]?.url || "/placeholder.png"}
                         alt={currentTrack.name}
                         width={64}
                         height={64}
@@ -86,7 +90,7 @@ export default function MusicPlayer() {
                 <div>
                     <p className="font-semibold">{currentTrack.name}</p>
                     <p className="text-sm text-neutral-400">
-                        {currentTrack.artists?.map((a: any) => a.name).join(", ")}
+                        {currentTrack.artists?.map((a) => a.name).join(", ")}
                     </p>
                 </div>
             </div>
