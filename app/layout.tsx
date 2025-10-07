@@ -5,6 +5,7 @@ import Providers from "./providers";
 import NetworkWatcher from "@/components/NetworkWatcher";
 import AuthWatcher from "@/components/AuthWatcher";
 import ApiErrorWatcher from "@/components/ApiErrorWatcher";
+import MusicPlayer from "@/components/MusicPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
           <AuthWatcher />
           <ApiErrorWatcher />
           {children}
+          <MusicPlayer />
         </Providers>
       </body>
     </html>
