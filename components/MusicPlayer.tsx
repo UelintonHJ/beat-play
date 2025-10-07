@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
+import Image from "next/image";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
@@ -23,7 +24,7 @@ export default function MusicPlayer() {
         window.onSpotifyWebPlaybackSDKReady = () => {
             const player = new window.Spotify.Player({
                 name: "Beatplay Web Player",
-                getOAuthToken: (cb) => cb(token),
+                getOAuthToken: (cb: (token: string) => void) => cb(token),
                 volume: 0.5,
             });
 
@@ -38,7 +39,7 @@ export default function MusicPlayer() {
                 console.warn("Player desconectado:", device_id);
             });
 
-            player.addListener("player_state_changed", (state: Spotify.PlayerState) => {
+            player.addListener("player_state_changed", (state: Spotify.PlayerState | null) => {
                 if (!state) return;
                 setIsPaused(state.paused);
                 setCurrentTrack(state.track_window.current_track);
@@ -74,10 +75,12 @@ export default function MusicPlayer() {
             {/* Capa e informações */}
             <div className="flex items-center gap-3">
                 {currentTrack.album?.images?.[0]?.url && (
-                    <img
-                        src={currentTrack.album.images[0].url}
+                    <Image
+                        src={currentTrack.albumImageUrl}
                         alt={currentTrack.name}
-                        className="w-12 h-12 rounded-md"
+                        width={64}
+                        height={64}
+                        priority
                     />
                 )}
                 <div>
