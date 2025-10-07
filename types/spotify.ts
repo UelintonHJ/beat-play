@@ -103,3 +103,50 @@ export interface SpotifyAlbumTracksResponse {
     previous?: string | null;
     total?: number;
 }
+
+declare global {
+    interface Window {
+        onSpotifyWebPlaybackSDKReady: () => void;
+        Spotify: {
+            Player: new (init: Spotify.PlayerInit) => Spotify.Player;
+        };
+    }
+
+    namespace Spotify {
+        interface PlayerInit {
+            name: string;
+            getOAuthToken: (cb: (token: string) => void) => void;
+            volume?: number;
+        }
+
+        interface PlayerState {
+            paused: boolean;
+            track_window: {
+                current_track: {
+                    name: string;
+                    album: {
+                        images: { url: string }[];
+                    };
+                    artists: { name: string }[];
+                };
+            };
+        }
+
+        interface Player {
+            connect(): Promise<boolean>;
+            disconnect(): void;
+            addListener(
+                event: "ready" | "not_ready" | "player_state_changed" | string,
+                callback: (data: any) => void
+            ): boolean;
+            removeListener(event: string, callback?: (data: any) => void): boolean;
+            getCurrentState(): Promise<PlayerState | null>;
+            resume(): Promise<void>;
+            pause(): Promise<void>;
+            previousTrack(): Promise<void>;
+            nextTrack(): Promise<void>;
+        }
+    }
+}
+
+export { };
