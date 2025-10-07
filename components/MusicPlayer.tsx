@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import Image from "next/image";
-import { headers } from "next/headers";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
