@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import Image from "next/image";
+import { headers } from "next/headers";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
@@ -34,6 +35,22 @@ export default function MusicPlayer() {
                 console.log("Player pronto com ID:", device_id);
                 setDeviceId(device_id);
 
+                const activateDevice = async () => {
+                    if (token) {
+                        await fetch(`https://api.spotify.com/v1/me/player`, {
+                            method: "PUT",
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ device_ids: [device_id], play: false }),
+                        });
+                    }
+                };
+
+                activateDevice();
+
+
                 if (deviceId) {
                     console.log("Spotify conectado ao device:", deviceId);
                 }
@@ -57,6 +74,19 @@ export default function MusicPlayer() {
         };
     }, [token]);
 
+    useEffect(() => {
+        if (!player) return;
+
+        const fetchCurrentState = async () => {
+            const state = await player.getCurrentState();
+            if (!state) return;
+            setIsPaused(state.paused);
+            setCurrentTrack(state.track_window.current_track);
+        };
+
+        fetchCurrentState();
+    }, [player]);
+
     const handlePlayPause = async () => {
         if (!player) return;
         const state = await player.getCurrentState();
@@ -72,7 +102,7 @@ export default function MusicPlayer() {
     const handleNext = async () => player?.nextTrack();
     const handlePrevious = async () => player?.previousTrack();
 
-    const playTrackOnDevice = async (trackUri: string) => {
+    const playTrack = async (trackUri: string) => {
         if (!token || !deviceId) return;
 
         await fetch(
@@ -84,8 +114,13 @@ export default function MusicPlayer() {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ uris: [trackUri] }),
-            }
-        );
+            });
+
+        const state = await player?.getCurrentState();
+        if (state) {
+            setIsPaused(state.paused);
+            setCurrentTrack(state.track_window.current_track);
+        }
     };
 
     if (!currentTrack) return null;
