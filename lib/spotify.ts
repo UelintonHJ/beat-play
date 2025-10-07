@@ -1,4 +1,5 @@
 
+import { emitApiError } from "@/components/ApiErrorWatcher";
 import {
     SpotifyTopArtistsResponse,
     SpotifyTopTracksResponse,
@@ -22,6 +23,10 @@ function handleSpotifyAuthError(response: Response) {
 function handleSpotifyApiError(res: Response, context: string) {
     handleSpotifyAuthError(res);
     if (!res.ok) {
+        const message = `Não foi possível carregar suas músicas. ${context}`;
+        if (typeof window !== "undefined") {
+            emitApiError(message);
+        }
         throw new Error(`SPOTIFY_API_ERROR: ${context}`);
     }
 }
