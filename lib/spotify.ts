@@ -48,8 +48,12 @@ export const getUserPlaylists = (token: string, limit = 10) =>
 export const getUserTopTracks = (token: string, limit = 10) =>
     spotifyFetch<SpotifyUserTopTracksResponse>(`https://api.spotify.com/v1/me/top/tracks?limit=${limit}`, token, "Erro ao buscar músicas mais ouvidas");
 
+export interface SpotifyRecentlyPlayedResponse {
+    items: Array<{ track: SpotifyTrackAPI }>;
+}
+
 export const getRecentlyPlayedTracks = (token: string, limit = 10) =>
-    spotifyFetch(`https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`, token, "Erro ao buscar músicas reproduzidas recentemente");
+    spotifyFetch<SpotifyRecentlyPlayedResponse>(`https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`, token, "Erro ao buscar músicas reproduzidas recentemente");
 
 export const getUserTopArtists = (token: string, limit = 5) =>
     spotifyFetch<SpotifyTopArtistsResponse>(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, token, "Erro ao buscar top artistas do usuário");
