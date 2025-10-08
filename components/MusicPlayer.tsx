@@ -4,13 +4,15 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import Image from "next/image";
+import { usePlayer } from "@/context/PlayerContext";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
+    const { currentTrack } = usePlayer();
     const token = session?.accessToken as string | undefined;
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
-    const [currentTrack, setCurrentTrack] = useState<Spotify.PlayerState["track_window"]["current_track"] | null>(null);
+    const [currentSdkTrack, setCurrentSdkTrack] = useState<Spotify.PlayerState["track_window"]["current_track"] | null>(null);
     const [deviceId, setDeviceId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -23,8 +25,6 @@ export default function MusicPlayer() {
             script.async = true;
             document.body.appendChild(script);
         }
-
-        let playerInstance: Spotify.Player | null = null;
 
         const interval = setInterval(() => {
             if (window.Spotify) {
@@ -41,23 +41,14 @@ export default function MusicPlayer() {
                         console.log("Player pronto com ID:", device_id);
                         setDeviceId(device_id);
 
-                        const activateDevice = async () => {
-                            try {
-                                await fetch(`https://api.spotify.com/v1/me/player`, {
-                                    method: "PUT",
-                                    headers: {
-                                        Authorization: `Bearer ${token}`,
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({ device_ids: [device_id], play: false }),
-                                });
-                                console.log("Dispositivo ativado com sucesso");
-                            } catch (err) {
-                                console.error("Erro ao ativar o dispositivo:", err)
-                            }
-                        };
-
-                        activateDevice();
+                        fetch(`https://api.spotify.com/v1/me/player`, {
+                            method: "PUT",
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ device_ids: [device_id], play: false }),
+                        }).then(() => console.log("Dispositivo ativado com sucesso"));
                     });
 
                     player.addListener("not_ready", ({ device_id }: { device_id: string }) => {
@@ -67,28 +58,16 @@ export default function MusicPlayer() {
                     player.addListener("player_state_changed", (state: Spotify.PlayerState | null) => {
                         if (!state) return;
                         setIsPaused(state.paused);
-                        setCurrentTrack(state.track_window.current_track);
+                        setCurrentSdkTrack(state.track_window.current_track);
                     });
 
                     player.connect();
                     setPlayer(player);
-                    playerInstance = player;
-
-                    setTimeout(async () => {
-                        const response = await fetch("https://api.spotify.com/v1/me/player/devices", {
-                            headers: {
-                                Authorization: `Bearer ${token}`
-                            },
-                        });
-                        const data = await response.json();
-                        console.log("Dispositivos disponíveis:", data);
-                    }, 2000);
                 };
 
                 if (window.Spotify.Player) {
                     window.onSpotifyWebPlaybackSDKReady();
                 }
-
             }
 
         }, 100);
@@ -100,17 +79,31 @@ export default function MusicPlayer() {
     }, [token]);
 
     useEffect(() => {
-        if (!player) return;
+        if (!currentTrack || !token || !deviceId) return;
 
-        const fetchCurrentState = async () => {
-            const state = await player.getCurrentState();
-            if (!state) return;
-            setIsPaused(state.paused);
-            setCurrentTrack(state.track_window.current_track);
+        const playTrack = async () => {
+            try {
+                console.log("Tocando:", currentTrack.name);
+
+                await fetch(
+                    `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            uris: [`spotify:track:${currentTrack.id}`],
+                        }),
+                    });
+            } catch (error) {
+                console.log("Erro ao tocar a música:", error);
+            }
         };
 
-        fetchCurrentState();
-    }, [player]);
+        playTrack();
+    }, [currentTrack, token, deviceId]);
 
     const handlePlayPause = async () => {
         if (!player) return;
@@ -126,27 +119,6 @@ export default function MusicPlayer() {
 
     const handleNext = async () => player?.nextTrack();
     const handlePrevious = async () => player?.previousTrack();
-
-    const playTrack = async (trackUri: string) => {
-        if (!token || !deviceId) return;
-
-        await fetch(
-            `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ uris: [trackUri] }),
-            });
-
-        const state = await player?.getCurrentState();
-        if (state) {
-            setIsPaused(state.paused);
-            setCurrentTrack(state.track_window.current_track);
-        }
-    };
 
     if (!currentTrack) return null;
 
