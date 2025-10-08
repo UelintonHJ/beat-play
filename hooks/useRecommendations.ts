@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getUserTopArtists, getRelatedArtists, getArtistTopTracks, getUserSavedTracks } from "@/lib/spotify";
+import { getUserTopArtists, getArtistTopTracks, getUserSavedTracks } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
 import { Track, SpotifyTrackAPI, SpotifyArtistAPI } from "@/types/spotify";
 
@@ -25,16 +25,10 @@ export function useRecommendations(limit: number = 20) {
                     getUserSavedTracks(token, 50),
                 ]);
 
-                console.log("Top Artists Data:", topArtistData); //test
-                console.log("Saved Tracks Data:", savedTracksData); //test
-
                 const topArtists: SpotifyArtistAPI[] = topArtistData.items?.filter(a => a?.id) || [];
-                const savedTrackIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
+                const savedTrackIds = new Set<string>(savedTracksData.items?.map(t => t.track.id) || []);
 
-                console.log("Top Artists:", topArtists); //test
-                console.log("Saved Track IDs:", savedTrackIds); //test
-
-                if (topArtists.length) {
+                if (topArtists.length === 0) {
                     setError("Nenhum artista encontrado para gerar recomendações.")
                     setTracks([]);
                     return;
@@ -42,8 +36,7 @@ export function useRecommendations(limit: number = 20) {
 
                 const recommendationsTracks: SpotifyTrackAPI[] = [];
 
-                await Promise.all(
-                    topArtists.map(async artist => {
+               for (const artist of topArtists) {
                         if (!artist.id) return;
 
                         try {
@@ -58,10 +51,9 @@ export function useRecommendations(limit: number = 20) {
                         } catch (err: any) {
                             console.warn(`Erro ao buscar top tracks de ${artist.name}`, err);
                         }
-                    })
-                );
+                    }
 
-                if (!recommendationsTracks.length) {
+                if (recommendationsTracks.length === 0) {
                     setError("Nenhuma música nova encontrada para os artistas relacionados.");
                     setTracks([]);
                     return;
