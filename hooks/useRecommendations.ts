@@ -25,8 +25,14 @@ export function useRecommendations(limit: number = 20) {
                     getUserSavedTracks(token, 50),
                 ]);
 
-                const topArtists = topArtistData.items?.filter(a => a?.id) || [];
+                console.log("Top Artists Data:", topArtistData); //test
+                console.log("Saved Tracks Data:", savedTracksData); //test
+
+                const topArtists: SpotifyArtistAPI[] = topArtistData.items?.filter(a => a?.id) || [];
                 const savedTrackIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
+
+                console.log("Top Artists:", topArtists); //test
+                console.log("Saved Track IDs:", savedTrackIds); //test
 
                 if (topArtists.length) {
                     setError("Nenhum artista encontrado para gerar recomendações.")
