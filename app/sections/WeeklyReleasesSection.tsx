@@ -3,11 +3,13 @@
 import ErrorMessage from "@/components/ErrorMessage";
 import HorizontalScrollSection from "@/components/HorizontalScrollSection";
 import SectionSkeleton from "@/components/SectionSkeleton";
+import { usePlayer } from "@/context/PlayerContext";
 import { useWeeklyReleases } from "@/hooks/useWeeklyReleases";
 import Image from "next/image";
 
 export default function WeeklyReleasesSection() {
     const { tracks, loading, error } = useWeeklyReleases(20);
+    const { setCurrentTrack } = usePlayer();
 
     return (
         <section className="mt-8">
@@ -26,6 +28,7 @@ export default function WeeklyReleasesSection() {
                         tracks.map(track => (
                             <div
                                 key={track.id}
+                                onClick={() => setCurrentTrack(track)}
                                 className="flex-shrink-0 w-48 bg-neutral-900 p-2 transition-all duration-200 shadow-md relative rounded-lg hover:bg-neutral-700 cursor-pointer"
                             >
                                 <Image
