@@ -4,9 +4,10 @@ import { useSpotifyToken } from "./useSpotifyToken";
 import { Track, SpotifyTrackAPI, SpotifyArtistAPI } from "@/types/spotify";
 import pLimit from "p-limit";
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
-const limitRequests = pLimit(3);
+const limitRequests = pLimit(5);
+const MAX_RELATED_ARTISTS = 1;
+const MAX_TOP_ARTISTS = 5;
+const MAX_TRACKS_PER_ARTIST = 3;
 
 export function useRecommendations(limit: number = 20) {
     const token = useSpotifyToken();
@@ -23,7 +24,7 @@ export function useRecommendations(limit: number = 20) {
 
             try {
                 const [topArtistData, savedTracksData] = await Promise.all([
-                    getUserTopArtists(token, 10),
+                    getUserTopArtists(token, MAX_TOP_ARTISTS),
                     getUserSavedTracks(token, 50),
                 ]);
 
@@ -41,9 +42,8 @@ export function useRecommendations(limit: number = 20) {
                 const fetchTopTracks = async (artist: SpotifyArtistAPI) => {
                     if (!artist.id) return;
                     try {
-                        await delay(200);
                         const topTracksData = await getArtistTopTracks(token, artist.id);
-                        const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, 3) || [];
+                        const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, MAX_TRACKS_PER_ARTIST) || [];
                         artistTracks.forEach(track => {
                             if(!savedTrackIds.has(track.id) && !recommendationsTracks.find(t => t.id === track.id)) {
                                 recommendationsTracks.push(track);
@@ -64,7 +64,7 @@ export function useRecommendations(limit: number = 20) {
                             console.warn(`Erro ao buscar artistas relacionados de ${artist.name}`, err);
                         }
 
-                        const artistsToFetch = relatedArtist.length > 0 ? relatedArtist.slice(0, 2) : [artist];
+                        const artistsToFetch = relatedArtist.length > 0 ? relatedArtist.slice(0, MAX_RELATED_ARTISTS) : [artist];
 
                         await Promise.all(artistsToFetch.map(a => limitRequests(() => fetchTopTracks(a))));
                     })
