@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { getUserTopArtists, getRelatedArtists, getArtistTopTracks, getUserSavedTracks } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
 import { Track, SpotifyTrackAPI, SpotifyArtistAPI } from "@/types/spotify";
-import pLimit from "p-limit";
 
-const limitRequests = pLimit(5);
-const MAX_RELATED_ARTISTS = 1;
 const MAX_TOP_ARTISTS = 5;
 const MAX_TRACKS_PER_ARTIST = 3;
 
@@ -29,9 +26,9 @@ export function useRecommendations(limit: number = 20) {
                 ]);
 
                 const topArtists = topArtistData.items?.filter(a => a?.id) || [];
-                const savedTrackIds = new Set<string>(savedTracksData.items?.map(t => t.track.id) || []);
+                const savedTrackIds = new Set(savedTracksData.items?.map(t => t.track.id) || []);
 
-                if (topArtists.length === 0) {
+                if (topArtists.length) {
                     setError("Nenhum artista encontrado para gerar recomendações.")
                     setTracks([]);
                     return;
@@ -39,38 +36,26 @@ export function useRecommendations(limit: number = 20) {
 
                 const recommendationsTracks: SpotifyTrackAPI[] = [];
 
-                const fetchTopTracks = async (artist: SpotifyArtistAPI) => {
-                    if (!artist.id) return;
-                    try {
-                        const topTracksData = await getArtistTopTracks(token, artist.id);
-                        const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, MAX_TRACKS_PER_ARTIST) || [];
-                        artistTracks.forEach(track => {
-                            if(!savedTrackIds.has(track.id) && !recommendationsTracks.find(t => t.id === track.id)) {
-                                recommendationsTracks.push(track);
-                            }
-                        });
-                    } catch (err: any) {
-                        console.warn(`Erro ao buscar top tracks de ${artist.name}`, err);
-                    }
-                };
+                await Promise.all(
+                    topArtists.map(async artist => {
+                        if (!artist.id) return;
 
-                await Promise.all(topArtists.map(artist => 
-                    limitRequests(async () => {
-                        let relatedArtist: SpotifyArtistAPI[] = [];
                         try {
-                            const relatedData = await getRelatedArtists(token, artist.id);
-                            relatedArtist = Array.isArray(relatedData.artists) ? relatedData.artists.filter(a => a?.id) : [];
+                            const topTracksData = await getArtistTopTracks(token, artist.id);
+                            const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, MAX_TRACKS_PER_ARTIST) || [];
+                            
+                            artistTracks.forEach(track => {
+                                if (!savedTrackIds.has(track.id) && !recommendationsTracks.find(t => t.id === track.id)) {
+                                    recommendationsTracks.push(track);
+                                }
+                            });
                         } catch (err: any) {
-                            console.warn(`Erro ao buscar artistas relacionados de ${artist.name}`, err);
+                            console.warn(`Erro ao buscar top tracks de ${artist.name}`, err);
                         }
-
-                        const artistsToFetch = relatedArtist.length > 0 ? relatedArtist.slice(0, MAX_RELATED_ARTISTS) : [artist];
-
-                        await Promise.all(artistsToFetch.map(a => limitRequests(() => fetchTopTracks(a))));
                     })
-                ));
+                );
 
-                if (recommendationsTracks.length === 0) {
+                if (!recommendationsTracks.length) {
                     setError("Nenhuma música nova encontrada para os artistas relacionados.");
                     setTracks([]);
                     return;
