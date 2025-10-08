@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { getUserTopArtists, getRelatedArtists, getArtistTopTracks, getUserSavedTracks } from "@/lib/spotify";
 import { useSpotifyToken } from "./useSpotifyToken";
 import { Track, SpotifyTrackAPI, SpotifyArtistAPI } from "@/types/spotify";
+import pLimit from "p-limit";
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+const limitRequests = pLimit(3);
 
 export function useRecommendations(limit: number = 20) {
     const token = useSpotifyToken();
@@ -35,36 +38,37 @@ export function useRecommendations(limit: number = 20) {
 
                 const recommendationsTracks: SpotifyTrackAPI[] = [];
 
-                for (const artist of topArtists) {
-                    let relatedArtist: SpotifyArtistAPI[] = [];
-
+                const fetchTopTracks = async (artist: SpotifyArtistAPI) => {
+                    if (!artist.id) return;
                     try {
-                        const relatedData = await getRelatedArtists(token, artist.id);
-                        relatedArtist = Array.isArray(relatedData.artists) ? relatedData.artists.filter(a => a?.id) : [];
+                        await delay(200);
+                        const topTracksData = await getArtistTopTracks(token, artist.id);
+                        const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, 3) || [];
+                        artistTracks.forEach(track => {
+                            if(!savedTrackIds.has(track.id) && !recommendationsTracks.find(t => t.id === track.id)) {
+                                recommendationsTracks.push(track);
+                            }
+                        });
                     } catch (err: any) {
-                        console.warn(`Erro ao buscar artistas relacionados de ${artist.name}`, err);
+                        console.warn(`Erro ao buscar top tracks de ${artist.name}`, err);
                     }
+                };
 
-                    const artistsToFetch = relatedArtist.length > 0 ? relatedArtist.slice(0, 2) : [artist];
-
-                    for (const related of artistsToFetch) {
-                        if (!related.id) continue;
+                await Promise.all(topArtists.map(artist => 
+                    limitRequests(async () => {
+                        let relatedArtist: SpotifyArtistAPI[] = [];
                         try {
-                            await delay(200);
-                            const topTracksData = await getArtistTopTracks(token, related.id);
-                            const artistTracks: SpotifyTrackAPI[] = topTracksData.tracks?.slice(0, 3) || [];
-
-                            artistTracks.forEach((track) => {
-                                if (!savedTrackIds.has(track.id) &&
-                                    !recommendationsTracks.find(t => t.id === track.id)) {
-                                    recommendationsTracks.push(track);
-                                }
-                            });
+                            const relatedData = await getRelatedArtists(token, artist.id);
+                            relatedArtist = Array.isArray(relatedData.artists) ? relatedData.artists.filter(a => a?.id) : [];
                         } catch (err: any) {
-                            console.warn(`Erro ao buscar top tracks de ${related.name}`, err);
+                            console.warn(`Erro ao buscar artistas relacionados de ${artist.name}`, err);
                         }
-                    }
-                }
+
+                        const artistsToFetch = relatedArtist.length > 0 ? relatedArtist.slice(0, 2) : [artist];
+
+                        await Promise.all(artistsToFetch.map(a => limitRequests(() => fetchTopTracks(a))));
+                    })
+                ));
 
                 if (recommendationsTracks.length === 0) {
                     setError("Nenhuma música nova encontrada para os artistas relacionados.");
