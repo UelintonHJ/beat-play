@@ -73,6 +73,16 @@ export default function MusicPlayer() {
                     player.connect();
                     setPlayer(player);
                     playerInstance = player;
+
+                    setTimeout(async () => {
+                        const response = await fetch("https://api.spotify.com/v1/me/player/devices", {
+                            headers: {
+                                Authorization: `Bearer ${token}`
+                            },
+                        });
+                        const data = await response.json();
+                        console.log("Dispositivos disponíveis:", data);
+                    }, 2000);
                 };
 
                 if (window.Spotify.Player) {
