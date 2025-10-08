@@ -104,6 +104,16 @@ export interface SpotifyAlbumTracksResponse {
     total?: number;
 }
 
+export interface SpotifyUserTopTracksResponse {
+    items: SpotifyTrackAPI[];
+    href?: string;
+    limit?: number;
+    next?: string | null;
+    offset?: number;
+    previous?: string | null;
+    total?: number;
+}
+
 declare global {
     interface Window {
         onSpotifyWebPlaybackSDKReady: () => void;
@@ -146,7 +156,9 @@ declare global {
             previousTrack(): Promise<void>;
             nextTrack(): Promise<void>;
         }
+
+
     }
-}
+} 
 
 export { };

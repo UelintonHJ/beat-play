@@ -7,7 +7,8 @@ import {
     SpotifySavedTracksResponse,
     SpotifyTrackAPI,
     SpotifyAlbumsResponse,
-    SpotifyAlbumTracksResponse
+    SpotifyAlbumTracksResponse,
+    SpotifyUserTopTracksResponse,
 } from "@/types/spotify"
 
 function handleSpotifyAuthError(response: Response) {
@@ -45,7 +46,7 @@ export const getUserPlaylists = (token: string, limit = 10) =>
     spotifyFetch(`https://api.spotify.com/v1/me/playlists?limit=${limit}`, token, "Erro ao buscar playlists");
 
 export const getUserTopTracks = (token: string, limit = 10) =>
-    spotifyFetch<SpotifyTopTracksResponse>(`https://api.spotify.com/v1/me/top/tracks?limit=${limit}`, token, "Erro ao buscar músicas mais ouvidas");
+    spotifyFetch<SpotifyUserTopTracksResponse>(`https://api.spotify.com/v1/me/top/tracks?limit=${limit}`, token, "Erro ao buscar músicas mais ouvidas");
 
 export const getRecentlyPlayedTracks = (token: string, limit = 10) =>
     spotifyFetch(`https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`, token, "Erro ao buscar músicas reproduzidas recentemente");
@@ -88,7 +89,7 @@ export async function getPersonalizedRecommendations(token: string, limit = 20) 
         ]);
 
         const topArtists = topArtistData.items || [];
-        const topTracks = (topTracksData as any).items || [];
+        const topTracks = (topTracksData as SpotifyUserTopTracksResponse).items || [];
         const savedTracks = savedTracksData.items?.map((item) => item.track) || [];
 
         const knownTrackIds = new Set([
@@ -154,7 +155,7 @@ export async function getWeeklyDiscoveries(token: string, limit = 20) {
         ]);
 
         const topArtists = topArtistData.items || [];
-        const topTracks = (topTracksData as any).items || [];
+        const topTracks = (topTracksData as SpotifyUserTopTracksResponse).items || [];
         const savedTracks = savedTracksData.items?.map((item) => item.track) || [];
 
         const knowTrackIds = new Set([
