@@ -16,59 +16,75 @@ export default function MusicPlayer() {
     useEffect(() => {
         if (!token) return;
 
-        const script = document.createElement("script");
-        script.src = "https://sdk.scdn.co/spotify-player.js";
-        script.async = true;
-        document.body.appendChild(script);
+        if (!document.getElementById("spotify-player-script")) {
+            const script = document.createElement("script");
+            script.id = "spotify-player-script";
+            script.src = "https://sdk.scdn.co/spotify-player.js";
+            script.async = true;
+            document.body.appendChild(script);
+        }
 
-        window.onSpotifyWebPlaybackSDKReady = () => {
-            const player = new window.Spotify.Player({
-                name: "Beatplay Web Player",
-                getOAuthToken: (cb: (token: string) => void) => cb(token),
-                volume: 0.5,
-            });
+        let playerInstance: Spotify.Player | null = null;
 
-            setPlayer(player);
+        const interval = setInterval(() => {
+            if (window.Spotify) {
+                clearInterval(interval);
 
-            player.addListener("ready", ({ device_id }: { device_id: string }) => {
-                console.log("Player pronto com ID:", device_id);
-                setDeviceId(device_id);
+                window.onSpotifyWebPlaybackSDKReady = () => {
+                    const player = new window.Spotify.Player({
+                        name: "Beatplay Web Player",
+                        getOAuthToken: (cb: (token: string) => void) => cb(token),
+                        volume: 0.5,
+                    });
 
-                const activateDevice = async () => {
-                    if (token) {
-                        await fetch(`https://api.spotify.com/v1/me/player`, {
-                            method: "PUT",
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ device_ids: [device_id], play: false }),
-                        });
-                    }
+                    player.addListener("ready", ({ device_id }: { device_id: string }) => {
+                        console.log("Player pronto com ID:", device_id);
+                        setDeviceId(device_id);
+
+                        const activateDevice = async () => {
+                            try {
+                                await fetch(`https://api.spotify.com/v1/me/player`, {
+                                    method: "PUT",
+                                    headers: {
+                                        Authorization: `Bearer ${token}`,
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({ device_ids: [device_id], play: false }),
+                                });
+                                console.log("Dispositivo ativado com sucesso");
+                            } catch (err) {
+                                console.error("Erro ao ativar o dispositivo:", err)
+                            }
+                        };
+
+                        activateDevice();
+                    });
+
+                    player.addListener("not_ready", ({ device_id }: { device_id: string }) => {
+                        console.warn("Player desconectado:", device_id);
+                    });
+
+                    player.addListener("player_state_changed", (state: Spotify.PlayerState | null) => {
+                        if (!state) return;
+                        setIsPaused(state.paused);
+                        setCurrentTrack(state.track_window.current_track);
+                    });
+
+                    player.connect();
+                    setPlayer(player);
+                    playerInstance = player;
                 };
 
-                activateDevice();
-
-
-                if (deviceId) {
-                    console.log("Spotify conectado ao device:", deviceId);
+                if (window.Spotify.Player) {
+                    window.onSpotifyWebPlaybackSDKReady();
                 }
-            });
 
-            player.addListener("not_ready", ({ device_id }: { device_id: string }) => {
-                console.warn("Player desconectado:", device_id);
-            });
+            }
 
-            player.addListener("player_state_changed", (state: Spotify.PlayerState | null) => {
-                if (!state) return;
-                setIsPaused(state.paused);
-                setCurrentTrack(state.track_window.current_track);
-            });
-
-            player.connect();
-        };
+        }, 100);
 
         return () => {
+            clearInterval(interval);
             player?.disconnect();
         };
     }, [token]);
