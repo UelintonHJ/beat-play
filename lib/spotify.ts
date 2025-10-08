@@ -6,7 +6,6 @@ import {
     SpotifyRelatedArtistsResponse,
     SpotifySavedTracksResponse,
     SpotifyTrackAPI,
-    SpotifyArtistAPI,
     SpotifyAlbumsResponse,
     SpotifyAlbumTracksResponse
 } from "@/types/spotify"
@@ -23,113 +22,64 @@ function handleSpotifyAuthError(response: Response) {
 function handleSpotifyApiError(res: Response, context: string) {
     handleSpotifyAuthError(res);
     if (!res.ok) {
+        if (res.status === 404) return;
         const message = `Não foi possível carregar suas músicas. ${context}`;
-        if (typeof window !== "undefined") {
+        if (typeof window !== "undefined")
             emitApiError(message);
-        }
         throw new Error(`SPOTIFY_API_ERROR: ${context}`);
     }
 }
 
-export async function getTopArtists(token: string, limit: number = 10) {
-    const res = await fetch(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+async function spotifyFetch<T>(url: string, token: string, context: string): Promise<T> {
+    const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
     });
-
-    handleSpotifyApiError(res, "Erro ao buscar artistas favoritos");
+    handleSpotifyApiError(res, context);
     return res.json();
 }
 
-export async function getUserPlaylists(token: string, limit: number = 10) {
-    const res = await fetch(`https://api.spotify.com/v1/me/playlists?limit=${limit}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+export const getTopArtists = (token: string, limit = 10) =>
+    spotifyFetch<SpotifyTopArtistsResponse>(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, token, "Erro ao buscar artistas favoritos");
 
-    handleSpotifyApiError(res, "Erro ao buscar playlists");
-    return res.json();
-}
+export const getUserPlaylists = (token: string, limit = 10) =>
+    spotifyFetch(`https://api.spotify.com/v1/me/playlists?limit=${limit}`, token, "Erro ao buscar playlists");
 
-export async function getUserTopTracks(token: string, limit: number = 10) {
-    const res = await fetch(`https://api.spotify.com/v1/me/top/tracks?limit=${limit}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+export const getUserTopTracks = (token: string, limit = 10) =>
+    spotifyFetch<SpotifyTopTracksResponse>(`https://api.spotify.com/v1/me/top/tracks?limit=${limit}`, token, "Erro ao buscar músicas mais ouvidas");
 
-    handleSpotifyApiError(res, "Erro ao buscar músicas mais ouvidas");
-    return res.json();
-}
+export const getRecentlyPlayedTracks = (token: string, limit = 10) =>
+    spotifyFetch(`https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`, token, "Erro ao buscar músicas reproduzidas recentemente");
 
-export async function getRecentlyPlayedTracks(token: string, limit: number = 10) {
-    const res = await fetch(
-        `https://api.spotify.com/v1/me/player/recently-played?limit=${limit}`,
-        {
+export const getUserTopArtists = (token: string, limit = 5) =>
+    spotifyFetch<SpotifyTopArtistsResponse>(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, token, "Erro ao buscar top artistas do usuário");
+
+export const getArtistAlbums = (token: string, artistId: string, limit = 10) =>
+    spotifyFetch<SpotifyAlbumsResponse>(`https://api.spotify.com/v1/artists/${artistId}/albums?limit=${limit}&include_groups=album,single`, token, "Erro ao buscar álbuns do artista");
+
+export const getArtistTopTracks = (token: string, artistId: string) =>
+    spotifyFetch<SpotifyTopTracksResponse>(`https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=BR`, token, "Erro ao buscar top tracks do artista");
+
+export const getRelatedArtists = async (token: string, artistId: string): Promise<SpotifyRelatedArtistsResponse> => {
+    try {
+        const res = await fetch(
+            `https://api.spotify.com/v1/artists/${artistId}/related-artists`, {
             headers: { Authorization: `Bearer ${token}` },
-        }
-    );
-
-    handleSpotifyApiError(res, "Erro ao buscar músicas reproduzidas recentemente");
-    return res.json();
-}
-
-export async function getUserTopArtists(token: string, limit: number = 5): Promise<SpotifyTopArtistsResponse> {
-    const res = await fetch(`https://api.spotify.com/v1/me/top/artists?limit=${limit}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    handleSpotifyApiError(res, "Erro ao buscar top artistas do usuário");
-    return res.json();
-}
-
-export async function getArtistAlbums(token: string, artistId: string, limit: number = 10): Promise<SpotifyAlbumsResponse> {
-    const res = await fetch(
-        `https://api.spotify.com/v1/artists/${artistId}/albums?limit=${limit}&include_groups=album,single`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    handleSpotifyApiError(res, "Erro ao buscar álbuns do artista");
-    return res.json();
-}
-
-export async function getArtistTopTracks(token: string, artistId: string) {
-    const res = await fetch(
-        `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=BR`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    handleSpotifyApiError(res, "Erro ao buscar top tracks do artista");
-    return res.json();
-}
-
-export async function getRelatedArtists(token: string, artistId: string): Promise<SpotifyRelatedArtistsResponse> {
-    const res = await fetch(
-        `https://api.spotify.com/v1/artists/${artistId}/related-artists`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (res.status === 404) {
+        });
+        if (res.status === 404) return { artists: [] };
+        handleSpotifyApiError(res, "Erro ao buscar artistas relacionados");
+        return res.json();
+    } catch {
         return { artists: [] };
     }
+};
 
-    handleSpotifyApiError(res, "Erro ao buscar artistas relacionados");
-    return res.json();;
-}
+export const getUserSavedTracks = (token: string, limit = 50) =>
+    spotifyFetch<SpotifySavedTracksResponse>(`https://api.spotify.com/v1/me/tracks?limit=${limit}`, token, "Erro ao buscar músicas salvas");
 
-export async function getUserSavedTracks(token: string, limit: number = 50): Promise<SpotifySavedTracksResponse> {
-    const res = await fetch(
-        `https://api.spotify.com/v1/me/tracks?limit=${limit}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+export const getAlbumTracks = (token: string, albumId: string, limit: number = 50) =>
+    spotifyFetch<SpotifyAlbumTracksResponse>(`https://api.spotify.com/v1/albums/${albumId}/tracks?limit=${limit}`, token, "Erro ao buscar músicas do álbum");
 
-    handleSpotifyApiError(res, "Erro ao buscar músicas salvas");
-    return res.json();
-}
-
-interface TopTracksWithItems {
-    items: SpotifyTrackAPI[];
-}
-
-export async function getPersonalizedRecommendations(token: string, limit: number = 20) {
+export async function getPersonalizedRecommendations(token: string, limit = 20) {
     try {
         const [topArtistData, topTracksData, savedTracksData] = await Promise.all([
             getUserTopArtists(token, 10),
@@ -138,31 +88,28 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
         ]);
 
         const topArtists = topArtistData.items || [];
-        const topTracks = (topTracksData as TopTracksWithItems).items || [];
+        const topTracks = (topTracksData as any).items || [];
         const savedTracks = savedTracksData.items?.map((item) => item.track) || [];
 
-        const knowTrackIds = new Set([
-            ...topTracks.map((t) => t.id),
-            ...savedTracks.map((t) => t.id),
+        const knownTrackIds = new Set([
+            ...topTracks.map((t: SpotifyTrackAPI) => t.id),
+            ...savedTracks.map((t: SpotifyTrackAPI) => t.id),
         ]);
 
         const recommendedTracks: SpotifyTrackAPI[] = [];
         const trackScores = new Map<string, number>();
 
+        const addTrack = (track: SpotifyTrackAPI) => {
+            if (!knownTrackIds.has(track.id) && !recommendedTracks.find((t) => t.id === track.id)) {
+                recommendedTracks.push(track);
+                knownTrackIds.add(track.id);
+            }
+        };
+
         for (const artist of topArtists.slice(0, 5)) {
             try {
-                const topTracksData = await getArtistTopTracks(token, artist.id);
-                const artistTracks = topTracksData.tracks || [];
-
-                artistTracks.forEach((track: SpotifyTrackAPI) => {
-                    if (!knowTrackIds.has(track.id)) {
-                        if (!recommendedTracks.find(t => t.id === track.id)) {
-                            recommendedTracks.push(track);
-                            knowTrackIds.add(track.id)
-                        }
-                    }
-
-                });
+                const { tracks } = await getArtistTopTracks(token, artist.id);
+                tracks.forEach(addTrack);
             } catch (err) {
                 console.error(`Erro ao buscar tracks do artista ${artist.name}:`, err);
             }
@@ -170,53 +117,35 @@ export async function getPersonalizedRecommendations(token: string, limit: numbe
 
         for (const artist of topArtists.slice(0, 3)) {
             try {
-                const relatedData = await getRelatedArtists(token, artist.id);
-                const relatedArtists: SpotifyArtistAPI[] = (relatedData.artists || []).slice(0, 2);
-
-                for (const relatedArtist of relatedArtists) {
-                    const topTracksData = await getArtistTopTracks(token, relatedArtist.id);
-                    const artistTracks: SpotifyTrackAPI[] = (topTracksData.tracks || []).slice(0, 3);
-
-                    artistTracks.forEach((track: SpotifyTrackAPI) => {
-                        if (!knowTrackIds.has(track.id)) {
-                            if (!recommendedTracks.find(t => t.id === track.id)) {
-                                recommendedTracks.push(track);
-                                knowTrackIds.add(track.id);
-                            }
-                        }
-                    });
+                const related = (await getRelatedArtists(token, artist.id)).artists?.slice(0, 2) || [];
+                for (const relatedArtist of related) {
+                    const { tracks } = await getArtistTopTracks(token, relatedArtist.id);
+                    tracks.slice(0, 3).forEach(addTrack);
                 }
-            } catch (err: unknown) {
+            } catch (err) {
                 console.warn(`Não foi possível buscar artistas relacionados de ${artist.name}`, err);
             }
         }
 
-        recommendedTracks.forEach((track: SpotifyTrackAPI) => {
+        recommendedTracks.forEach((track) => {
             const popularity = track.popularity || 0;
-            let popularityBonus = 0;
-
-            if (popularity >= 40 && popularity <= 70) {
-                popularityBonus = 3;
-            } else if (popularity > 70) {
-                popularityBonus = 1;
-            }
-
-            const currentScore = trackScores.get(track.id) || 0;
-            trackScores.set(track.id, currentScore + popularityBonus);
+            let bonus = 0;
+            if (popularity >= 40 && popularity <= 70)
+                bonus = 3;
+            else if (popularity > 70) bonus = 1;
+            trackScores.set(track.id, (trackScores.get(track.id) || 0) + bonus);
         });
 
-        const sortedTracks = recommendedTracks
-            .sort((a, b) => (trackScores.get(b.id) || 0) - (trackScores.get(a.id) || 0))
-            .slice(0, limit);
-
-        return { tracks: sortedTracks };
-    } catch (error) {
-        console.error("Erro ao gerar recomendações:", error);
+        return {
+            tracks: recommendedTracks.sort((a, b) => (trackScores.get(b.id) || 0) - (trackScores.get(a.id) || 0)).slice(0, limit)
+        };
+    } catch (err) {
+        console.error("Erro ao gerar recomendações:", err);
         throw new Error("Erro ao buscar recomendações personalizadas");
     }
 }
 
-export async function getWeeklyDiscoveries(token: string, limit: number = 20) {
+export async function getWeeklyDiscoveries(token: string, limit = 20) {
     try {
         const [topArtistData, topTracksData, savedTracksData] = await Promise.all([
             getUserTopArtists(token, 10),
@@ -225,48 +154,33 @@ export async function getWeeklyDiscoveries(token: string, limit: number = 20) {
         ]);
 
         const topArtists = topArtistData.items || [];
-        const topTracks = (topTracksData as TopTracksWithItems).items || [];
+        const topTracks = (topTracksData as any).items || [];
         const savedTracks = savedTracksData.items?.map((item) => item.track) || [];
 
         const knowTrackIds = new Set([
-            ...topTracks.map((t) => t.id),
-            ...savedTracks.map((t) => t.id),
+            ...topTracks.map((t: SpotifyTrackAPI) => t.id),
+            ...savedTracks.map((t: SpotifyTrackAPI) => t.id),
         ]);
 
         const discoveryTracks: SpotifyTrackAPI[] = [];
 
         for (const artist of topArtists) {
             try {
-                const artistTopTracks = (await getArtistTopTracks(token, artist.id)).tracks || [];
-                for (const track of artistTopTracks) {
-                    if (!knowTrackIds.has(track.id) && !discoveryTracks.find(t => t.id === track.id)) {
+                const { tracks } = await getArtistTopTracks(token, artist.id);
+                tracks.forEach((track) => {
+                    if (!knowTrackIds.has(track.id) && !discoveryTracks.find((t) => t.id === track.id)) {
                         discoveryTracks.push(track);
                         knowTrackIds.add(track.id)
                     }
-                }
+                });
             } catch (err) {
                 console.warn(`Erro ao buscar top tracks do artista ${artist.name}`, err);
             }
         }
 
-        const shuffled = discoveryTracks.sort(() => 0.5 - Math.random());
-
-        return { tracks: shuffled.slice(0, limit) };
-
+        return { tracks: discoveryTracks.sort(() => 0.5 - Math.random()).slice(0, limit) };
     } catch (error) {
         console.error("Erro ao buscar descobertas da semana:", error);
         throw new Error("Erro ao buscar descobertas da semana");
     }
-
-}
-
-export async function getAlbumTracks(token: string, albumId: string, limit: number = 50): Promise<SpotifyAlbumTracksResponse> {
-    const res = await fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks?limit=${limit}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        },
-    });
-
-    handleSpotifyApiError(res, "Erro ao buscar músicas do álbum");
-    return res.json();
 }
