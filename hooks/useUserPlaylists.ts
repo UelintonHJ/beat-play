@@ -15,7 +15,7 @@ export function useUserPlaylists(limit: number = 10) {
         setLoading(true);
         setError(null);
 
-        getUserPlaylists(token, limit).then((data) => {
+        getUserPlaylists(token, limit).then((data: any) => {
             const formattedPlaylists: Playlist[] = data.items.map((item: any) => ({
                 id: item.id,
                 name: item.name,
