@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import Image from "next/image";
 import { usePlayer } from "@/context/PlayerContext";
+import { SpotifyTrackAPI } from "@/types/spotify";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
@@ -12,9 +13,10 @@ export default function MusicPlayer() {
     const token = session?.accessToken as string | undefined;
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
-    const [currentSdkTrack, setCurrentSdkTrack] = useState<Spotify.PlayerState["track_window"]["current_track"] | null>(null);
     const [deviceId, setDeviceId] = useState<string | null>(null);
     const [track, setTrack] = useState<any>(null);
+    const [progress, setProgress] = useState(0);
+    const [duration, setDuration] = useState(0);
 
     useEffect(() => {
         if (!token) return;
@@ -33,17 +35,11 @@ export default function MusicPlayer() {
                 const data = await res.json();
 
                 if (data && data.item) {
-                    setTrack({
-                        id: data.item.id,
-                        name: data.item.name,
-                        artists: data.item.artists.map((a: any) => a.name).join(", "),
-                        album: data.item.album.name,
-                        cover: data.item.album.imagens[0].url,
-                        isPlaying: data.is_playing,
-                        progress: data.progress_ms,
-                        duration: data.item.duration_ms,
-                    });
+                    setTrack(data.item);
                     setIsPaused(!data.is_playing);
+                    setProgress(data.progress_ms);
+                    setDuration(data.item.duration_ms);
+
                 }
             } catch (err) {
                 console.error("Erro ao buscar música atual", err);
@@ -68,15 +64,6 @@ export default function MusicPlayer() {
             player.addListener("ready", ({ device_id }: { device_id: string }) => {
                 console.log("Player pronto com ID:", device_id);
                 setDeviceId(device_id);
-
-                fetch(`https://api.spotify.com/v1/me/player`, {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ device_ids: [device_id], play: false }),
-                }).then(() => console.log("Dispositivo ativado com sucesso"));
             });
 
             player.addListener("not_ready", ({ device_id }: { device_id: string }) => {
@@ -86,7 +73,6 @@ export default function MusicPlayer() {
             player.addListener("player_state_changed", (state: Spotify.PlayerState | null) => {
                 if (!state) return;
                 setIsPaused(state.paused);
-                setCurrentSdkTrack(state.track_window.current_track);
             });
 
             player.connect();
@@ -104,15 +90,14 @@ export default function MusicPlayer() {
 
     const handlePlayPause = async () => {
         if (!token) return;
+        const endpoint = isPaused
+            ? "https://api.spotify.com/v1/me/player/play"
+            : "https://api.spotify.com/v1/me/player/pause";
 
         try {
-            const method = isPaused ? "PUT" : "PUT";
-            const endpotin = isPaused
-                ? "https://api.spotify.com/v1/me/player/play"
-                : "https://api.spotify.com/v1/me/player/pause";
-
             await fetch(endpoint, {
-                method, headers: {
+                method: "PUT",
+                headers: {
                     Authorization: `Bearer ${token}`
                 },
             });
@@ -127,7 +112,7 @@ export default function MusicPlayer() {
         if (!token) return;
         await fetch("https://api.spotify.com/v1/me/player/next", {
             method: "POST",
-            headers: { Authorization: `Bearer ${token} ` },
+            headers: { Authorization: `Bearer ${token}` },
         });
     };
 
@@ -141,7 +126,7 @@ export default function MusicPlayer() {
 
     if (!track) return null;
 
-    const progressPercent = (track.progress / track.duration) * 100;
+    const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
     return (
         <footer className="fixed bottom-0 left-0 w-full bg-neutral-900 text-white flex items-center justify-between px-4 py-2 border-t border-neutral-800 z-50">
