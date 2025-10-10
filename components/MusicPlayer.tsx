@@ -14,7 +14,7 @@ export default function MusicPlayer() {
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
     const [deviceId, setDeviceId] = useState<string | null>(null);
-    const [track, setTrack] = useState<any>(null);
+    const [track, setTrack] = useState<SpotifyTrackAPI | null>(null);
     const [progress, setProgress] = useState(0);
     const [duration, setDuration] = useState(0);
 
@@ -70,7 +70,7 @@ export default function MusicPlayer() {
                 console.warn("Player desconectado:", device_id);
             });
 
-            player.addListener("player_state_changed", (state: Spotify.PlayerState | null) => {
+            player.addListener("player_state_changed", (state: Spotify.PlayerState | null): void => {
                 if (!state) return;
                 setIsPaused(state.paused);
             });
@@ -144,7 +144,7 @@ export default function MusicPlayer() {
                     <div>
                         <p className="font-semibold">{track.name}</p>
                         <p className="text-sm text-neutral-400">
-                            {track.artists}
+                            {track.artists.map((artist) => artist.name).join(", ")}
                         </p>
                     </div>
                 </div>
@@ -168,7 +168,7 @@ export default function MusicPlayer() {
 
             {/* Barra de progresso */}
             <div className="absolute bottom-0 left-0 w-full bg-neutral-800 h-1">
-                <div className="bg-green-500 h-1 transition-all duration-300" style={{ width: `width: ${progressPercent}%` }}>
+                <div className="bg-green-500 h-1 transition-all duration-300" style={{ width: `${progressPercent}%` }}>
                 </div>
             </div>
         </footer>
