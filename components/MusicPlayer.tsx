@@ -109,13 +109,13 @@ export default function MusicPlayer() {
     return (
         <footer className="fixed bottom-0 left-0 w-full bg-neutral-900 text-white flex items-center justify-between px-4 py-2 border-t border-neutral-800 z-50">
             {/* Capa e informações */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mx-auto">
                 {currentTrack.album?.images?.[0]?.url && (
                     <Image
                         src={currentTrack.album?.images?.[0]?.url || "/placeholder.png"}
                         alt={currentTrack.name}
-                        width={64}
-                        height={64}
+                        width={78}
+                        height={78}
                         priority
                     />
                 )}
@@ -128,7 +128,7 @@ export default function MusicPlayer() {
             </div>
 
             {/* Controles */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mx-auto">
                 <button onClick={handlePrevious}>
                     <SkipBack size={20} />
                 </button>
