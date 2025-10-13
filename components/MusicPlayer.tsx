@@ -104,15 +104,15 @@ export default function MusicPlayer() {
                 console.warn("Player desconectado:", device_id);
             });
 
-            playerInstance.addListener("player_state_changed", (state: Spotify.PlayerState | null) => {
+            playerInstance.addListener("player_state_changed", (state: any) => {
                 if (!state) return;
 
                 setIsPaused(state.paused);
-                const stateAny = state as any;
-                setProgress(stateAny.position ?? 0);
-                setDuration(stateAny.duration ?? duration);
+                setProgress(state.position ?? 0);
+                const currentDuration = state.duration ?? state.track_window?.current_track?.duration_ms ?? duration;
+                setDuration(currentDuration);
 
-                const sdkTrack = state.track_window?.current_track as any;
+                const sdkTrack = state.track_window?.current_track;
                 if (sdkTrack) {
                     const mapped = mapToAppTrack({
                         id: sdkTrack.id,
