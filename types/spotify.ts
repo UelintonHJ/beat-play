@@ -142,6 +142,32 @@ declare global {
             };
         }
 
+        interface PlaybackTrack {
+            id: string;
+            name: string;
+            duration_ms?: number;
+            album: {
+                uri?: string;
+                name: string;
+                images?: {
+                    url: string
+                }[];
+            };
+            artists: { name: string }[];
+            external_urls?: {
+                spotify: string
+            };
+        }
+
+        interface PlaybackState {
+            paused: boolean;
+            position: number;
+            duration?: number;
+            track_window: {
+                current_track: PlaybackTrack;
+            };
+        }
+
         interface Player {
             connect(): Promise<boolean>;
             disconnect(): void;
