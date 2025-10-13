@@ -9,7 +9,7 @@ import { SpotifyTrackAPI, Track, Artist } from "@/types/spotify";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
-    const { currentTrack, setCurrentTrack } = usePlayer();
+    const { setCurrentTrack } = usePlayer();
     const token = session?.accessToken as string | undefined;
 
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
@@ -19,23 +19,7 @@ export default function MusicPlayer() {
     const [progress, setProgress] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
 
-    const mapToAppTrack = (sdkTrack: {
-        id?: string;
-        name?: string;
-        album?: { 
-            id?: string; 
-            name?: string; 
-            images?: { url: string }[]; 
-            external_urls?: any 
-        };
-        artists?: { 
-            id?: string; 
-            name: string; 
-            external_urls?: any; 
-            images?: any[]
-        }[]; 
-        external_urls?: any;
-    }): Track => {
+    const mapToAppTrack = (sdkTrack: SpotifyTrackAPI): Track => {
         const artists: Artist[] = (sdkTrack.artists ?? []).map((a) => ({
             id: a.id ?? "",
             name: a.name,
@@ -47,8 +31,8 @@ export default function MusicPlayer() {
             id: sdkTrack.id ?? "",
             name: sdkTrack.name ?? "",
             album: {
-                id: sdkTrack.album?.id,
-                name: sdkTrack.album?.name,
+                id: sdkTrack.album?.id ?? "",
+                name: sdkTrack.album?.name ?? "",
                 images: (sdkTrack.album?.images ?? []).map((img) => ({ url: img.url })),
             },
             artists,
@@ -58,7 +42,7 @@ export default function MusicPlayer() {
     useEffect(() => {
         if (!token) return;
 
-        const fetchCurrentTrack = async () => {
+        const fetchCurrentTrack = async (): Promise<void> => {
             try {
                 const res = await fetch("https://api.spotify.com/v1/me/player/currently-playing", {
                     headers: { Authorization: `Bearer ${token}` },
@@ -69,20 +53,18 @@ export default function MusicPlayer() {
                     return;
                 }
 
-                const data = await res.json();
+                const data: {
+                   is_playing: boolean;
+                   progress_ms: number;
+                   item: SpotifyTrackAPI & { duration_ms: number }; 
+                } = await res.json();
 
                 if (data && data.item) {
-                    setTrack(data.item as SpotifyTrackAPI);
+                    setTrack(data.item);
                     setIsPaused(!data.is_playing);
                     setProgress(data.progress_ms ?? 0);
-                    setDuration((data.item as any).duration_ms ?? 0);
-                    
-                    try {
-                        const mapped = mapToAppTrack(data.item);
-                        setCurrentTrack(mapped);
-                    } catch {
-
-                    }
+                    setDuration(data.item.duration_ms ?? 0);
+                    setCurrentTrack(mapToAppTrack(data.item));
                 }
             } catch (err) {
                 console.error("Erro ao buscar música atual", err);
@@ -97,7 +79,7 @@ export default function MusicPlayer() {
     useEffect(() => {
         if (!token) return;
 
-        window.onSpotifyWebPlaybackSDKReady = () => {
+        const setupPlayer = (): void => {
             const playerInstance = new window.Spotify.Player({
                 name: "Beatplay Web Player",
                 getOAuthToken: (cb: (token: string) => void) => cb(token),
@@ -126,33 +108,23 @@ export default function MusicPlayer() {
                 if (!state) return;
 
                 setIsPaused(state.paused);
+                const stateAny = state as any;
+                setProgress(stateAny.position ?? 0);
+                setDuration(stateAny.duration ?? duration);
 
-                const anyState = state as unknown  as { position?: number; duration?: number };
-                const pos = anyState.position ?? 0;
-                const dur = anyState.duration ?? 0;
-
-                setProgress(pos)
-                if (dur) setDuration(dur);
-
-                const sdkTrack = state.track_window?.current_track;
+                const sdkTrack = state.track_window?.current_track as any;
                 if (sdkTrack) {
                     const mapped = mapToAppTrack({
-                        id: (sdkTrack as any).id ?? "",
+                        id: sdkTrack.id,
                         name: sdkTrack.name,
                         album: {
-                            id: (sdkTrack as any).album?.id,
-                            name: (sdkTrack as any).album?.name,
+                            id: sdkTrack.album?.uri ?? "",
+                            name: sdkTrack.album?.name ?? "",
                             images: sdkTrack.album?.images ?? [],
-                            external_urls: (sdkTrack as any).album?.external_urls,
                         },
-                        artists: sdkTrack.artists?.map((a: any) => ({
-                            id: a.id,
-                            name: a.name,
-                            external_urls: a.external_urls,
-                            images: a.images,
-                        })),
-                        external_urls: (sdkTrack as any).external_urls,
-                    });
+                        artists: sdkTrack.artists ?? [],
+                        external_urls: sdkTrack.external_urls,
+                    } as SpotifyTrackAPI);
                     setCurrentTrack(mapped);
                 }
             });
@@ -160,6 +132,8 @@ export default function MusicPlayer() {
             playerInstance.connect();
             setPlayer(playerInstance);
         };
+
+        window.onSpotifyWebPlaybackSDKReady = setupPlayer;
 
         if (!document.getElementById("spotify-player-script")) {
             const script = document.createElement("script");
@@ -172,27 +146,9 @@ export default function MusicPlayer() {
         return () => {
             player?.disconnect();
         };
-    }, [token, setCurrentTrack]);
+    }, [token, setCurrentTrack, duration, player]);
 
-    const playBeatplayTrack = async (trackId: string) => {
-        if (!token || !deviceId) return;
-
-        try {
-            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
-            });
-            setIsPaused(false);
-        } catch (err) {
-            console.error("Erro ao tocar música do Beatplay:", err);
-        }
-    };
-
-    const handlePlayPause = async () => {
+    const handlePlayPause = async (): Promise<void> => {
         if (!token) return;
         const endpoint = isPaused
             ? "https://api.spotify.com/v1/me/player/play"
@@ -225,6 +181,24 @@ export default function MusicPlayer() {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
         });
+    };
+
+    const playBeatplayTrack = async (trackId: string): Promise<void> => {
+        if (!token || !deviceId) return;
+
+        try {
+            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
+            });
+            setIsPaused(false);
+        } catch (err) {
+            console.error("Erro ao tocar música do Beatplay:", err);
+        }
     };
 
     if (!track) return null;
