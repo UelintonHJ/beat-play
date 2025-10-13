@@ -173,7 +173,7 @@ declare global {
             disconnect(): void;
             addListener(
                 event: "ready" | "not_ready" | "player_state_changed" | string,
-                callback: (data: any) => void
+                callback: (data: PlaybackState | null) => void
             ): boolean;
             removeListener(event: string, callback?: (data: any) => void): boolean;
             getCurrentState(): Promise<PlayerState | null>;
