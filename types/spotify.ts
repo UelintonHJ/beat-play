@@ -171,10 +171,10 @@ declare global {
         interface Player {
             connect(): Promise<boolean>;
             disconnect(): void;
-            addListener(
-                event: "ready" | "not_ready" | "player_state_changed" | string,
-                callback: (data: PlaybackState | null) => void
-            ): boolean;
+            addListener(event: "ready", callback: (data: { device_id: string }) => void): boolean;
+            addListener(event: "not_ready", callback: (data: { device_id: string }) => void): boolean;
+            addListener(event: "player_state_changed", callback: (data: PlaybackState | null) => void): boolean;
+            addListener(event: string, callback: (data: any) => void): boolean;
             removeListener(event: string, callback?: (data: any) => void): boolean;
             getCurrentState(): Promise<PlayerState | null>;
             resume(): Promise<void>;

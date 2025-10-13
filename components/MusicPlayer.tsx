@@ -104,7 +104,7 @@ export default function MusicPlayer() {
                 console.warn("Player desconectado:", device_id);
             });
 
-            playerInstance.addListener("player_state_changed", (state: any) => {
+            playerInstance.addListener("player_state_changed", (state: Spotify.PlaybackState | null) => {
                 if (!state) return;
 
                 setIsPaused(state.paused);
