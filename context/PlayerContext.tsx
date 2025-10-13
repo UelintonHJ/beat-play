@@ -7,7 +7,7 @@ interface PlayerContextType {
     currentTrack: Track | null;
     setCurrentTrack: (track: Track) => void;
     playTrack: (trackId: string) => void;
-    setDevice: (deviceId: string, token: string) => void;
+    setDevice: (deviceId: string) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType>({
@@ -22,9 +22,8 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const [deviceId, setDeviceId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
 
-    const setDevice = (device: string, token: string) => {
+    const setDevice = (device: string) => {
         setDeviceId(device);
-        setToken(token);
     }
 
     const playTrack = async (trackId: string) => {

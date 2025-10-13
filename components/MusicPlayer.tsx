@@ -54,9 +54,9 @@ export default function MusicPlayer() {
                 }
 
                 const data: {
-                   is_playing: boolean;
-                   progress_ms: number;
-                   item: SpotifyTrackAPI & { duration_ms: number }; 
+                    is_playing: boolean;
+                    progress_ms: number;
+                    item: SpotifyTrackAPI & { duration_ms: number };
                 } = await res.json();
 
                 if (data && data.item) {
@@ -88,7 +88,7 @@ export default function MusicPlayer() {
 
             playerInstance.addListener("ready", ({ device_id }: { device_id: string }) => {
                 console.log("Player pronto com ID:", device_id);
-                setDevice(device_id, token);
+                setDevice(device_id);
 
                 fetch("https://api.spotify.com/v1/me/player", {
                     method: "PUT",
