@@ -9,7 +9,7 @@ import { SpotifyTrackAPI, Track, Artist } from "@/types/spotify";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
-    const { setCurrentTrack } = usePlayer();
+    const { setCurrentTrack, setDevice, playTrack } = usePlayer();
     const token = session?.accessToken as string | undefined;
 
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
@@ -88,7 +88,7 @@ export default function MusicPlayer() {
 
             playerInstance.addListener("ready", ({ device_id }: { device_id: string }) => {
                 console.log("Player pronto com ID:", device_id);
-                setDeviceId(device_id);
+                setDevice(device_id, token);
 
                 fetch("https://api.spotify.com/v1/me/player", {
                     method: "PUT",
