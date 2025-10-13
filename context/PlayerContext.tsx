@@ -28,7 +28,11 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const playTrack = async (trackId: string) => {
-        if (!deviceId || !token) return;
+        if (!deviceId || !token) {
+            console.warn("Device ou token não definido ainda");
+            return;
+        }
+
         try {
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: "PUT",
