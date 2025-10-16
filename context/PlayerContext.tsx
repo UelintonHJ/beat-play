@@ -35,7 +35,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const ensurePlayerActive = async () => {
         if (!deviceId || !token) return false;
         try {
-            await fetch("https://api.spotify.com/v1/me/player", {
+            const res = await fetch("https://api.spotify.com/v1/me/player", {
                 method: "PUT",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -43,6 +43,12 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
                 },
                 body: JSON.stringify({ device_ids: [deviceId], play: false }),
             });
+
+            if (!res.ok) {
+                console.error("Falha ao ativar player:", await res.text());
+                return false;
+            }
+
             console.log("Player ativado no Spotify");
             return true;
         } catch (err) {
@@ -80,6 +86,11 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
                 },
                 body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
             });
+
+            if (!res.ok) {
+                console.log("Erro ao tocar música:", res.status, await res.text());
+                return;
+            }
 
             if (res.status === 403) {
                 console.error("O token não tem permissão 'streaming'.");
