@@ -9,7 +9,7 @@ import { SpotifyTrackAPI, Track, Artist } from "@/types/spotify";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
-    const { setCurrentTrack, setDevice, playTrack, deviceId } = usePlayer();
+    const { setCurrentTrack, setDevice, playTrack, deviceId, isBeatplayPlaying, currentTrack } = usePlayer();
     const token = session?.accessToken as string | undefined;
 
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
@@ -17,6 +17,8 @@ export default function MusicPlayer() {
     const [track, setTrack] = useState<SpotifyTrackAPI | null>(null);
     const [progress, setProgress] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
+
+    const displayedTrack = isBeatplayPlaying ? currentTrack : track;
 
     const mapToAppTrack = (sdkTrack: SpotifyTrackAPI): Track => {
         const artists: Artist[] = (sdkTrack.artists ?? []).map((a) => ({
@@ -52,12 +54,7 @@ export default function MusicPlayer() {
                     return;
                 }
 
-                const data: {
-                    is_playing: boolean;
-                    progress_ms: number;
-                    item: SpotifyTrackAPI & { duration_ms: number };
-                } = await res.json();
-
+                const data = await res.json();
                 if (data && data.item) {
                     setTrack(data.item);
                     setIsPaused(!data.is_playing);
@@ -148,105 +145,88 @@ export default function MusicPlayer() {
     }, [token, setCurrentTrack, duration, player]);
 
     const handlePlayPause = async (): Promise<void> => {
-        if (!token) return;
-        const endpoint = isPaused
-            ? "https://api.spotify.com/v1/me/player/play"
-            : "https://api.spotify.com/v1/me/player/pause";
+        if (isBeatplayPlaying) {
+            console.log("Beatplay ativo - controle dentro do contexto");
+        } else {
+            if (!token) return;
+            const endpoint = isPaused
+                ? "https://api.spotify.com/v1/me/player/play"
+                : "https://api.spotify.com/v1/me/player/pause";
 
-        try {
-            await fetch(endpoint, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
+                await fetch(endpoint, {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    },
+                });
+                setIsPaused(!isPaused);
+            }
+
+        };
+
+        const handleNext = async () => {
+            if (!token) return;
+            await fetch("https://api.spotify.com/v1/me/player/next", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
             });
-            setIsPaused(!isPaused);
-        } catch (err) {
-            console.error("Error ao pausar/tocar:", err);
-        }
-    };
+        };
 
-    const handleNext = async () => {
-        if (!token) return;
-        await fetch("https://api.spotify.com/v1/me/player/next", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-        });
-    };
-
-    const handlePrevious = async () => {
-        if (!token) return;
-        await fetch("https://api.spotify.com/v1/me/player/previous", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-        });
-    };
-
-    const playBeatplayTrack = async (trackId: string): Promise<void> => {
-        if (!token || !deviceId) return;
-
-        try {
-            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
+        const handlePrevious = async () => {
+            if (!token) return;
+            await fetch("https://api.spotify.com/v1/me/player/previous", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
             });
-            setIsPaused(false);
-        } catch (err) {
-            console.error("Erro ao tocar música do Beatplay:", err);
-        }
-    };
+        };
 
-    if (!track) return null;
+        if (!track) return null;
 
-    const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
+        const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
-    return (
-        <footer className="fixed bottom-0 left-0 w-full bg-neutral-900 text-white flex items-center justify-between px-4 py-2 border-t border-neutral-800 z-50">
-            {/* Capa e informações */}
-            <div className="flex items-center gap-4 w-full max-w-2xl justify-between">
-                <div className="flex items-center gap-3 mx-auto">
-                    <Image
-                        src={track.album?.images?.[0]?.url || "/placeholder.png"}
-                        alt={track.name}
-                        width={78}
-                        height={78}
-                        priority
-                        className="rounded-md"
-                    />
-                    <div>
-                        <p className="font-semibold">{track.name}</p>
-                        <p className="text-sm text-neutral-400">
-                            {track.artists.map((artist) => artist.name).join(", ")}
-                        </p>
+        return (
+            <footer className="fixed bottom-0 left-0 w-full bg-neutral-900 text-white flex items-center justify-between px-4 py-2 border-t border-neutral-800 z-50">
+                {/* Capa e informações */}
+                <div className="flex items-center gap-4 w-full max-w-2xl justify-between">
+                    <div className="flex items-center gap-3 mx-auto">
+                        <Image
+                            src={track.album?.images?.[0]?.url || "/placeholder.png"}
+                            alt={track.name}
+                            width={78}
+                            height={78}
+                            priority
+                            className="rounded-md"
+                        />
+                        <div>
+                            <p className="font-semibold">{track.name}</p>
+                            <p className="text-sm text-neutral-400">
+                                {track.artists.map((artist) => artist.name).join(", ")}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Controles */}
+                    <div className="flex items-center gap-4 mx-auto">
+                        <button onClick={handlePrevious}>
+                            <SkipBack size={20} />
+                        </button>
+                        <button
+                            onClick={handlePlayPause}
+                            className="bg-white text-black rounded-full p-2 hover:scale-105 transition"
+                        >
+                            {isPaused ? <Play size={18} /> : <Pause size={18} />}
+                        </button>
+                        <button onClick={handleNext}>
+                            <SkipForward size={20} />
+                        </button>
                     </div>
                 </div>
 
-                {/* Controles */}
-                <div className="flex items-center gap-4 mx-auto">
-                    <button onClick={handlePrevious}>
-                        <SkipBack size={20} />
-                    </button>
-                    <button
-                        onClick={handlePlayPause}
-                        className="bg-white text-black rounded-full p-2 hover:scale-105 transition"
-                    >
-                        {isPaused ? <Play size={18} /> : <Pause size={18} />}
-                    </button>
-                    <button onClick={handleNext}>
-                        <SkipForward size={20} />
-                    </button>
+                {/* Barra de progresso */}
+                <div className="absolute bottom-0 left-0 w-full bg-neutral-800 h-1">
+                    <div className="bg-green-500 h-1 transition-all duration-300" style={{ width: `${progressPercent}%` }}>
+                    </div>
                 </div>
-            </div>
-
-            {/* Barra de progresso */}
-            <div className="absolute bottom-0 left-0 w-full bg-neutral-800 h-1">
-                <div className="bg-green-500 h-1 transition-all duration-300" style={{ width: `${progressPercent}%` }}>
-                </div>
-            </div>
-        </footer>
-    );
-}
+            </footer>
+        );
+    }
