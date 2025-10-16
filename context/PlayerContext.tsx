@@ -8,6 +8,8 @@ interface PlayerContextType {
     setCurrentTrack: (track: Track) => void;
     playTrack: (trackId: string) => void;
     setDevice: (deviceId: string, token: string) => void;
+    deviceId: string | null;
+    token: string | null;
 }
 
 const PlayerContext = createContext<PlayerContextType>({
@@ -15,6 +17,8 @@ const PlayerContext = createContext<PlayerContextType>({
     setCurrentTrack: () => {},
     playTrack: () => {},
     setDevice: () => {},
+    deviceId: null,
+    token: null,
 });
 
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
@@ -48,7 +52,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <PlayerContext.Provider value={{ currentTrack, setCurrentTrack, playTrack, setDevice }}>
+        <PlayerContext.Provider value={{ currentTrack, setCurrentTrack, playTrack, setDevice, deviceId, token }}>
             {children}
         </PlayerContext.Provider>
     );
