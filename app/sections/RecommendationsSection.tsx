@@ -29,6 +29,7 @@ export default function RecommendationsSection() {
                             <div
                                 key={track.id}
                                 onClick={async () => {
+                                    console.log("Cliquei na música:", track.id)
                                     setCurrentTrack(track);
                                     await playTrack(track.id);
                                 }}
