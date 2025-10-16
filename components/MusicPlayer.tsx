@@ -9,12 +9,11 @@ import { SpotifyTrackAPI, Track, Artist } from "@/types/spotify";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
-    const { setCurrentTrack, setDevice, playTrack } = usePlayer();
+    const { setCurrentTrack, setDevice, playTrack, deviceId } = usePlayer();
     const token = session?.accessToken as string | undefined;
 
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
-    const [deviceId, setDeviceId] = useState<string | null>(null);
     const [track, setTrack] = useState<SpotifyTrackAPI | null>(null);
     const [progress, setProgress] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
