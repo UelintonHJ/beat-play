@@ -1,7 +1,7 @@
 "use client";
 
 import { Track } from "@/types/spotify"
-import { createContext, ReactNode, useState, useContext } from "react";
+import { createContext, ReactNode, useState, useContext, useEffect } from "react";
 
 interface PlayerContextType {
     currentTrack: Track | null;
@@ -31,8 +31,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
     const [deviceId, setDeviceId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
-
-    const [beatplayAudio] = useState(new Audio());
+    const [beatplayAudio, setBeatPlayAudio] = useState<HTMLAudioElement | null>(null);
     const [isBeatplayPlaying, setIsBeatplayPlaying] = useState(false);
 
     const setDevice = (device: string, token: string) => {
@@ -41,14 +40,16 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const pauseBeatplay = () => {
-        beatplayAudio.pause();
+        if (beatplayAudio) {
+            beatplayAudio.pause();
+        }
         setIsBeatplayPlaying(false);
     };
 
     const playBeatplayTrack = (url: string, track: Track) => {
-        if (!url) return;
+        if (!url || !beatplayAudio) return;
 
-        if (deviceId) {
+        if (deviceId && token) {
             fetch(`https://api.spotify.com/v1/me/player/pause`, {
                 method: "PUT",
                 headers: {
@@ -58,7 +59,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         }
 
         beatplayAudio.src = url;
-        beatplayAudio.play();
+        beatplayAudio.play().catch((err) => console.error("Erro ao tocar Beatplay:", err));
         setCurrentTrack(track);
         setIsBeatplayPlaying(true);
 
@@ -83,6 +84,13 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
             console.error("Error ao tocar música:", err);
         }
     };
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const audio = new Audio();
+            setBeatPlayAudio(audio);
+        }
+    }, []);
 
     return (
         <PlayerContext.Provider
