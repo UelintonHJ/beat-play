@@ -42,12 +42,12 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const pauseBeatplay = () => {
         if (beatplayAudio) {
             beatplayAudio.pause();
+            setIsBeatplayPlaying(false);
         }
-        setIsBeatplayPlaying(false);
     };
 
     const playBeatplayTrack = (url: string, track: Track) => {
-        if (!url || !beatplayAudio) return;
+        if (!url) return;
 
         if (deviceId && token) {
             fetch(`https://api.spotify.com/v1/me/player/pause`, {
@@ -58,10 +58,18 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
             }).catch(() => { });
         }
 
+        if (!beatplayAudio) return;
+
         beatplayAudio.src = url;
-        beatplayAudio.play().catch((err) => console.error("Erro ao tocar Beatplay:", err));
-        setCurrentTrack(track);
-        setIsBeatplayPlaying(true);
+        beatplayAudio
+            .play()
+            .then(() => {
+                setCurrentTrack(track);
+                setIsBeatplayPlaying(true);
+            })
+            .catch((err) => {
+                console.warn("Erro ao iniciar Beatplay:", err);
+            });
 
         beatplayAudio.onended = () => setIsBeatplayPlaying(false);
     };
@@ -88,6 +96,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (typeof window !== "undefined") {
             const audio = new Audio();
+            audio.preload = "auto";
             setBeatPlayAudio(audio);
         }
     }, []);
