@@ -1,7 +1,7 @@
 "use client";
 
 import { Track } from "@/types/spotify"
-import { createContext, ReactNode, useState, useContext, useEffect } from "react";
+import { createContext, ReactNode, useState, useContext } from "react";
 
 interface PlayerContextType {
     currentTrack: Track | null;
@@ -27,8 +27,28 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
 
     const setDevice = (device: string, token: string) => {
+        console.log("Dispositivo definido:", device);
         setDeviceId(device);
         setToken(token);
+    };
+
+    const ensurePlayerActive = async () => {
+        if (!deviceId || !token) return false;
+        try {
+            await fetch("https://api.spotify.com/v1/me/player", {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ device_ids: [deviceId], play: false }),
+            });
+            console.log("Player ativado no Spotify");
+            return true;
+        } catch (err) {
+            console.error("Erro ao ativar player:", err);
+            return false;
+        }
     };
 
     const playTrack = async (trackId: string) => {
@@ -49,8 +69,10 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
             return;
         }
 
+        await ensurePlayerActive();
+
         try {
-            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+            const res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: "PUT",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -58,6 +80,12 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
                 },
                 body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
             });
+
+            if (res.status === 403) {
+                console.error("O token não tem permissão 'streaming'.");
+            } else {
+                console.log("Tocando música com sucesso!");
+            }
         } catch (err) {
             console.error("Error ao tocar música:", err);
         }
