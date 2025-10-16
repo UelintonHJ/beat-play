@@ -1,7 +1,7 @@
 "use client";
 
 import { Track } from "@/types/spotify"
-import { createContext, ReactNode, useState, useContext } from "react";
+import { createContext, ReactNode, useState, useContext, useEffect } from "react";
 
 interface PlayerContextType {
     currentTrack: Track | null;
@@ -32,8 +32,20 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const playTrack = async (trackId: string) => {
-        if (!deviceId || !token) {
-            console.warn("Device ou token não definido ainda");
+        if (!token) {
+            console.warn("Token não definido ainda");
+            return;
+        }
+
+        let retries = 0;
+        while (!deviceId && retries < 10) {
+            console.log("Aguardando player ser inicializado...");
+            await new Promise((res) => setTimeout(res, 500));
+            retries++;
+        }
+
+        if(!deviceId) {
+            console.error("Player não foi inicializado a tempo.");
             return;
         }
 
