@@ -1,7 +1,6 @@
 "use client";
 
 import { Track } from "@/types/spotify"
-import { headers } from "next/headers";
 import { createContext, ReactNode, useState, useContext } from "react";
 
 interface PlayerContextType {

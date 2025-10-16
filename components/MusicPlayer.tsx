@@ -180,7 +180,7 @@ export default function MusicPlayer() {
             });
         };
 
-        if (!track) return null;
+        if (!displayedTrack) return null;
 
         const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
@@ -190,17 +190,17 @@ export default function MusicPlayer() {
                 <div className="flex items-center gap-4 w-full max-w-2xl justify-between">
                     <div className="flex items-center gap-3 mx-auto">
                         <Image
-                            src={track.album?.images?.[0]?.url || "/placeholder.png"}
-                            alt={track.name}
+                            src={displayedTrack.album?.images?.[0]?.url || "/placeholder.png"}
+                            alt={displayedTrack.name}
                             width={78}
                             height={78}
                             priority
                             className="rounded-md"
                         />
                         <div>
-                            <p className="font-semibold">{track.name}</p>
+                            <p className="font-semibold">{displayedTrack.name}</p>
                             <p className="text-sm text-neutral-400">
-                                {track.artists.map((artist) => artist.name).join(", ")}
+                                {displayedTrack.artists.map((artist) => artist.name).join(", ")}
                             </p>
                         </div>
                     </div>
