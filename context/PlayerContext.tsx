@@ -1,24 +1,31 @@
 "use client";
 
 import { Track } from "@/types/spotify"
+import { headers } from "next/headers";
 import { createContext, ReactNode, useState, useContext } from "react";
 
 interface PlayerContextType {
     currentTrack: Track | null;
     setCurrentTrack: (track: Track) => void;
     playTrack: (trackId: string) => void;
+    playBeatplayTrack: (url: string, track: Track) => void;
+    pauseBeatplay: () => void;
     setDevice: (deviceId: string, token: string) => void;
     deviceId: string | null;
     token: string | null;
+    isBeatplayPlaying: boolean;
 }
 
 const PlayerContext = createContext<PlayerContextType>({
     currentTrack: null,
-    setCurrentTrack: () => {},
-    playTrack: () => {},
-    setDevice: () => {},
+    setCurrentTrack: () => { },
+    playTrack: () => { },
+    playBeatplayTrack: () => { },
+    pauseBeatplay: () => { },
+    setDevice: () => { },
     deviceId: null,
     token: null,
+    isBeatplayPlaying: false,
 });
 
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
@@ -26,59 +33,46 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const [deviceId, setDeviceId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
 
+    const [beatplayAudio] = useState(new Audio());
+    const [isBeatplayPlaying, setIsBeatplayPlaying] = useState(false);
+
     const setDevice = (device: string, token: string) => {
-        console.log("Dispositivo definido:", device);
         setDeviceId(device);
         setToken(token);
     };
 
-    const ensurePlayerActive = async () => {
-        if (!deviceId || !token) return false;
-        try {
-            const res = await fetch("https://api.spotify.com/v1/me/player", {
+    const pauseBeatplay = () => {
+        beatplayAudio.pause();
+        setIsBeatplayPlaying(false);
+    };
+
+    const playBeatplayTrack = (url: string, track: Track) => {
+        if (!url) return;
+
+        if (deviceId) {
+            fetch(`https://api.spotify.com/v1/me/player/pause`, {
                 method: "PUT",
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ device_ids: [deviceId], play: false }),
-            });
-
-            if (!res.ok) {
-                console.error("Falha ao ativar player:", await res.text());
-                return false;
-            }
-
-            console.log("Player ativado no Spotify");
-            return true;
-        } catch (err) {
-            console.error("Erro ao ativar player:", err);
-            return false;
+            }).catch(() => { });
         }
+
+        beatplayAudio.src = url;
+        beatplayAudio.play();
+        setCurrentTrack(track);
+        setIsBeatplayPlaying(true);
+
+        beatplayAudio.onended = () => setIsBeatplayPlaying(false);
     };
 
     const playTrack = async (trackId: string) => {
-        if (!token) {
-            console.warn("Token não definido ainda");
-            return;
-        }
+        if (!token || !deviceId) return;
 
-        let retries = 0;
-        while (!deviceId && retries < 10) {
-            console.log("Aguardando player ser inicializado...");
-            await new Promise((res) => setTimeout(res, 500));
-            retries++;
-        }
-
-        if(!deviceId) {
-            console.error("Player não foi inicializado a tempo.");
-            return;
-        }
-
-        await ensurePlayerActive();
+        if (isBeatplayPlaying) pauseBeatplay();
 
         try {
-            const res = await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: "PUT",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -86,24 +80,25 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
                 },
                 body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
             });
-
-            if (!res.ok) {
-                console.log("Erro ao tocar música:", res.status, await res.text());
-                return;
-            }
-
-            if (res.status === 403) {
-                console.error("O token não tem permissão 'streaming'.");
-            } else {
-                console.log("Tocando música com sucesso!");
-            }
         } catch (err) {
             console.error("Error ao tocar música:", err);
         }
     };
 
     return (
-        <PlayerContext.Provider value={{ currentTrack, setCurrentTrack, playTrack, setDevice, deviceId, token }}>
+        <PlayerContext.Provider
+            value={{
+                currentTrack,
+                setCurrentTrack,
+                playTrack,
+                playBeatplayTrack,
+                pauseBeatplay,
+                setDevice,
+                deviceId,
+                token,
+                isBeatplayPlaying
+            }}
+        >
             {children}
         </PlayerContext.Provider>
     );
