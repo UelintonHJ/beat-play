@@ -35,7 +35,7 @@ export default function TopTracksSection() {
                                 key={track.id}
                                 onClick={async() => {
                                     setCurrentTrack(track);
-                                    await playTrack(track.id);
+                                    playTrack(track.id);
                                 }}
                                 className="flex-shrink-0 w-48 bg-neutral-900 p-2 transition-all duration-200 shadow-md relative rounded-lg hover:bg-neutral-700 cursor-pointer"
                             >
