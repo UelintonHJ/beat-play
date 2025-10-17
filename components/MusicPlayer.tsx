@@ -45,10 +45,27 @@ export default function MusicPlayer() {
                 volume: 0.5,
             });
 
-            playerInstance.addListener("ready", ({ device_id }) => {
+            playerInstance.addListener("ready", async ({ device_id }) => {
                 console.log("Player pronto com ID:", device_id);
                 setDevice(device_id, token!);
                 setSdkReady(true);
+
+                try {
+                    await fetch("https://api.spotify.com/v1/me/player", {
+                        method: "PUT",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            device_ids: [device_id],
+                            play: false,
+                        }),
+                    });
+                    console.log("Playback transferido para Beatplay com sucesso");
+                } catch (err) {
+                    console.error("Erro ao transferir playback para Beatplay:", err);
+                }
             });
 
             playerInstance.addListener("not_ready", ({ device_id }) => {
@@ -90,7 +107,7 @@ export default function MusicPlayer() {
        const endpoint = isPaused
        ? `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`
        : `https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`;
-       
+
        await fetch(endpoint, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
        setIsPaused(!isPaused);
     };
