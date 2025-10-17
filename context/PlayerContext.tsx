@@ -1,6 +1,7 @@
 "use client";
 
 import { Track } from "@/types/spotify"
+import { headers } from "next/headers";
 import { createContext, ReactNode, useState, useContext } from "react";
 
 interface PlayerContextType {
@@ -17,14 +18,14 @@ interface PlayerContextType {
 
 const PlayerContext = createContext<PlayerContextType>({
     currentTrack: null,
-    setCurrentTrack: () => {},
-    playTrack: () => {},
-    playBeatplayTrack: () => {},
+    setCurrentTrack: () => { },
+    playTrack: () => { },
+    playBeatplayTrack: () => { },
     deviceId: null,
     token: null,
     sdkReady: false,
-    setDevice: () => {},
-    setSdkReady: () => {},
+    setDevice: () => { },
+    setSdkReady: () => { },
 });
 
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
@@ -39,8 +40,24 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const playTrack = async (trackId: string) => {
-        if (!token || !deviceId) return;
+        if (!token || !deviceId) {
+            console.warn("Tentando tocar sem token ou deviceId");
+            return;
+        }
+
         try {
+            await fetch("https://api.spotify.com/v1/me/player", {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    device_ids: [deviceId],
+                    play: false,
+                }),
+            });
+
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: "PUT",
                 headers: {
@@ -49,7 +66,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
                 },
                 body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
             });
-        } catch (err) {
+            console.log("Faixa iniciada:", trackId);
+        }
+        catch (err) {
             console.error("Error ao tocar música:", err);
         }
     };
