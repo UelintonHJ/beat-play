@@ -119,7 +119,7 @@ export default function MusicPlayer() {
         }
 
         return () => {
-            if(player) (player as Spotify.Player).disconnect();
+            if (player) (player as Spotify.Player).disconnect();
         }
     }, [session, player, setDevice, setCurrentTrack, setSdkReady, token]);
 
@@ -156,40 +156,46 @@ export default function MusicPlayer() {
     const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
     return (
-        <footer className="fixed bottom-0 left-0 w-full bg-neutral-900 text-white flex items-center justify-between px-4 py-2 border-t border-neutral-800 z-50">
-            {/* Capa e informações */}
-            <div className="flex items-center gap-4 w-full max-w-2xl justify-between">
-                <div className="flex items-center gap-3 mx-auto">
-                    <Image
-                        src={currentTrack.album?.images?.[0]?.url || "/placeholder.png"}
-                        alt={currentTrack.name}
-                        width={78}
-                        height={78}
-                        priority
-                        className="rounded-md"
-                    />
-                    <div>
-                        <p className="font-semibold">{currentTrack.name}</p>
-                        <p className="text-sm text-neutral-400">
-                            {currentTrack.artists.map((artist) => artist.name).join(", ")}
-                        </p>
+        <footer className="fixed bottom-0 left-0 w-full bg-neutral-900 text-white z-50">
+            <div className="w-full max-w-screen-2xl mx-auto px-4">
+                <div className="grid w-full grid-cols-[auto_1fr_auto] items-center py-2">
+                    <div className="flex items-center gap-3 ml-8 col-start-1 min-w-0">
+                        <Image
+                            src={currentTrack.album?.images?.[0]?.url || "/placeholder.png"}
+                            alt={currentTrack.name}
+                            width={78}
+                            height={78}
+                            priority
+                            className="rounded-md flex-shrink-0"
+                        />
+                        <div className="min-w-0">
+                            <p className="font-semibold truncate max-w-[28rem]">{currentTrack.name}</p>
+                            <p className="text-sm text-neutral-400 truncate max-w-[28rem]">
+                                {currentTrack.artists.map((artist) => artist.name).join(", ")}
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                {/* Controles */}
-                <div className="flex items-center gap-4 mx-auto">
-                    <button onClick={handlePrevious}>
-                        <SkipBack size={20} />
-                    </button>
-                    <button
-                        onClick={handlePlayPause}
-                        className="bg-white text-black rounded-full p-2 hover:scale-105 transition"
-                    >
-                        {isPaused ? <Play size={18} /> : <Pause size={18} />}
-                    </button>
-                    <button onClick={handleNext}>
-                        <SkipForward size={20} />
-                    </button>
+                    {/* Controles */}
+                    <div className="flex justify-center items-center col-start-2">
+                        <div className="flex items-center gap-4">
+                            <button onClick={handlePrevious} aria-label="Anterior" className="p-1">
+                                <SkipBack size={20} />
+                            </button>
+                            <button
+                                onClick={handlePlayPause}
+                                className="bg-white text-black rounded-full p-2 hover:scale-105 transition"
+                            >
+                                {isPaused ? <Play size={18} /> : <Pause size={18} />}
+                            </button>
+                            <button onClick={handleNext} aria-label="Próxima" className="p-1">
+                                <SkipForward size={20} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="col-start-3 flex justify-end items-center pr-4">
+                    </div>
                 </div>
             </div>
 
