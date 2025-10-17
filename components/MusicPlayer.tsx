@@ -16,8 +16,6 @@ export default function MusicPlayer() {
     const [isPaused, setIsPaused] = useState(true);
     const [progress, setProgress] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
-    
-    if (pathname === "/") return null;
 
     useEffect(() => {
         if (session?.accessToken && !token) {
@@ -123,7 +121,9 @@ export default function MusicPlayer() {
         return () => {
             if(player) (player as Spotify.Player).disconnect();
         }
-    }, [session, player, setDevice, setCurrentTrack, setSdkReady]);
+    }, [session, player, setDevice, setCurrentTrack, setSdkReady, token]);
+
+    if (pathname === "/") return null;
 
     const handlePlayPause = async () => {
         if (!deviceId || !token) return;
