@@ -9,11 +9,17 @@ import { SpotifyTrackAPI, Track, Artist } from "@/types/spotify";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
-    const { currentTrack, setCurrentTrack, deviceId, token, setDevice, sdkReady, setSdkReady, playBeatplayTrack, } = usePlayer();
+    const { currentTrack, setCurrentTrack, deviceId, token, setDevice, sdkReady, setSdkReady, } = usePlayer();
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
     const [progress, setProgress] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
+
+    useEffect(() => {
+        if (session?.accessToken && !token) {
+            setDevice(deviceId ?? "", session.accessToken as string);
+        }
+    }, [session, token, deviceId, setDevice]);
 
     const mapToAppTrack = (sdkTrack: SpotifyTrackAPI): Track => {
         const artists: Artist[] = (sdkTrack.artists ?? []).map((a) => ({
@@ -36,22 +42,13 @@ export default function MusicPlayer() {
     };
 
     useEffect(() => {
-        if (!token) return;
+        if (!session?.accessToken) return;
 
-        const loadSpotifySDK = () => {
-            if (window.Spotify) {
-                setupPlayer();
-            } else {
-                window.onSpotifyWebPlaybackSDKReady = setupPlayer;
-                const script = document.createElement("script");
-                script.src = "https://sdk.scdn.co/spotify-player.js";
-                script.id = "spotify-player-script";
-                script.async = true;
-                document.body.appendChild(script);
-            }
-        };
+        const token = session.accessToken as string;
 
         const setupPlayer = () => {
+            console.log("Inicializando Spotify Web Playback SDK...")
+
             const playerInstance = new window.Spotify.Player({
                 name: "Beatplay Web Player",
                 getOAuthToken: (cb: (token: string) => void) => cb(token),
@@ -86,9 +83,12 @@ export default function MusicPlayer() {
                 setSdkReady(false);
             });
 
+            playerInstance.addListener("authentucation_error", ({ message }) => {
+                console.error("Erro de autenticação:", message);
+            });
+
             playerInstance.addListener("player_state_changed", (state) => {
                 if (!state) return;
-                console.log("Estado do player:", state);
                 setIsPaused(state.paused);
                 setProgress(state.position ?? 0);
                 setDuration(state.duration ?? state.track_window?.current_track?.duration_ms ?? 0);
@@ -107,16 +107,17 @@ export default function MusicPlayer() {
             setPlayer(playerInstance);
         };
 
-        loadSpotifySDK();
-
-        window.onSpotifyWebPlaybackSDKReady = setupPlayer;
-
-        if (!document.getElementById("spotify-player-script")) {
-            const script = document.createElement("script");
-            script.src = "https://sdk.scdn.co/spotify-player.js";
-            script.id = "spotify-player-script";
-            script.async = true;
-            document.body.appendChild(script);
+        if (window.Spotify) {
+            setupPlayer();
+        } else {
+            window.onSpotifyWebPlaybackSDKReady = setupPlayer;
+            if (!document.getElementById("spotify-player-script")) {
+                const script = document.createElement("script");
+                script.src = "https://sdk.scdn.co/spotify-player.js";
+                script.id = "spotify-player-script";
+                script.async = true;
+                document.body.appendChild(script);
+            }
         }
 
         return () => {
@@ -125,13 +126,13 @@ export default function MusicPlayer() {
     }, [token, setDevice, setCurrentTrack, setSdkReady]);
 
     const handlePlayPause = async () => {
-       if (!deviceId || !token) return;
-       const endpoint = isPaused
-       ? `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`
-       : `https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`;
+        if (!deviceId || !token) return;
+        const endpoint = isPaused
+            ? `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`
+            : `https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`;
 
-       await fetch(endpoint, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
-       setIsPaused(!isPaused);
+        await fetch(endpoint, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
+        setIsPaused(!isPaused);
     };
 
     const handleNext = async () => {
