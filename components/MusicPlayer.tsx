@@ -43,7 +43,6 @@ export default function MusicPlayer() {
 
     useEffect(() => {
         if (!session?.accessToken) return;
-
         const token = session.accessToken as string;
 
         const setupPlayer = () => {
@@ -83,7 +82,7 @@ export default function MusicPlayer() {
                 setSdkReady(false);
             });
 
-            playerInstance.addListener("authentucation_error", ({ message }) => {
+            playerInstance.addListener("authentication_error", ({ message }) => {
                 console.error("Erro de autenticação:", message);
             });
 
