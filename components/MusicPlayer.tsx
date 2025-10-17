@@ -6,8 +6,12 @@ import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import Image from "next/image";
 import { usePlayer } from "@/context/PlayerContext";
 import { SpotifyTrackAPI, Track, Artist } from "@/types/spotify";
+import { usePathname } from "next/navigation";
 
 export default function MusicPlayer() {
+    const pathname = usePathname();
+    if (pathname === "/") return null;
+
     const { data: session } = useSession();
     const { currentTrack, setCurrentTrack, deviceId, token, setDevice, sdkReady, setSdkReady, } = usePlayer();
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
