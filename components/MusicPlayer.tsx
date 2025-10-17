@@ -10,14 +10,14 @@ import { usePathname } from "next/navigation";
 
 export default function MusicPlayer() {
     const pathname = usePathname();
-    if (pathname === "/") return null;
-
     const { data: session } = useSession();
     const { currentTrack, setCurrentTrack, deviceId, token, setDevice, sdkReady, setSdkReady, } = usePlayer();
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
     const [progress, setProgress] = useState<number>(0);
     const [duration, setDuration] = useState<number>(0);
+    
+    if (pathname === "/") return null;
 
     useEffect(() => {
         if (session?.accessToken && !token) {
