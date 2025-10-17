@@ -42,21 +42,19 @@ export default function MusicPlayer() {
     };
 
     useEffect(() => {
-        if (!session?.accessToken) return;
-        const token = session.accessToken as string;
+        if (!session?.accessToken || player) return;
+        const accessToken = session.accessToken as string;
 
         const setupPlayer = () => {
-            console.log("Inicializando Spotify Web Playback SDK...")
-
-            const playerInstance = new window.Spotify.Player({
+            const playerInstance: Spotify.Player = new window.Spotify.Player({
                 name: "Beatplay Web Player",
-                getOAuthToken: (cb: (token: string) => void) => cb(token),
+                getOAuthToken: (cb) => cb(accessToken),
                 volume: 0.5,
             });
 
             playerInstance.addListener("ready", async ({ device_id }) => {
                 console.log("Player pronto com ID:", device_id);
-                setDevice(device_id, token!);
+                setDevice(device_id, accessToken);
                 setSdkReady(true);
 
                 try {
@@ -106,9 +104,8 @@ export default function MusicPlayer() {
             setPlayer(playerInstance);
         };
 
-        if (window.Spotify) {
-            setupPlayer();
-        } else {
+        if (window.Spotify) setupPlayer();
+        else {
             window.onSpotifyWebPlaybackSDKReady = setupPlayer;
             if (!document.getElementById("spotify-player-script")) {
                 const script = document.createElement("script");
@@ -120,9 +117,9 @@ export default function MusicPlayer() {
         }
 
         return () => {
-            player?.disconnect();
-        };
-    }, [token, setDevice, setCurrentTrack, setSdkReady]);
+            if(player) (player as Spotify.Player).disconnect();
+        }
+    }, [session, player, setDevice, setCurrentTrack, setSdkReady]);
 
     const handlePlayPause = async () => {
         if (!deviceId || !token) return;
