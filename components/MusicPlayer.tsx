@@ -9,7 +9,7 @@ import { SpotifyTrackAPI, Track, Artist } from "@/types/spotify";
 
 export default function MusicPlayer() {
     const { data: session } = useSession();
-    const { currentTrack, setCurrentTrack, deviceId, token, setDevice, playTrack } = usePlayer();
+    const { currentTrack, setCurrentTrack, deviceId, token, setDevice, sdkReady, setSdkReady, playBeatplayTrack, } = usePlayer();
     const [player, setPlayer] = useState<Spotify.Player | null>(null);
     const [isPaused, setIsPaused] = useState(true);
     const [progress, setProgress] = useState<number>(0);
@@ -48,6 +48,12 @@ export default function MusicPlayer() {
             playerInstance.addListener("ready", ({ device_id }) => {
                 console.log("Player pronto com ID:", device_id);
                 setDevice(device_id, token!);
+                setSdkReady(true);
+            });
+
+            playerInstance.addListener("not_ready", ({ device_id }) => {
+                console.warn("Player desconhecido:", device_id);
+                setSdkReady(false);
             });
 
             playerInstance.addListener("player_state_changed", (state) => {
@@ -57,9 +63,7 @@ export default function MusicPlayer() {
                 setDuration(state.duration ?? state.track_window?.current_track?.duration_ms ?? 0);
 
                 const sdkTrack = state.track_window?.current_track;
-                if (sdkTrack) {
-                    setCurrentTrack(mapToAppTrack(sdkTrack as SpotifyTrackAPI));
-                };
+                if (sdkTrack) setCurrentTrack(mapToAppTrack(sdkTrack as SpotifyTrackAPI));
             });
 
             playerInstance.connect();
@@ -79,13 +83,14 @@ export default function MusicPlayer() {
         return () => {
             player?.disconnect();
         };
-    }, [token, setDevice, setCurrentTrack]);
+    }, [token, setDevice, setCurrentTrack, setSdkReady]);
 
     const handlePlayPause = async () => {
        if (!deviceId || !token) return;
        const endpoint = isPaused
        ? `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`
        : `https://api.spotify.com/v1/me/player/pause?device_id=${deviceId}`;
+       
        await fetch(endpoint, { method: "PUT", headers: { Authorization: `Bearer ${token}` } });
        setIsPaused(!isPaused);
     };

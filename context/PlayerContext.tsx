@@ -7,24 +7,31 @@ interface PlayerContextType {
     currentTrack: Track | null;
     setCurrentTrack: (track: Track) => void;
     playTrack: (trackId: string) => void;
+    playBeatplayTrack: (trackId: string) => void;
     deviceId: string | null;
     token: string | null;
+    sdkReady: boolean;
     setDevice: (deviceId: string, token: string) => void;
+    setSdkReady: (ready: boolean) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType>({
     currentTrack: null,
-    setCurrentTrack: () => { },
-    playTrack: () => { },
+    setCurrentTrack: () => {},
+    playTrack: () => {},
+    playBeatplayTrack: () => {},
     deviceId: null,
     token: null,
-    setDevice: () => { },
+    sdkReady: false,
+    setDevice: () => {},
+    setSdkReady: () => {},
 });
 
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
     const [deviceId, setDeviceId] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const [sdkReady, setSdkReady] = useState(false);
 
     const setDevice = (device: string, token: string) => {
         setDeviceId(device);
@@ -33,7 +40,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
     const playTrack = async (trackId: string) => {
         if (!token || !deviceId) return;
-
         try {
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: "PUT",
@@ -48,15 +54,26 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const playBeatplayTrack = async (trackId: string) => {
+        if (!token || !deviceId || !sdkReady) {
+            console.warn("SDK não está pronto ainda");
+            return;
+        }
+        await playTrack(trackId)
+    }
+
     return (
         <PlayerContext.Provider
             value={{
                 currentTrack,
                 setCurrentTrack,
                 playTrack,
+                playBeatplayTrack,
                 deviceId,
                 token,
+                sdkReady,
                 setDevice,
+                setSdkReady,
             }}
         >
             {children}
