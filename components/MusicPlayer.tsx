@@ -180,6 +180,7 @@ export default function MusicPlayer() {
             });
         };
 
+        const displayedTrack = currentTrack;
         if (!displayedTrack) return null;
 
         const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
