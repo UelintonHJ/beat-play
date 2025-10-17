@@ -96,7 +96,13 @@ export default function MusicPlayer() {
                 if (sdkTrack) setCurrentTrack(mapToAppTrack(sdkTrack as SpotifyTrackAPI));
             });
 
-            playerInstance.connect();
+            playerInstance.connect().then((success) => {
+                if (success) {
+                    console.log("Beatplay conectado com successo ao Spotify SDK Web Playback SDK");
+                } else {
+                    console.error("Falha ao conectar o Beatplay ao Spotify SDK");
+                }
+            });
             setPlayer(playerInstance);
         };
 
