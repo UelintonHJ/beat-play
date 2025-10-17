@@ -11,12 +11,12 @@ interface ExtendedJWT extends JWT {
 
 async function refreshAccessToken(token: ExtendedJWT): Promise<ExtendedJWT> {
     try {
-        const response = await fetch ("https://accounts.spotify.com/api/token", {
+        const response = await fetch("https://accounts.spotify.com/api/token", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 Authorization: `Basic ${Buffer.from(
-                    process.env.SPOTIFY_CLIENT_ID + ":" + process.env.SPOTIFY_CLIENT_SECRET
+                    `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
                 ).toString("base64")}`,
             },
             body: new URLSearchParams({
@@ -70,21 +70,20 @@ export const authOptions: NextAuthOptions = {
             const t = token as ExtendedJWT;
 
             if (account) {
-                t.accessToken = account.access_token;
-                t.refreshToken = account.refresh_token;
-                t.accessTokenExpires = Date.now() + Number(account.expires_in ?? 0)  * 1000;
+                return {
+                    accessToken: account.access_token,
+                    refreshToken: account.refresh_token,
+                    accessTokenExpires: Date.now() + Number(account.expires_in ?? 0) * 1000,
+                };
+            }
+
+            if (t.accessTokenExpires && Date.now() < t.accessTokenExpires - 60 * 1000) {
                 return t;
             }
 
-            const shouldRefresh = (t.accessTokenExpires ?? 0) - Date.now() < 60 * 1000;
-    
-            if (! shouldRefresh) {
-                return t;
-            }
-
-            return (await refreshAccessToken(t)) as ExtendedJWT;
+            return await refreshAccessToken(t);
         },
-        async session ({ session, token }) {
+        async session({ session, token }) {
             const t = token as ExtendedJWT;
             return {
                 ...session,
