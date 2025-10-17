@@ -9,7 +9,7 @@ import { usePlayer } from "@/context/PlayerContext";
 
 export default function RecentlyPlayedSection() {
     const { tracks, loading, error } = useRecentlyPlayedTracks(20);
-    const { setCurrentTrack, playTrack, currentTrack } = usePlayer();
+    const { setCurrentTrack, playTrack, currentTrack, sdkReady } = usePlayer();
 
     return (
         <section className="mt-8">
@@ -29,10 +29,14 @@ export default function RecentlyPlayedSection() {
                             <div
                                 key={track.id}
                                 onClick={async () => {
+                                    if (!sdkReady) {
+                                        console.warn("Player ainda não está pronto.")
+                                        return;
+                                    }
                                 setCurrentTrack(track);
                                 playTrack(track.id);
                                 }}
-                                className="flex-shrink-0 w-48 bg-neutral-900 p-2 transition-all duration-200 shadow-md relative rounded-lg hover:bg-neutral-700 cursor pointer"
+                                className="flex-shrink-0 w-48 bg-neutral-900 p-2 transition-all duration-200 shadow-md relative rounded-lg hover:bg-neutral-700 cursor-pointer"
                             >
                                 <Image
                                     src={track.album.images[0]?.url}

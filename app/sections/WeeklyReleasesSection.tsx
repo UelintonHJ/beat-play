@@ -9,7 +9,7 @@ import Image from "next/image";
 
 export default function WeeklyReleasesSection() {
     const { tracks, loading, error } = useWeeklyReleases(20);
-    const { setCurrentTrack, playTrack, currentTrack } = usePlayer();
+    const { setCurrentTrack, playTrack, currentTrack, sdkReady } = usePlayer();
 
     return (
         <section className="mt-8">
@@ -29,6 +29,9 @@ export default function WeeklyReleasesSection() {
                             <div
                                 key={track.id}
                                 onClick={async() => {
+                                    if (!sdkReady) {
+                                        console.log("Player ainda não está pronto.")
+                                    }
                                     setCurrentTrack(track);
                                     playTrack(track.id);
                                 }}

@@ -9,7 +9,7 @@ import { usePlayer } from "@/context/PlayerContext";
 
 export default function RecommendationsSection() {
     const { tracks, loading, error } = useRecommendations(20);
-    const { setCurrentTrack, playTrack, currentTrack } = usePlayer();
+    const { setCurrentTrack, playTrack, currentTrack, sdkReady } = usePlayer();
 
     return (
         <section className="mt-8">
@@ -29,6 +29,10 @@ export default function RecommendationsSection() {
                             <div
                                 key={track.id}
                                 onClick={async () => {
+                                    if (!sdkReady) {
+                                        console.log("Player ainda não está pronto.")
+                                        return;
+                                    }
                                     setCurrentTrack(track);
                                     playTrack(track.id);
                                 }}

@@ -16,7 +16,7 @@ type Track = {
 
 export default function TopTracksSection() {
     const { tracks, loading, error } = useUserTopTracks(20);
-    const { setCurrentTrack, playTrack, currentTrack } = usePlayer();
+    const { setCurrentTrack, playTrack, currentTrack, sdkReady } = usePlayer();
 
     return (
         <section className="mt-8">
@@ -34,6 +34,10 @@ export default function TopTracksSection() {
                             <div
                                 key={track.id}
                                 onClick={async() => {
+                                    if (!sdkReady) {
+                                        console.log("Player ainda não está pronto.")
+                                        return;
+                                    }
                                     setCurrentTrack(track);
                                     playTrack(track.id);
                                 }}
