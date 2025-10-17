@@ -38,6 +38,19 @@ export default function MusicPlayer() {
     useEffect(() => {
         if (!token) return;
 
+        const loadSpotifySDK = () => {
+            if (window.Spotify) {
+                setupPlayer();
+            } else {
+                window.onSpotifyWebPlaybackSDKReady = setupPlayer;
+                const script = document.createElement("script");
+                script.src = "https://sdk.scdn.co/spotify-player.js";
+                script.id = "spotify-player-script";
+                script.async = true;
+                document.body.appendChild(script);
+            }
+        };
+
         const setupPlayer = () => {
             const playerInstance = new window.Spotify.Player({
                 name: "Beatplay Web Player",
@@ -86,6 +99,8 @@ export default function MusicPlayer() {
             playerInstance.connect();
             setPlayer(playerInstance);
         };
+
+        loadSpotifySDK();
 
         window.onSpotifyWebPlaybackSDKReady = setupPlayer;
 
