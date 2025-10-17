@@ -88,6 +88,7 @@ export default function MusicPlayer() {
 
             playerInstance.addListener("player_state_changed", (state) => {
                 if (!state) return;
+                console.log("Estado do player:", state);
                 setIsPaused(state.paused);
                 setProgress(state.position ?? 0);
                 setDuration(state.duration ?? state.track_window?.current_track?.duration_ms ?? 0);
