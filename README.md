@@ -1,8 +1,8 @@
 # 🎧 [Beatplay](https://beat-play-two.vercel.app/)
 
-> Descubra músicas de um jeito novo conectando sua conta Spotify.
+**Explore músicas de um jeito novo conectando sua conta Spotify**
 
-> ⚠️ Projeto em **início de desenvolvimento** - funcionalidades ainda estão sendo implementadas.
+> ⚠️ Status: projeto em início de desenvolvimento - funcionalidades estão sendo implementadas.
 
 [![Deploy Vercel](https://img.shields.io/badge/deploy-Vercel-black?logo=vercel)](https://beat-play-two.vercel.app/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
@@ -14,24 +14,36 @@
 
 ## 🚀 Visão Geral
 
-O **Beatplay** é uma aplicação web construída com **Next.js 15, TailwindCSS e NextAuth**, que permite ao usuário autenticar-se com sua conta do Spotify e começar a explorar músicas de forma diferente.
+O **Beatplay** é uma aplicação web que permite login via **Spotify OAuth** e futuramente exibirá recomendações, playlists personalizadas e estatíscas musicais.
 
-Atualmente, o projeto conta com:
+Este projeto demonstra domínio de:
 
-- 🎨 Interface moderna com **TailwindCSS**
-- 🔑 Login via **Spotify OAuth** (NextAuth)
-- 🌐 Deploy automático na **Vercel**
+- Next.js 15 e a nova estrutura de rotas
+- TailwindCSS para interface moderna
+- Autenticação com NextAuth
+- Deploy e CI automático com Vercel
+- TyperScript para maior segurança e escalabiilidade
+
+---
+
+## 📌 Funcionalidades atuais
+
+- 🔑 Autenticação via Spotify (NextAuth)
+- 🎨 UI moderna com TailwindCSS
 - 📱 Layout responsivo
+- 🌐 Deploy contínuo via Vercel
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-- [Next.js 15](https://nextjs.org/)
-- [React 19](https://react.dev/)
-- [TailwindCSS](https://tailwindcss.com/)
-- [NextAuth.js](https://next-auth.js.org/)
-- [TypeScript](https://www.typescriptlang.org/)
+- Next.js 15
+- React 19
+- TailwindCSS
+- NextAuth.js
+- TypeScript
+- Git & GitHub
+- Vercel (Deploy)
 
 ---
 
@@ -46,36 +58,41 @@ cd beatplay
 ```
 npm install
 ```
-3. Configurar variáveis de ambiente
-Crie um arquivo **.env.local** na raiz do projeto:
+3. Criar arquivo de variáveis de ambiente
+Crie **.env.local** com:
 ```
 SPOTIFY_CLIENT_ID=seu_client_id
 SPOTIFY_CLIENT_SECRET=seu_client_secret
 NEXTAUTH_SECRET=uma_chave_aleatoria
 NEXTAUTH_URL=http://localhost:3000
 ```
-4. Rodar em ambiente de desenvolvimento
+4. Rodar o projeto
 ```
 npm run dev
 ```
-5. Abrir no navegador
+5. Acessar
 ```
 http://localhost:3000
 ```
 
 ---
 
-## 📌 Roadmap
+## 📚 Aprendizados
 
-- Criar página de dashboard com integração real ao Spotify API
-- Implementar recomendações musicais personalizadas
-- Melhorar experiência mobile
-- Adicionar testes automatizados
+Neste projeto estou aprofundando:
+
+- Flluxo de autenticação OAuth 2.0 real (Spotify)
+- Organização de projeto Next.js 15 + React 19
+- Estilização avançada com TailwindCSS
+- Uso de NextAuth com providers externos
+- Configuração de variáveis de ambiente e deploy com Vercel
 
 ---
 
-## 📜 Licença
+## 🧑‍💻 Autor
 
-Este projeto é de uso pessoal/educacional.
+**Uelinton Janke**
+
+LinkedIn: https://www.linkedin.com/in/uelinton-janke/
 
 
